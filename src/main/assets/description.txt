@@ -1,0 +1,48 @@
+
+More information at http://developer.android.com/reference/android/hardware/SensorEvent.html#values
+
+
+-- accelerometer.txt --
+timestamp x y z
+
+
+-- gravity.txt --
+timestamp x y z
+
+
+-- gyroscope.txt --
+timestamp x y z
+
+
+-- gyroscope-uncalibrated.txt --
+timestamp x y z x-drift y-drift z-drift
+
+
+-- linear-acceleration.txt --
+timestamp x y z
+
+
+-- location.txt --
+timestamp latitude longitude altitude bearing accuracy speed
+
+(Accuracy mean horizontal accuracy [on lat/lon])
+
+
+-- magnetic-field.txt --
+timestamp x y z
+
+
+-- magnetic-field-uncalibrated.txt --
+timestamp x y z x-bias y-bias z-bias
+
+(x-bias, y-bias, z-bias give the iron bias estimated in X, Y, Z axes. Each field is a component of the estimated hard iron calibration. The values are in micro-Tesla (uT).)
+
+
+-- rotation-vector.txt --
+timestamp q2 q3 q4 q1 [estimated-heading-accuracy]
+
+(Rotation vector is in fact a unit quaternion, be careful real part is at the end)
+
+
+-- step-detector.txt --
+timestamp

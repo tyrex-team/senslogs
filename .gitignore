@@ -1,0 +1,8 @@
+# Exclude OS X folder attributes
+.DS_Store
+ 
+# Exclude temporary files
+*~
+
+# Build files from Android Studio
+/build

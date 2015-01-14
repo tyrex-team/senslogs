@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Sensors Capture</string>
+
+    <string name="start">Start</string>
+    <string name="pause">Pause</string>
+
+	<string name="default_counter">00:00:000</string>
+
+	<string name="reset">Reset</string>
+	<string name="save">Save</string>
+    <string name="send">Send</string>
+
+	<string name="accelerometer">Accelerometer</string>
+	<string name="gyroscope">Gyroscope</string>
+	<string name="magnetometer">Magnetometer</string>
+
+	<string name="description_file_begin">"Sensors logs\nDate: %1$s\nDevice: %2$s\n\n"</string>
+</resources>
