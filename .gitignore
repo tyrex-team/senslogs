@@ -1,8 +1,6 @@
-# Exclude OS X folder attributes
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
 .DS_Store
- 
-# Exclude temporary files
-*~
-
-# Build files from Android Studio
 /build

@@ -50,8 +50,8 @@ public class RecordActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		// http://stackoverflow.com/questions/9982433/android-accelerometer-not-working-when-screen-is-turned-off
-		this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		//      http://stackoverflow.com/questions/9982433/android-accelerometer-not-working-when-screen-is-turned-off
+		//		this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 
 		mRecordLogs = RecordLogs.getInstance();
