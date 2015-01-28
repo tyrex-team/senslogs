@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+	<item android:state_pressed="true" android:color="@color/link_text_material_light"/>
+	<item android:state_focused="true" android:color="@color/highlighted_text_material_light"/>
+	<item android:state_enabled="false" android:color="@color/secondary_text_disabled_material_light"/>
+	<item android:color="@color/secondary_text_default_material_light"/>
+</selector>
