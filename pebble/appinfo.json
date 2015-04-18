@@ -1,0 +1,18 @@
+{
+  "uuid": "943f3571-0f86-45a8-84be-1e329f649e9e",
+  "shortName": "sensors-monitoring-android",
+  "longName": "sensors-monitoring-android",
+  "companyName": "Thibaud Michel",
+  "versionCode": 1,
+  "versionLabel": "1.0",
+  "sdkVersion": "3",
+  "targetPlatforms": ["aplite", "basalt"],
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {
+  },
+  "resources": {
+    "media": []
+  }
+}

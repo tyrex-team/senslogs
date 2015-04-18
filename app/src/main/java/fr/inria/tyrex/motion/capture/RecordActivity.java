@@ -19,9 +19,13 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.getpebble.android.kit.PebbleKit;
+import com.getpebble.android.kit.util.PebbleDictionary;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Main Activity of Application
@@ -29,6 +33,11 @@ import java.util.Date;
  * Created by Thibaud Michel on 13/01/15.
  */
 public class RecordActivity extends Activity {
+
+	private final static UUID PEBBLE_APP_UUID = UUID.fromString("943f3571-0f86-45a8-84be-1e329f649e9e");
+	private static final int PEBBLE_KEY_TIME = 3;
+	private static final int PEBBLE_KEY_STATE = 4;
+	private static final int PEBBLE_KEY_BTN = 5;
 
 	private final static int MinFrequency = 15;
 
@@ -45,13 +54,23 @@ public class RecordActivity extends Activity {
 
 	private TextView mTimerTextView;
 
+	private ImageView mStartPauseButton;
+	private TextView mResetButton;
+	private TextView mSaveButton;
+	private TextView mSendButton;
+
+	private long mCounterTime = 0;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		PebbleKit.startAppOnPebble(getApplicationContext(), PEBBLE_APP_UUID);
+		PebbleKit.registerReceivedDataHandler(this, mPebbleListener);
+
 		//      http://stackoverflow.com/questions/9982433/android-accelerometer-not-working-when-screen-is-turned-off
-		//		this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 
 		mRecordLogs = RecordLogs.getInstance();
@@ -63,69 +82,46 @@ public class RecordActivity extends Activity {
 
 		mTimerTextView = (TextView) findViewById(R.id.timer);
 
-		final ImageView startPauseButton = (ImageView) findViewById(R.id.start_pause);
-		final TextView resetButton = (TextView) findViewById(R.id.reset);
-		final TextView saveButton = (TextView) findViewById(R.id.save);
-		final TextView sendButton = (TextView) findViewById(R.id.send);
+		mStartPauseButton = (ImageView) findViewById(R.id.start_pause);
+		mResetButton = (TextView) findViewById(R.id.reset);
+		mSaveButton = (TextView) findViewById(R.id.save);
+		mSendButton = (TextView) findViewById(R.id.send);
 
-		startPauseButton.setOnClickListener(new View.OnClickListener() {
+		mStartPauseButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 
 				if (isRunning) {
-
-					stopTimer();
-					mRecordMonitor.stop();
-
-					startPauseButton.setBackgroundResource(R.drawable.start_button);
-					startPauseButton.setContentDescription(getString(R.string.start));
-					resetButton.setEnabled(true);
-					saveButton.setEnabled(true);
-					sendButton.setEnabled(true);
-					isRunning = false;
-
+					pause();
 				} else {
-
-					int accelerometerFrequency = mAccelerometerFrequencySeekBar.getProgress() + MinFrequency;
-					int gyroscopeFrequency = mGyroscopeFrequencySeekBar.getProgress() + MinFrequency;
-					int magnetometerFrequency = mMagnetometerFrequencySeekBar.getProgress() + MinFrequency;
-
-					mRecordMonitor.start(accelerometerFrequency, gyroscopeFrequency, magnetometerFrequency);
-					startTimer();
-
-					startPauseButton.setBackgroundResource(R.drawable.pause_button);
-					startPauseButton.setContentDescription(getString(R.string.pause));
-					resetButton.setEnabled(false);
-					saveButton.setEnabled(false);
-					sendButton.setEnabled(false);
-					isRunning = true;
+					start();
 				}
 			}
 		});
 
-		resetButton.setOnClickListener(new View.OnClickListener() {
+		mResetButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 
 				mRecordLogs.reset();
 				resetTimer();
 
-				resetButton.setEnabled(false);
-				saveButton.setEnabled(false);
-				sendButton.setEnabled(false);
+				mResetButton.setEnabled(false);
+				mSaveButton.setEnabled(false);
+				mSendButton.setEnabled(false);
 
 			}
 		});
 
 
-		sendButton.setOnClickListener(new View.OnClickListener() {
+		mSendButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				send();
 			}
 		});
 
-		saveButton.setOnClickListener(new View.OnClickListener() {
+		mSaveButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				save();
@@ -133,6 +129,66 @@ public class RecordActivity extends Activity {
 		});
 
 	}
+
+	private void start() {
+
+		int accelerometerFrequency = mAccelerometerFrequencySeekBar.getProgress() + MinFrequency;
+		int gyroscopeFrequency = mGyroscopeFrequencySeekBar.getProgress() + MinFrequency;
+		int magnetometerFrequency = mMagnetometerFrequencySeekBar.getProgress() + MinFrequency;
+
+		mRecordMonitor.start(accelerometerFrequency, gyroscopeFrequency, magnetometerFrequency);
+		startTimer();
+
+		mStartPauseButton.setBackgroundResource(R.drawable.pause_button);
+		mStartPauseButton.setContentDescription(getString(R.string.pause));
+		mResetButton.setEnabled(false);
+		mSaveButton.setEnabled(false);
+		mSendButton.setEnabled(false);
+		isRunning = true;
+
+		sendPebbleState("started");
+
+	}
+
+	private void pause() {
+
+		stopTimer();
+		mRecordMonitor.stop();
+
+		mStartPauseButton.setBackgroundResource(R.drawable.start_button);
+		mStartPauseButton.setContentDescription(getString(R.string.start));
+		mResetButton.setEnabled(true);
+		mSaveButton.setEnabled(true);
+		mSendButton.setEnabled(true);
+		isRunning = false;
+
+		sendPebbleState("paused");
+	}
+
+	private void sendPebbleState(String state) {
+		PebbleDictionary data = new PebbleDictionary();
+		data.addString(PEBBLE_KEY_STATE, state);
+		data.addUint32(PEBBLE_KEY_TIME, (int)mCounterTime);
+		PebbleKit.sendDataToPebble(getApplicationContext(), PEBBLE_APP_UUID, data);
+	}
+
+	private PebbleKit.PebbleDataReceiver mPebbleListener = new PebbleKit.PebbleDataReceiver(PEBBLE_APP_UUID) {
+
+		@Override
+		public void receiveData(final Context context, final int transactionId, final PebbleDictionary data) {
+			PebbleKit.sendAckToPebble(getApplicationContext(), transactionId);
+
+			if(data.getInteger(PEBBLE_KEY_BTN) == 1) {
+				if (isRunning) {
+					pause();
+				} else {
+					start();
+				}
+			}
+
+		}
+
+	};
 
 
 	private Handler handler;
@@ -149,12 +205,12 @@ public class RecordActivity extends Activity {
 				return;
 			}
 
-			final long diffTime = computeTime + System.currentTimeMillis() - firstTime;
+			mCounterTime = computeTime + System.currentTimeMillis() - firstTime;
 
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					mTimerTextView.setText(dateFormatTimer.format(new Date(diffTime)));
+					mTimerTextView.setText(dateFormatTimer.format(new Date(mCounterTime)));
 				}
 			});
 
@@ -390,5 +446,10 @@ public class RecordActivity extends Activity {
 		}
 	}
 
-
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		PebbleKit.closeAppOnPebble(getApplicationContext(), PEBBLE_APP_UUID);
+		unregisterReceiver(mPebbleListener);
+	}
 }
