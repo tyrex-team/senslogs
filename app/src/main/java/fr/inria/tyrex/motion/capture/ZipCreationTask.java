@@ -39,6 +39,7 @@ public class ZipCreationTask extends AsyncTask<String, Integer, String> {
 		sensorsOutputFiles.append(Sensor.TYPE_ROTATION_VECTOR, "rotation-vector.txt");
 		sensorsOutputFiles.append(Sensor.TYPE_STEP_DETECTOR, "step-detector.txt");
 		sensorsOutputFiles.append(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED, "magnetic-field-uncalibrated.txt");
+		sensorsOutputFiles.append(Sensor.TYPE_PRESSURE, "pressure.txt");
 		sensorsOutputFiles.append(RecordMonitor.SENSOR_TYPE_LOCATION, "location.txt");
 
 		totalTasks = sensorsOutputFiles.size()+1;
@@ -79,6 +80,9 @@ public class ZipCreationTask extends AsyncTask<String, Integer, String> {
 
 
 			for(int i = 0; i < sensorsOutputFiles.size(); i++){
+
+				if(logs.get(sensorsOutputFiles.keyAt(i)) == null)
+					continue;
 
 				writeInZip(zos, sensorsOutputFiles.valueAt(i), logs.get(sensorsOutputFiles.keyAt(i)));
 				publishProgress(taskNumber++);
