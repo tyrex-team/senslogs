@@ -64,6 +64,10 @@ public class RecordMonitor {
 
 			Sensor sensor = mSensorManager.getDefaultSensor(sensorId);
 
+			if(sensor == null) {
+				continue;
+			}
+
 			int sensorDelay = maxFrequency;
 			switch (sensor.getType()) {
 				case Sensor.TYPE_ACCELEROMETER:
