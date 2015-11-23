@@ -216,7 +216,12 @@ public class RecordActivity extends Activity {
 				}
 			});
 
-			int maxFrequency = 1000000 / accelerometer.getMinDelay();
+			int maxFrequency;
+			if(accelerometer.getMinDelay() == 0) {
+				maxFrequency = MinFrequency;
+			} else {
+				maxFrequency = 1000000 / accelerometer.getMinDelay();
+			}
 			mAccelerometerFrequencySeekBar.setMax(maxFrequency - MinFrequency);
 			mAccelerometerFrequencySeekBar.setProgress(maxFrequency - MinFrequency);
 		} else {
@@ -247,7 +252,13 @@ public class RecordActivity extends Activity {
 				}
 			});
 
-			int maxFrequency = 1000000 / gyroscope.getMinDelay();
+			int maxFrequency;
+			if(gyroscope.getMinDelay() == 0) {
+				maxFrequency = MinFrequency;
+			} else {
+				maxFrequency = 1000000 / gyroscope.getMinDelay();
+			}
+
 			mGyroscopeFrequencySeekBar.setMax(maxFrequency - MinFrequency);
 			mGyroscopeFrequencySeekBar.setProgress(maxFrequency - MinFrequency);
 		} else {
@@ -278,7 +289,13 @@ public class RecordActivity extends Activity {
 				}
 			});
 
-			int maxFrequency = 1000000 / magnetometer.getMinDelay();
+			int maxFrequency;
+			if(magnetometer.getMinDelay() == 0) {
+				maxFrequency = MinFrequency;
+			} else {
+				maxFrequency = 1000000 / magnetometer.getMinDelay();
+			}
+
 			mMagnetometerFrequencySeekBar.setMax(maxFrequency - MinFrequency);
 			mMagnetometerFrequencySeekBar.setProgress(maxFrequency - MinFrequency);
 		} else {
