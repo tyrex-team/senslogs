@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="10dp"
+    android:paddingTop="10dp">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="25dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/log_start_time_title"
+                style="@style/CustomKey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/log_start_time_title" />
+
+            <TextView
+                android:id="@+id/log_start_time"
+                style="@style/CustomValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/log_start_time_title"
+                android:layout_toRightOf="@id/log_start_time_title"
+                android:layout_toEndOf="@id/log_start_time_title" />
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/log_duration_title"
+                style="@style/CustomKey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/log_duration_title" />
+
+            <TextView
+                android:id="@+id/log_duration"
+                style="@style/CustomValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/log_duration_title"
+                android:layout_toEndOf="@id/log_duration_title"
+                android:layout_toRightOf="@id/log_duration_title" />
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/log_file_name_title"
+                style="@style/CustomKey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/log_file_name_title" />
+
+            <TextView
+                android:id="@+id/log_file_name"
+                style="@style/CustomValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/log_file_name_title"
+                android:layout_toEndOf="@id/log_file_name_title"
+                android:layout_toRightOf="@id/log_file_name_title" />
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/log_compressed_title"
+                style="@style/CustomKey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/log_compressed_title" />
+
+            <TextView
+                android:id="@+id/log_compressed"
+                style="@style/CustomValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/log_compressed_title"
+                android:layout_toRightOf="@id/log_compressed_title"
+                android:layout_toEndOf="@id/log_compressed_title" />
+
+            <ProgressBar
+                android:id="@+id/log_progress_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/log_compressed_title"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_toRightOf="@id/log_compressed_title"
+                android:layout_toEndOf="@id/log_compressed_title"
+                android:minWidth="100dp"
+                android:visibility="gone" />
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/log_uncompressed_title"
+                style="@style/CustomKey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/log_uncompressed_title" />
+
+            <TextView
+                android:id="@+id/log_uncompressed"
+                style="@style/CustomValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/log_uncompressed_title"
+                android:layout_toRightOf="@id/log_uncompressed_title" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/log_num_sensors_title"
+                style="@style/CustomKey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/log_num_sensors_title" />
+
+            <TextView
+                android:id="@+id/log_num_sensors"
+                style="@style/CustomValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/log_num_sensors_title"
+                android:layout_toRightOf="@id/log_num_sensors_title" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/log_delete"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?android:selectableItemBackground"
+            android:clickable="true"
+            android:drawableTop="@android:drawable/ic_menu_delete"
+            android:gravity="center"
+            android:text="@string/log_delete_button" />
+
+        <TextView
+            android:id="@+id/log_copy_to_sd_card"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?android:selectableItemBackground"
+            android:clickable="true"
+            android:drawableTop="@android:drawable/ic_menu_set_as"
+            android:gravity="center"
+            android:text="@string/log_copy_to_sd_card" />
+
+        <TextView
+            android:id="@+id/log_share"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?android:selectableItemBackground"
+            android:clickable="true"
+            android:drawableTop="@android:drawable/ic_menu_share"
+            android:gravity="center"
+            android:text="@string/log_share" />
+
+
+    </LinearLayout>
+
+</LinearLayout>

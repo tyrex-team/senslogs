@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="transition_start_pause" translatable="false">start-pause</string>
+	<string name="transition_player" translatable="false">player</string>
+	<string name="transition_timer" translatable="false">timer</string>
+</resources>

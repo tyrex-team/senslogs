@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<string name="file_name_unknown">unknown_%1$s</string>
+
+</resources>

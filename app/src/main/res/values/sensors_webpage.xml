@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<string name="webpage_wifi">http://developer.android.com/reference/android/net/wifi/ScanResult.html</string>
+	<string name="webpage_sensor_from_sensor_manager">http://developer.android.com/guide/topics/sensors/sensors_overview.html</string>
+	<string name="webpage_location">http://developer.android.com/reference/android/location/LocationManager.html</string>
+	<string name="webpage_bluetooth">http://developer.android.com/reference/android/bluetooth/le/ScanResult.html</string>
+	<string name="webpage_nmea">http://developer.android.com/reference/android/location/GpsStatus.NmeaListener.html</string>
+	<string name="webpage_nfc">http://developer.android.com/guide/topics/connectivity/nfc/nfc.html</string>
+	<string name="webpage_position_references">http://TODO</string>
+
+</resources>

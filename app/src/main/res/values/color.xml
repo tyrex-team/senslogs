@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<color name="list_category">#009688</color>
+	<color name="border_player">#009688</color>
+
+	<color name="blue">#0000FF</color>
+	<color name="light_blue">#0088FF</color>
+
+</resources>

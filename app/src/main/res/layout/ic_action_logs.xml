@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImageView
+	android:id="@+id/ic_action_logs"
+	style="?attr/actionButtonStyle"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:layout_gravity="center"
+	android:focusable="true"
+	android:gravity="center"
+	android:paddingBottom="4dip"
+	android:paddingEnd="8dip"
+	android:paddingStart="8dip"
+	android:paddingTop="4dip"
+	android:src="@drawable/ic_action_logs"
+	android:textAppearance="?attr/actionMenuTextAppearance"
+	android:contentDescription="@string/action_logs" />

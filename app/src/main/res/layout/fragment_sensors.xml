@@ -1,0 +1,53 @@
+<RelativeLayout android:id="@+id/container"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+	<RelativeLayout
+		android:id="@+id/player"
+		android:layout_width="match_parent"
+		android:layout_height="60dp"
+		android:layout_alignParentBottom="true"
+		android:transitionName="@string/transition_player"
+		android:background="@drawable/background_player">
+
+
+		<TextView
+			android:id="@+id/timer"
+			android:layout_width="match_parent"
+			android:layout_height="80dp"
+			android:layout_centerInParent="true"
+			android:gravity="center"
+			android:text="@string/default_timer_millisec"
+			android:textColor="#000000"
+			android:transitionName="@string/transition_timer"
+			android:textSize="28sp"/>
+
+		<ImageButton
+			android:id="@+id/start_pause"
+			android:layout_width="50dp"
+			android:layout_height="50dp"
+			android:layout_alignParentRight="true"
+			android:layout_alignParentEnd="true"
+			android:layout_centerVertical="true"
+			android:layout_marginRight="5dp"
+			android:layout_marginEnd="5dp"
+			android:background="@drawable/start_button"
+			android:transitionName="@string/transition_start_pause"
+			android:contentDescription="@string/record_start"/>
+
+	</RelativeLayout>
+
+	<ExpandableListView
+		android:id="@+id/sensors_list"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_above="@id/player"
+		android:layout_alignParentTop="true">
+	</ExpandableListView>
+
+
+</RelativeLayout>
+
+
+

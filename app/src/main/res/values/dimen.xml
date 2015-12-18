@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<dimen name="timer_small_text_size">28sp</dimen>
+	<dimen name="timer_large_text_size">42sp</dimen>
+
+</resources>

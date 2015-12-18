@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<data>
+
+		<import type="android.view.View"/>
+
+		<variable
+			name="adapter"
+			type="fr.inria.tyrex.senslogs.ui.LogsFragment.LogsAdapter"/>
+	</data>
+
+	<FrameLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+		<android.support.v7.widget.RecyclerView
+			android:id="@+id/logs_recycler_view"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:background="#fff"
+			android:scrollbars="vertical"
+			android:visibility="@{adapter.getItemCount() > 0 ? View.VISIBLE : View.GONE}"/>
+
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:gravity="center"
+			style="@style/Base.TextAppearance.AppCompat.Medium"
+			android:text="@string/logs_empty_list"
+			android:visibility="@{adapter.getItemCount() > 0 ? View.GONE : View.VISIBLE}"
+			/>
+	</FrameLayout>
+</layout>

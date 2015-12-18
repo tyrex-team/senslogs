@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:padding="15dp"
+	>
+
+	<TextView
+		android:id="@+id/settings_sensor_min_time_title"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="@string/settings_sensor_min_time_title"
+		android:textAppearance="?android:textAppearanceSmall"/>
+
+	<EditText
+		android:id="@+id/settings_sensor_min_time"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/settings_sensor_min_time_title"
+		android:ems="10"
+		android:inputType="numberSigned"/>
+
+
+	<TextView
+		android:id="@+id/settings_sensor_min_distance_title"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/settings_sensor_min_time"
+		android:layout_marginTop="10dp"
+		android:text="@string/settings_sensor_min_distance_title"
+		android:textAppearance="?android:textAppearanceSmall"/>
+
+	<EditText
+		android:id="@+id/settings_sensor_min_distance"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/settings_sensor_min_distance_title"
+		android:ems="10"
+		android:inputType="numberDecimal"/>
+
+
+</RelativeLayout>
+

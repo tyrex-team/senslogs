@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="60dip"
+                android:orientation="vertical"
+                android:padding="5dp">
+
+
+	<ImageButton
+		android:id="@+id/logs_share_button"
+		android:layout_width="40dp"
+		android:layout_height="40dp"
+		android:layout_alignParentRight="true"
+		android:layout_centerVertical="true"
+		android:background="?android:selectableItemBackground"
+		android:contentDescription="@string/log_share"
+		android:src="@android:drawable/ic_menu_share"
+		/>
+
+	<TextView
+		android:id="@+id/log_name"
+		android:layout_width="0dp"
+		android:layout_height="30dp"
+		android:layout_alignParentLeft="true"
+		android:layout_toLeftOf="@id/logs_share_button"
+		android:gravity="center_vertical"
+		android:text="My First Track"
+		android:textSize="20sp"/>
+
+	<LinearLayout
+		android:id="@+id/log_data_container"
+		android:layout_width="0dp"
+		android:layout_height="20dp"
+		android:layout_alignParentLeft="true"
+		android:layout_below="@id/log_name"
+		android:layout_toLeftOf="@id/logs_share_button"
+		>
+
+		<LinearLayout
+			android:layout_width="0dp"
+			android:layout_weight="3"
+			android:layout_height="match_parent">
+			<ImageView
+				android:layout_width="20dp"
+				android:layout_height="20dp"
+				android:src="@drawable/ic_logs_time"/>
+			<TextView
+				android:id="@+id/log_date_time"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_marginLeft="5dp"
+				android:text="@string/default_date"
+				android:gravity="center_vertical"/>
+		</LinearLayout>
+
+
+
+		<LinearLayout
+			android:layout_width="0dp"
+			android:layout_weight="2"
+			android:layout_height="match_parent">
+			<ImageView
+				android:layout_width="20dp"
+				android:layout_height="20dp"
+				android:src="@drawable/ic_logs_compressed"/>
+			<TextView
+				android:id="@+id/log_compressed_size"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_marginLeft="5dp"
+				android:text="@string/kb_size"
+				android:gravity="center_vertical"/>
+		</LinearLayout>
+
+
+	</LinearLayout>
+
+	<ProgressBar
+		android:id="@+id/logs_progress_bar"
+		android:layout_width="0dp"
+		android:layout_height="20dp"
+		style="?android:attr/progressBarStyleHorizontal"
+		android:layout_alignParentLeft="true"
+		android:layout_below="@id/log_name"
+		android:layout_toLeftOf="@id/logs_share_button"
+		android:visibility="gone"
+		/>
+
+</RelativeLayout>

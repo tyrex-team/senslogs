@@ -1,20 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Sensors Capture</string>
+	<string name="app_name">Senslogs</string>
 
-    <string name="start">Start</string>
-    <string name="pause">Pause</string>
+	<string name="activity_main">Sensors Recorder</string>
+	<string name="activity_record">Recorder</string>
+	<string name="activity_logs">Sensors Logs</string>
 
-	<string name="default_counter">00:00:000</string>
+	<string name="action_logs">Logs</string>
 
-	<string name="reset">Reset</string>
-	<string name="save">Save</string>
-    <string name="send">Send</string>
 
-	<string name="accelerometer">Accelerometer</string>
-	<string name="gyroscope">Gyroscope</string>
-	<string name="magnetometer">Magnetometer</string>
+	<string name="default_timer_millisec">00:00:000</string>
+	<string name="default_timer_sec">00:00:00</string>
+	<string name="default_date">2015&#8211;12&#8211;25 04:00 pm</string>
+	<string name="byte_size">%1$s B</string>
+	<string name="kb_size">%1$s kB</string>
+	<string name="mb_size">%1$s MB</string>
+	<string name="micro_seconds">%1$d \u00B5s</string>
+	<string name="milli_ampere">%1$f mA</string>
 
-	<string name="description_file_begin">"Sensors logs\nDate: %1$s\nDevice: %2$s\n\n"</string>
+
+
+	<string name="sensor_category_imu">IMU Raw</string>
+	<string name="sensor_category_imu_calibrated">IMU Calibrated</string>
+	<string name="sensor_category_imu_computed">IMU Computed</string>
+	<string name="sensor_category_environment">Environment</string>
+	<string name="sensor_category_radio">Radio</string>
+	<string name="sensor_category_radio_computed">Radio Computed</string>
+	<string name="sensor_category_other">Other</string>
+	<string name="sensor_category_unknown">Unknown</string>
+
+
+	<string name="sensor_accelerometer">Accelerometer</string>
+	<string name="sensor_gyroscope">Gyroscope</string>
+	<string name="sensor_magnetic_field">Magnetic Field</string>
+	<string name="sensor_gyroscope_calibrated">Gyroscope Calibrated</string>
+	<string name="sensor_magnetic_field_calibrated">Magnetic Field Calibrated</string>
+	<string name="sensor_game_rotation_vector">Game Rotation Vector</string>
+	<string name="sensor_geomagnetic_rotation_vector">Geomagnetic Rotation Vector</string>
+	<string name="sensor_gravity">Gravity</string>
+	<string name="sensor_linear_acceleration">Linear Acceleration</string>
+	<string name="sensor_rotation_vector">Rotation Vector</string>
+	<string name="sensor_significant_motion">Significant Motion</string>
+	<string name="sensor_step_counter">Step Counter</string>
+	<string name="sensor_step_detector">Step Detector</string>
+	<string name="sensor_ambient_temperature">Ambient Temperature</string>
+	<string name="sensor_light">Light</string>
+	<string name="sensor_pressure">Pressure</string>
+	<string name="sensor_relative_humidity">Relative Humidity</string>
+	<string name="sensor_heart_rate">Heart Rate</string>
+	<string name="sensor_proximity">Proximity</string>
+	<string name="sensor_location_gps">GPS Location</string>
+	<string name="sensor_location_cell_wifi">Cell and Wifi Location</string>
+	<string name="sensor_location_passive">Passive Location</string>
+	<string name="sensor_nmea">NMEA data</string>
+	<string name="sensor_wifi">Wifi signals</string>
+	<string name="sensor_bluetooth">Bluetooth signals</string>
+	<string name="sensor_nfc">NFC</string>
+	<string name="sensor_unknown">Unknown</string>
+
+	<string name="unit_acceleration"><![CDATA[%1$f m.s<sup><small>-2</small></sup>]]></string>
+	<string name="unit_rotation_speed"><![CDATA[%1$f rad.s<sup><small>-1</small></sup>]]></string>
+	<string name="unit_magnetic_field">%1$f \u00B5T</string>
+	<string name="unit_light">%1$f lx</string>
+	<string name="unit_temperature">%1$f \u00B0C</string>
+	<string name="unit_pressure">%1$f hPa</string>
+	<string name="unit_relative">%1$f %</string>
+	<string name="unit_proximity">%1$f cm</string>
+	<string name="unit_steps">%1$f steps</string>
+
+
+	<string name="information_name_title">Name:</string>
+	<string name="information_vendor_title">Vendor:</string>
+	<string name="information_type_title">Type:</string>
+	<string name="information_min_delay_title">Min. Delay:</string>
+	<string name="information_max_delay_title">Max. Delay:</string>
+	<string name="information_resolution_title">Resolution:</string>
+	<string name="information_power_title">Power:</string>
+	<string name="information_ok">Ok</string>
+
+
+
+	<string name="list_item_settings">Settings</string>
+	<string name="settings_title">Settings</string>
+	<string name="settings_sensor_delay_title">Sensor Delay</string>
+	<string-array name="sensor_settings_delay">
+		<item>UI</item>
+		<item>Normal</item>
+		<item>Game</item>
+		<item>Fastest</item>
+	</string-array>
+	<string name="settings_sensor_min_time_title">Minimum Time (ms)</string>
+	<string name="settings_sensor_min_distance_title">Minimum Distance (m)</string>
+	<string name="settings_ok">Ok</string>
+	<string name="settings_cancel">Cancel</string>
+
+
+	<string name="record_notification">Recording&#8230;</string>
+	<string name="record_start">Start</string>
+	<string name="record_pause">Pause</string>
+	<string name="record_cancel">Cancel</string>
+	<string name="record_finish">Finish</string>
+	<string name="record_data_size_title">Uncompressed size: </string>
+	<string name="record_data_size">%1$d kB</string>
+	<string name="record_data_size_default">0 kB</string>
+	<string name="record_num_recording_sensors_title">Recording sensors: </string>
+	<string name="record_num_recording_sensors_default">0/0</string>
+	<string name="record_num_recording_sensors">%1$d/%2$d</string>
+	<string name="record_confirm_position">Confirm Position</string>
+
+	<string name="record_finish_dialog_title">Record Title</string>
+	<string name="record_finish_dialog_ok">Save</string>
+	<string name="record_finish_dialog_cancel">Cancel</string>
+	<string name="record_finish_empty_filename">untitled</string>
+
+	<string name="record_data_saved"><![CDATA[<b>%1$s</b> saved in logs]]></string>
+	<string name="record_data_saved_see">SEE</string>
+
+	<string name="description_file_begin">Sensors logs\nDate: %1$s\nDevice: %2$s\nSensors Recorded: %3$d\n\n</string>
+	<string name="description_file_line">== %1$s ==\nFor more information: %2$s\n%3$s\n\n</string>
+
+
+
+
+	<string name="logs_empty_list">There is no more sensors logs</string>
+	<string name="send_to">Send to</string>
+	<string name="delete_log">Delete Log</string>
+	<string name="log_start_time_title">Start time:</string>
+	<string name="log_duration_title">Duration:</string>
+	<string name="log_file_name_title">File Name:</string>
+	<string name="log_compressed_title">Compressed size:</string>
+	<string name="log_uncompressed_title">Uncompressed size:</string>
+	<string name="log_num_sensors_title">N. of sensors:</string>
+	<string name="log_delete_button">Delete</string>
+	<string name="log_copy_to_sd_card">Copy to\nSD card</string>
+	<string name="log_copy_to_sd_card_progress">Copy to SD card&#8230;</string>
+	<string name="log_share">Share</string>
+	<string name="log_deleted_snackbar"><![CDATA[Log <b>%1$s</b> deleted]]></string>
+	<string name="log_multiple_deleted_snackbar"><![CDATA[<b>%1$d</b> logs deleted]]></string>
+	<string name="log_copy_to_sd_card_snackbar"><![CDATA[Log <b>%1$s</b> copied to <b>%2$s</b>]]></string>
+
 </resources>

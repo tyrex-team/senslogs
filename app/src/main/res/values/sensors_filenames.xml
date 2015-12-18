@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<string name="file_name_wifi">wifi</string>
+	<string name="file_name_accelerometer">accelerometer</string>
+	<string name="file_name_gyroscope_uncalibrated">gyroscope</string>
+	<string name="file_name_magnetometer_uncalibrated">magnetometer</string>
+	<string name="file_name_gyroscope">gyroscope-calibrated</string>
+	<string name="file_name_magnetometer">magnetometer-calibrated</string>
+	<string name="file_name_game_rotation_vector">game-rotation-vector</string>
+	<string name="file_name_geomagnetic_rotation_vector">geomagnetic-rotation-vector</string>
+	<string name="file_name_gravity">gravity</string>
+	<string name="file_name_linear_acceleration">linear-acceleration</string>
+	<string name="file_name_rotation_vector">rotation-vector</string>
+	<string name="file_name_significant_motion">significant-motion</string>
+	<string name="file_name_step_counter">step-counter</string>
+	<string name="file_name_step_detector">step-detector</string>
+	<string name="file_name_ambient_temperature">ambient-temperature</string>
+	<string name="file_name_light">light</string>
+	<string name="file_name_pressure">pressure</string>
+	<string name="file_name_relative_humidity">relative-humidity</string>
+	<string name="file_name_heart_rate">heart-rate</string>
+	<string name="file_name_proximity">proximity</string>
+	<string name="file_name_unknown">unknown</string>
+	<string name="file_name_location_passive">location-passive</string>
+	<string name="file_name_location_gps">location-gps</string>
+	<string name="file_name_location_wifi_and_cells">location-wifi-cells</string>
+	<string name="file_name_bluetooth">bluetooth</string>
+	<string name="file_name_nmea">nmea</string>
+	<string name="file_name_nfc">nfc</string>
+	<string name="file_name_reference_positions">reference-positions</string>
+
+</resources>
