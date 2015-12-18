@@ -1,41 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="fr.inria.tyrex.senslogs" >
+    package="fr.inria.tyrex.senslogs">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
+        android:name="fr.inria.tyrex.senslogs.Application"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
-        android:name="fr.inria.tyrex.senslogs.Application">
+        android:theme="@style/AppTheme">
 
         <activity
             android:name="fr.inria.tyrex.senslogs.ui.RecordActivity"
-            android:label="@string/activity_record"
+            android:configChanges="keyboard|orientation|screenSize"
             android:keepScreenOn="true"
-            android:theme="@style/Theme.Closeable"
+            android:label="@string/activity_record"
             android:screenOrientation="portrait"
-            android:configChanges="keyboard|orientation|screenSize">
-        </activity>
+            android:theme="@style/Theme.Closeable" />
 
         <activity
             android:name="fr.inria.tyrex.senslogs.ui.LogsActivity"
-            android:label="@string/activity_logs">
-        </activity>
+            android:label="@string/activity_logs" />
 
         <activity
             android:name="fr.inria.tyrex.senslogs.ui.MainActivity"
-            android:label="@string/activity_main"
+            android:configChanges="keyboard|orientation|screenSize"
             android:keepScreenOn="true"
-            android:screenOrientation="portrait"
-            android:configChanges="keyboard|orientation|screenSize">
+            android:label="@string/activity_main"
+            android:screenOrientation="portrait">
             <intent-filter android:label="@string/app_name">
                 <action android:name="android.intent.action.MAIN" />
 
