@@ -5,7 +5,7 @@ android {
     buildToolsVersion "23.0.1"
 
     defaultConfig {
-        applicationId "fr.inria.tyrex.motion.capture"
+        applicationId "fr.inria.tyrex.senslogs"
         minSdkVersion 11
         targetSdkVersion 23
         versionCode 2

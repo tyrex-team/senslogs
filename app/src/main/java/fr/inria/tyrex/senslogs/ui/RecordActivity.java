@@ -19,8 +19,6 @@ public class RecordActivity extends SingleFragmentActivity {
 
     @Override
     public void onBackPressed() {
-        fragment.cancelRecorder();
-        setResult(RESULT_CANCELED);
-        supportFinishAfterTransition();
+        fragment.cancelAction();
     }
 }

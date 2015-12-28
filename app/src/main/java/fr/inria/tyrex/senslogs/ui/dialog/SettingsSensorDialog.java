@@ -1,11 +1,11 @@
 package fr.inria.tyrex.senslogs.ui.dialog;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import fr.inria.tyrex.senslogs.Application;
 import fr.inria.tyrex.senslogs.R;
-import fr.inria.tyrex.senslogs.control.SensorsPreferences;
+import fr.inria.tyrex.senslogs.control.PreferencesManager;
 import fr.inria.tyrex.senslogs.model.Sensor;
 import fr.inria.tyrex.senslogs.model.sensors.AndroidSensor;
 import fr.inria.tyrex.senslogs.model.sensors.LocationSensor;
@@ -42,11 +42,11 @@ public class SettingsSensorDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        final SensorsPreferences sensorsPreferences = ((Application) getActivity().getApplication()).
+        final PreferencesManager preferencesManager = ((Application) getActivity().getApplication()).
                 getPreferences();
 
         final Sensor sensor = (Sensor) getArguments().getSerializable(BUNDLE_SENSOR);
-        Sensor.Settings settings = sensorsPreferences.getSettings(sensor);
+        Sensor.Settings settings = preferencesManager.getSettings(sensor);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
@@ -56,6 +56,10 @@ public class SettingsSensorDialog extends DialogFragment {
             v = View.inflate(getActivity(), R.layout.dialog_sensor_settings, null);
 
             Spinner spinner = (Spinner) v.findViewById(R.id.settings_sensor_delay);
+//            ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
+//                    android.R.layout.simple_spinner_dropdown_item,
+//                    getResources().getStringArray(R.array.sensor_settings_delay));
+//            spinner.setAdapter(adapter);
 
             AndroidSensor.Settings mobileSensorSettings = (AndroidSensor.Settings) settings;
 
@@ -79,10 +83,11 @@ public class SettingsSensorDialog extends DialogFragment {
             ((TextView) v.findViewById(R.id.settings_sensor_min_time)).
                     setText(String.format("%d", locationSensorSettings.minTime));
             ((TextView) v.findViewById(R.id.settings_sensor_min_distance)).
-                    setText(String.format("%f", locationSensorSettings.minDistance));
+                    setText(String.format("%.1f", locationSensorSettings.minDistance));
 
         } else {
             return builder.create();
+
         }
 
         builder.setTitle(R.string.settings_sensor_delay_title);
@@ -111,7 +116,7 @@ public class SettingsSensorDialog extends DialogFragment {
                                     Float.valueOf(minDistanceString));
                         }
 
-                        sensorsPreferences.setSettings(sensor, settings);
+                        preferencesManager.setSettings(sensor, settings);
                     }
                 }
 

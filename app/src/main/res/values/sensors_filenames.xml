@@ -28,6 +28,6 @@
 	<string name="file_name_bluetooth">bluetooth</string>
 	<string name="file_name_nmea">nmea</string>
 	<string name="file_name_nfc">nfc</string>
-	<string name="file_name_reference_positions">reference-positions</string>
+	<string name="file_name_reference_timestamps">reference-timestamps</string>
 
 </resources>

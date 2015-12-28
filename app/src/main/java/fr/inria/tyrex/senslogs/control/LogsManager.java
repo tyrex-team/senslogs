@@ -4,31 +4,25 @@ import android.content.Context;
 import android.os.Environment;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import fr.inria.tyrex.senslogs.Application;
 import fr.inria.tyrex.senslogs.R;
-import fr.inria.tyrex.senslogs.control.sql.LogsDataSource;
 import fr.inria.tyrex.senslogs.model.Log;
-import fr.inria.tyrex.senslogs.model.Sensor;
+import fr.inria.tyrex.senslogs.model.preferences.LogsDataSource;
 
 /**
  * Handle sensors logs and store in preferences for consistency
  */
 public class LogsManager {
 
-    private final Context mContext;
 
     private List<Log> mLogs;
     private LogsDataSource mDataSource;
 
-    public LogsManager(Context context, ArrayList<Sensor> availableSensorsList) {
-        mContext = context;
-        mLogs = new ArrayList<>();
-
-        mDataSource = new LogsDataSource(context, availableSensorsList);
+    public LogsManager(Context context, SensorsManager sensorsManager) {
+        mDataSource = new LogsDataSource(context, sensorsManager);
         loadLogs();
     }
 
@@ -39,9 +33,7 @@ public class LogsManager {
 
     public void addLog(Log log) {
         mLogs.add(log);
-        mDataSource.open();
         mDataSource.addLog(log);
-        mDataSource.close();
         log.addListener(mDatasetChangedListener);
     }
 
@@ -51,9 +43,7 @@ public class LogsManager {
             android.util.Log.e(Application.LOG_TAG, "Cannot delete log file");
         }
         mLogs.remove(log);
-        mDataSource.open();
         mDataSource.deleteLog(log);
-        mDataSource.close();
         log.removeListener(mDatasetChangedListener);
     }
 
@@ -86,17 +76,13 @@ public class LogsManager {
     private Log.Listener mDatasetChangedListener = new Log.Listener() {
         @Override
         public void onDatasetChanged(Log log) {
-            mDataSource.open();
             mDataSource.updateLog(log);
-            mDataSource.close();
         }
     };
 
     private void loadLogs() {
 
-        mDataSource.open();
-        mLogs = mDataSource.getAllLogs();
-        mDataSource.close();
+        mLogs = mDataSource.getLogs();
         for(Log log : mLogs) {
             log.addListener(mDatasetChangedListener);
         }
@@ -113,9 +99,7 @@ public class LogsManager {
             }
             iterator.remove();
         }
-        mDataSource.open();
         mDataSource.removeAll();
-        mDataSource.close();
         mLogs.clear();
     }
 }

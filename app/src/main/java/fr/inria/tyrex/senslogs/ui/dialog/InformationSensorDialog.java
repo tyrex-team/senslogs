@@ -1,6 +1,5 @@
 package fr.inria.tyrex.senslogs.ui.dialog;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.hardware.Sensor;
@@ -8,12 +7,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
 
 import fr.inria.tyrex.senslogs.R;
 import fr.inria.tyrex.senslogs.model.sensors.AndroidSensor;
+
+;
 
 /**
  * This dialog is called from sensor list to show sensor information
@@ -41,13 +43,12 @@ public class InformationSensorDialog extends DialogFragment {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        View v = View.inflate(getActivity(), R.layout.dialog_sensor_information, null);
+        View v = View.inflate(getActivity(), R.layout.dialog_sensor_android_information, null);
 
         if (androidSensor != null) {
 
             Sensor sensor = androidSensor.getSensor();
 
-            ((TextView) v.findViewById(R.id.sensor_name)).setText(sensor.getName());
             ((TextView) v.findViewById(R.id.sensor_vendor)).setText(sensor.getVendor());
 
             ((TextView) v.findViewById(R.id.sensor_min_delay)).setText(

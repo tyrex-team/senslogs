@@ -124,6 +124,21 @@ public class Log implements Serializable {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Log log = (Log) o;
+
+        return mFile.equals(log.mFile);
+    }
+
+    @Override
+    public int hashCode() {
+        return mFile.hashCode();
+    }
+
+    @Override
     public String toString() {
         return "Log{" +
                 "mSensors=" + mSensors +

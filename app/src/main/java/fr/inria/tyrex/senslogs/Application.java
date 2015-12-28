@@ -1,24 +1,14 @@
 package fr.inria.tyrex.senslogs;
 
-import android.content.Context;
-import android.hardware.SensorManager;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import fr.inria.tyrex.senslogs.control.LogsManager;
-import fr.inria.tyrex.senslogs.control.SensorsPreferences;
+import fr.inria.tyrex.senslogs.control.PreferencesManager;
 import fr.inria.tyrex.senslogs.control.Recorder;
-import fr.inria.tyrex.senslogs.model.Sensor;
-import fr.inria.tyrex.senslogs.model.sensors.AndroidSensor;
-import fr.inria.tyrex.senslogs.model.sensors.BluetoothSensor;
-import fr.inria.tyrex.senslogs.model.sensors.LocationGpsSensor;
-import fr.inria.tyrex.senslogs.model.sensors.LocationPassiveSensor;
-import fr.inria.tyrex.senslogs.model.sensors.LocationWifiAndCellsSensor;
-import fr.inria.tyrex.senslogs.model.sensors.NfcSensor;
-import fr.inria.tyrex.senslogs.model.sensors.NmeaSensor;
-import fr.inria.tyrex.senslogs.model.sensors.WifiSensor;
+import fr.inria.tyrex.senslogs.control.SensorsManager;
+import fr.inria.tyrex.senslogs.model.Log;
 
 /**
  * Application class accessible from all activities
@@ -27,33 +17,30 @@ public class Application extends android.app.Application {
 
     public final static String LOG_TAG = "SensorsRecorder";
 
-    private SensorsPreferences mSensorsPreferences;
+    private SensorsManager mSensorsManager;
+    private PreferencesManager mPreferencesManager;
     private Recorder mRecorder;
     private LogsManager mLogsManager;
 
-    private ArrayList<Sensor> mAvailableSensorsList;
 
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        // Clean internal directory (just in case)
-        deleteRecursive(getCacheDir());
-        for (File child : getFilesDir().listFiles())
-            if (child.isDirectory())
-                deleteRecursive(child);
 
-
-        generateAvailableSensors();
-
-        mLogsManager = new LogsManager(this, mAvailableSensorsList);
-        mSensorsPreferences = new SensorsPreferences(this, mAvailableSensorsList);
+        mSensorsManager = new SensorsManager(this);
+        mLogsManager = new LogsManager(this, mSensorsManager);
+        mPreferencesManager = new PreferencesManager(this, mSensorsManager);
         mRecorder = new Recorder(this, mLogsManager);
+
+        // Clean internal directory (just in case)
+        cleanTmpFiles();
     }
 
-    public SensorsPreferences getPreferences() {
-        return mSensorsPreferences;
+
+    public PreferencesManager getPreferences() {
+        return mPreferencesManager;
     }
 
     public Recorder getRecorder() {
@@ -64,42 +51,34 @@ public class Application extends android.app.Application {
         return mLogsManager;
     }
 
-
-    public List<Sensor> getAvailableSensors() {
-        return mAvailableSensorsList;
+    public SensorsManager getSensorsManager() {
+        return mSensorsManager;
     }
 
-    private void generateAvailableSensors() {
 
-        mAvailableSensorsList = new ArrayList<>();
+    private void cleanTmpFiles() {
 
-        SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        for (android.hardware.Sensor sensor : sensorManager.getSensorList(android.hardware.Sensor.TYPE_ALL)) {
-            mAvailableSensorsList.add(new AndroidSensor(sensor));
+        deleteRecursive(getCacheDir());
+
+        if(mLogsManager == null) {
+            return;
         }
 
-        if (LocationGpsSensor.getInstance().exists(this)) {
-            mAvailableSensorsList.add(LocationGpsSensor.getInstance());
+        List<File> logFiles = new ArrayList<>();
+        for(Log log : mLogsManager.getLogs()) {
+            logFiles.add(log.getFile());
         }
-        if (LocationWifiAndCellsSensor.getInstance().exists(this)) {
-            mAvailableSensorsList.add(LocationWifiAndCellsSensor.getInstance());
-        }
-        if (LocationPassiveSensor.getInstance().exists(this)) {
-            mAvailableSensorsList.add(LocationPassiveSensor.getInstance());
-        }
-        if (BluetoothSensor.getInstance().exists(this)) {
-            mAvailableSensorsList.add(BluetoothSensor.getInstance());
-        }
-        if (NfcSensor.getInstance().exists(this)) {
-            mAvailableSensorsList.add(NfcSensor.getInstance());
-        }
-        if (WifiSensor.getInstance().exists(this)) {
-            mAvailableSensorsList.add(WifiSensor.getInstance());
-        }
-        if (NmeaSensor.getInstance().exists(this)) {
-            mAvailableSensorsList.add(NmeaSensor.getInstance());
-        }
+
+        for (File child : getFilesDir().listFiles())
+            if (!logFiles.contains(child))
+                deleteRecursive(child);
     }
+
+    public void clearAll() {
+        mLogsManager.clearAll();
+        mPreferencesManager.clearAll();
+    }
+
 
     public static void deleteRecursive(File fileOrDirectory) {
         if (fileOrDirectory.isDirectory())
@@ -109,11 +88,6 @@ public class Application extends android.app.Application {
         if(!fileOrDirectory.delete()) {
             android.util.Log.e(Application.LOG_TAG, "Cannot delete log file");
         }
-    }
-
-    public void clearAll() {
-        mLogsManager.clearAll();
-        mSensorsPreferences.clearAll();
     }
 
 }

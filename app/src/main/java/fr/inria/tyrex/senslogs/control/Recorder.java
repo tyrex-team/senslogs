@@ -1,8 +1,17 @@
 package fr.inria.tyrex.senslogs.control;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Handler;
+import android.os.IBinder;
+import android.os.SystemClock;
+import android.support.v4.app.NotificationCompat;
 import android.util.Pair;
 
 import java.io.File;
@@ -14,17 +23,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import fr.inria.tyrex.senslogs.ui.utils.KillNotificationsService;
 import fr.inria.tyrex.senslogs.R;
 import fr.inria.tyrex.senslogs.model.Log;
-import fr.inria.tyrex.senslogs.model.PositionReference;
 import fr.inria.tyrex.senslogs.model.Sensor;
 import fr.inria.tyrex.senslogs.model.sensors.AndroidSensor;
 import fr.inria.tyrex.senslogs.model.sensors.LocationSensor;
+import fr.inria.tyrex.senslogs.ui.RecordActivity;
 
 /**
  * Handle timers and record sensors data
  */
 public class Recorder {
+
+    public final static int NOTIFICATION_ID = 1;
+
 
     private final Context mContext;
     private final LogsManager mLogsManager;
@@ -50,9 +63,13 @@ public class Recorder {
 
         mStartTimeLocation = System.nanoTime();
 
+        // https://code.google.com/p/android/issues/detail?id=7981
         // https://code.google.com/p/android/issues/detail?id=56561
-        if(Build.DEVICE.equals("mako")) {
-            mStartTimeAndroidSensors = System.currentTimeMillis()*1000000L;
+        // https://code.google.com/p/android/issues/detail?id=78858
+        if (Build.DEVICE.equals("mako")) {
+            mStartTimeAndroidSensors = System.currentTimeMillis() * 1000000L;
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            mStartTimeAndroidSensors = SystemClock.elapsedRealtimeNanos();
         } else {
             mStartTimeAndroidSensors = System.nanoTime();
         }
@@ -70,7 +87,7 @@ public class Recorder {
 
         Set<RecorderWriter.WritableObject> writableObjects = new HashSet<>();
         writableObjects.addAll(mSensorsAndSettings.keySet());
-        writableObjects.add(PositionReferenceManager.getWritableObject());
+        writableObjects.add(TimestampReferenceManager.getWritableObject());
 
         mRecorderWriter.init(writableObjects, tmpSubFolder);
         for (final Sensor sensor : mSensorsAndSettings.keySet()) {
@@ -83,11 +100,9 @@ public class Recorder {
                         diffTime = (timestamp - mStartTimeAndroidSensors) / 1e9d;
                     } else if (sensor instanceof LocationSensor) {
                         diffTime = (timestamp - mStartTimeLocation) / 1e9d;
-
                     } else {
                         diffTime = (timestamp - mStartTime) / 1e3d;
                     }
-
                     mRecorderWriter.write(sensor, diffTime, objects);
                 }
             });
@@ -121,6 +136,7 @@ public class Recorder {
             }
         }
 
+        createNotification();
         isRecording = true;
 
     }
@@ -148,6 +164,7 @@ public class Recorder {
         }
 
         mStopDate = new Date();
+        removeNotification();
         isRecording = false;
     }
 
@@ -171,7 +188,7 @@ public class Recorder {
 
     public Log save(String title) throws IOException {
 
-        if(title == null || title.isEmpty()) {
+        if (title == null || title.isEmpty()) {
             title = mContext.getString(R.string.record_finish_empty_filename);
         }
         String filename = title.replaceAll("\\W+", "_");
@@ -199,12 +216,11 @@ public class Recorder {
     }
 
 
-    public void addReference(long timestamp, PositionReference ref) {
+    public void addReferenceTimestamp(long timestamp) {
         double diffTime = (timestamp - mStartTime) / 1e3d;
         mRecorderWriter.write(
-                PositionReferenceManager.getWritableObject(),
-                diffTime,
-                ref.toObject());
+                TimestampReferenceManager.getWritableObject(),
+                diffTime, new Object[]{});
     }
 
     //<editor-fold desc="DataSize">
@@ -320,6 +336,54 @@ public class Recorder {
     //</editor-fold>
 
     public Set<Sensor> getSelectedSensors() {
-        return mSensorsAndSettings.keySet();
+        if (mSensorsAndSettings != null)
+            return mSensorsAndSettings.keySet();
+        return new HashSet<>();
     }
+
+
+    private void createNotification() {
+        mContext.bindService(new Intent(mContext, KillNotificationsService.class),
+                mNotificationConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    private void removeNotification() {
+        mContext.unbindService(mNotificationConnection);
+
+        NotificationManager mNotificationManager =
+                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.cancel(NOTIFICATION_ID);
+    }
+
+
+    // http://stackoverflow.com/questions/12997800/cancel-notification-on-remove-application-from-multitask-panel
+    private ServiceConnection mNotificationConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className,
+                                       IBinder binder) {
+            ((KillNotificationsService.KillBinder) binder).service.startService(
+                    new Intent(mContext, KillNotificationsService.class));
+
+            Intent intent = new Intent(mContext, RecordActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            NotificationCompat.Builder builder =
+                    new NotificationCompat.Builder(mContext)
+                            .setSmallIcon(R.drawable.ic_notification)
+                            .setContentTitle(mContext.getString(R.string.app_name))
+                            .setContentText(mContext.getString(R.string.record_notification))
+                            .setContentIntent(pendingIntent);
+
+            Notification notification = builder.build();
+            notification.flags = Notification.FLAG_ONGOING_EVENT;
+
+            NotificationManager mNotificationManager =
+                    (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.notify(NOTIFICATION_ID, notification);
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+        }
+
+    };
 }

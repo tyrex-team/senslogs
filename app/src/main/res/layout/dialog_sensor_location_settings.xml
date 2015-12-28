@@ -3,8 +3,8 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content"
-	android:padding="15dp"
-	>
+	android:paddingLeft="25dp"
+	android:paddingRight="25dp"	>
 
 	<TextView
 		android:id="@+id/settings_sensor_min_time_title"

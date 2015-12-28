@@ -10,6 +10,7 @@ import android.location.LocationManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 
 import fr.inria.tyrex.senslogs.R;
 import fr.inria.tyrex.senslogs.model.Sensor;
@@ -128,6 +129,7 @@ public class NmeaSensor extends Sensor {
             if (mListener == null) {
                 return;
             }
+            Log.v("DEBUG", nmea);
             mListener.onNewValues(timestamp, new Object[]{nmea});
         }
     };

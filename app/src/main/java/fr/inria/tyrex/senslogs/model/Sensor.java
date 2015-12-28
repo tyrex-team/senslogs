@@ -43,6 +43,9 @@ public abstract class Sensor implements Serializable, RecorderWriter.WritableObj
     }
 
     public abstract String getName();
+    public int getType() {
+        return mType;
+    }
 
     public abstract String getStringType();
 

@@ -15,9 +15,8 @@
 	<string name="byte_size">%1$s B</string>
 	<string name="kb_size">%1$s kB</string>
 	<string name="mb_size">%1$s MB</string>
-	<string name="micro_seconds">%1$d \u00B5s</string>
-	<string name="milli_ampere">%1$f mA</string>
-
+	<string name="micro_seconds">%1$,d \u00B5s</string>
+	<string name="milli_ampere">%1$.2f mA</string>
 
 
 	<string name="sensor_category_imu">IMU Raw</string>
@@ -69,13 +68,13 @@
 	<string name="unit_steps">%1$f steps</string>
 
 
-	<string name="information_name_title">Name:</string>
-	<string name="information_vendor_title">Vendor:</string>
-	<string name="information_type_title">Type:</string>
-	<string name="information_min_delay_title">Min. Delay:</string>
-	<string name="information_max_delay_title">Max. Delay:</string>
-	<string name="information_resolution_title">Resolution:</string>
-	<string name="information_power_title">Power:</string>
+	<string name="information_name_title">Name</string>
+	<string name="information_vendor_title">Vendor</string>
+	<string name="information_type_title">Type</string>
+	<string name="information_min_delay_title">Min. Delay</string>
+	<string name="information_max_delay_title">Max. Delay</string>
+	<string name="information_resolution_title">Resolution</string>
+	<string name="information_power_title">Power</string>
 	<string name="information_ok">Ok</string>
 
 
@@ -100,18 +99,19 @@
 	<string name="record_pause">Pause</string>
 	<string name="record_cancel">Cancel</string>
 	<string name="record_finish">Finish</string>
-	<string name="record_data_size_title">Uncompressed size: </string>
+	<string name="record_data_size_title">Uncompressed size</string>
 	<string name="record_data_size">%1$d kB</string>
 	<string name="record_data_size_default">0 kB</string>
-	<string name="record_num_recording_sensors_title">Recording sensors: </string>
-	<string name="record_num_recording_sensors_default">0/0</string>
-	<string name="record_num_recording_sensors">%1$d/%2$d</string>
-	<string name="record_confirm_position">Confirm Position</string>
+	<string name="record_timestamp">Record timestamp</string>
 
 	<string name="record_finish_dialog_title">Record Title</string>
 	<string name="record_finish_dialog_ok">Save</string>
 	<string name="record_finish_dialog_cancel">Cancel</string>
 	<string name="record_finish_empty_filename">untitled</string>
+
+	<string name="record_cancel_dialog_message">Are you sure you want to delete current record ?</string>
+	<string name="record_cancel_dialog_yes">Delete</string>
+	<string name="record_cancel_dialog_no">Back</string>
 
 	<string name="record_data_saved"><![CDATA[<b>%1$s</b> saved in logs]]></string>
 	<string name="record_data_saved_see">SEE</string>
@@ -130,7 +130,7 @@
 	<string name="log_file_name_title">File Name:</string>
 	<string name="log_compressed_title">Compressed size:</string>
 	<string name="log_uncompressed_title">Uncompressed size:</string>
-	<string name="log_num_sensors_title">N. of sensors:</string>
+	<string name="log_num_sensors_title">Number of sensors:</string>
 	<string name="log_delete_button">Delete</string>
 	<string name="log_copy_to_sd_card">Copy to\nSD card</string>
 	<string name="log_copy_to_sd_card_progress">Copy to SD card&#8230;</string>

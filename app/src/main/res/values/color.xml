@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<color name="list_category">#009688</color>
-	<color name="border_player">#009688</color>
+	<color name="primary">#03A9F4</color>
+	<color name="primary_dark">#0288D1</color>
+	<color name="accent">#00B0FF</color>
 
-	<color name="blue">#0000FF</color>
-	<color name="light_blue">#0088FF</color>
+	<color name="toolbar_text">#FFFFFF</color>
+	<color name="background">#FFFFFF</color>
+	<color name="background_player">#E8EAF6</color>
+
+	<color name="list_category_background">#EEEEEE</color>
+	<color name="border_player">#40C4FF</color>
+
+	<color name="recorder">#FF0000</color>
+	<color name="recorder_pressed">#DD0000</color>
 
 </resources>

@@ -4,39 +4,32 @@
 <svg version="1.1" id="Layer_1" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"
 	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="26.375px" height="24px"
 	 viewBox="0 0 26.375 24" enable-background="new 0 0 26.375 24" xml:space="preserve">
-<title></title>
-<desc></desc>
 <g id="miu">
-	<g id="Artboard-1" transform="translate(-322.000000, -263.000000)">
-		<g id="slice" transform="translate(215.000000, 119.000000)">
-		</g>
-		<path id="editor-folder-glyph" d="M344.998,285c0.553,0,1.002-0.449,1.002-1.008v-12.985c0-0.556-0.439-1.007-1.002-1.007h-19.996
-			c-0.554,0-1.002,0.449-1.002,1.007v12.985c0,0.557,0.439,1.008,1.002,1.008H344.998z M345,269v-2.001
-			c0-0.552-0.447-0.999-0.998-0.999H332v-1c0-0.552-0.438-1-1.003-1h-4.994c-0.554,0-1.003,0.444-1.003,1v4H345z"/>
+	
+		<linearGradient id="editor-folder-glyph_1_" gradientUnits="userSpaceOnUse" x1="54.5" y1="-158.7559" x2="54.5" y2="-143.2895" gradientTransform="matrix(1 0 0 -1 -41.5 -140)">
+		<stop  offset="0" style="stop-color:#01579B"/>
+		<stop  offset="1" style="stop-color:#03A9F4"/>
+	</linearGradient>
+	<path id="editor-folder-glyph" fill="url(#editor-folder-glyph_1_)" d="M22.998,22C23.551,22,24,21.551,24,20.992V8.007
+		C24,7.451,23.561,7,22.998,7H3.002C2.448,7,2,7.449,2,8.007v12.985C2,21.549,2.439,22,3.002,22H22.998z M23,6V3.999
+		C23,3.447,22.553,3,22.002,3H10V2c0-0.552-0.438-1-1.003-1H4.003C3.449,1,3,1.444,3,2v4H23z"/>
+</g>
+<g>
+	<line fill="none" stroke="#FFFFFF" stroke-miterlimit="10" x1="12.438" y1="16" x2="9.938" y2="18.098"/>
+	<g>
+		<polygon fill="#FFFFFF" points="9.416,16.907 8.562,19.25 11.018,18.816 		"/>
 	</g>
 </g>
 <g>
+	<line fill="none" stroke="#FFFFFF" stroke-miterlimit="10" x1="12.438" y1="16" x2="17.895" y2="16"/>
 	<g>
-		<line fill="none" stroke="#FFFFFF" stroke-miterlimit="10" x1="12.438" y1="16" x2="12.438" y2="10.544"/>
-		<g>
-			<polygon fill="#FFFFFF" points="13.684,10.909 12.438,8.75 11.191,10.909 			"/>
-		</g>
+		<polygon fill="#FFFFFF" points="17.527,17.246 19.688,16 17.527,14.754 		"/>
 	</g>
 </g>
 <g>
+	<line fill="none" stroke="#FFFFFF" stroke-miterlimit="10" x1="12.438" y1="16" x2="12.438" y2="10.544"/>
 	<g>
-		<line fill="none" stroke="#FFFFFF" stroke-miterlimit="10" x1="12.438" y1="16" x2="17.894" y2="16"/>
-		<g>
-			<polygon fill="#FFFFFF" points="17.528,17.246 19.688,16 17.528,14.754 			"/>
-		</g>
-	</g>
-</g>
-<g>
-	<g>
-		<line fill="none" stroke="#FFFFFF" stroke-miterlimit="10" x1="12.438" y1="16" x2="9.938" y2="18.097"/>
-		<g>
-			<polygon fill="#FFFFFF" points="9.416,16.907 8.562,19.25 11.018,18.817 			"/>
-		</g>
+		<polygon fill="#FFFFFF" points="13.684,10.909 12.438,8.75 11.191,10.909 		"/>
 	</g>
 </g>
 </svg>

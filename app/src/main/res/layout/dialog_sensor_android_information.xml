@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:minWidth="250dp"
+        android:orientation="vertical"
+        android:paddingLeft="25dp"
+        android:paddingRight="25dp">
+
+
+        <LinearLayout
+            android:id="@+id/sensor_vendor_layout"
+            style="@style/CustomLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/sensor_vendor_title"
+                style="@style/InformationCustomKey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/information_vendor_title" />
+
+            <TextView
+                android:id="@+id/sensor_vendor"
+                style="@style/InformationCustomValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/sensor_type_layout"
+            style="@style/CustomLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/sensor_type_title"
+                style="@style/InformationCustomKey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/information_type_title" />
+
+            <TextView
+                android:id="@+id/sensor_type"
+                style="@style/InformationCustomValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/sensor_min_delay_layout"
+            style="@style/CustomLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/sensor_min_delay_title"
+                style="@style/InformationCustomKey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/information_min_delay_title" />
+
+            <TextView
+                android:id="@+id/sensor_min_delay"
+                style="@style/InformationCustomValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/sensor_max_delay_layout"
+            style="@style/CustomLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/sensor_max_delay_title"
+                style="@style/InformationCustomKey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/information_max_delay_title" />
+
+            <TextView
+                android:id="@+id/sensor_max_delay"
+                style="@style/InformationCustomValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/sensor_resolution_layout"
+            style="@style/CustomLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/sensor_resolution_title"
+                style="@style/InformationCustomKey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/information_resolution_title" />
+
+            <TextView
+                android:id="@+id/sensor_resolution"
+                style="@style/InformationCustomValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/sensor_power_layout"
+            style="@style/CustomLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/sensor_power_title"
+                style="@style/InformationCustomKey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/information_power_title" />
+
+            <TextView
+                android:id="@+id/sensor_power"
+                style="@style/InformationCustomValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</ScrollView>

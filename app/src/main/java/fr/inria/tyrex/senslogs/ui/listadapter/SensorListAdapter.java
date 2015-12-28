@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckBox;
+import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.inria.tyrex.senslogs.R;
-import fr.inria.tyrex.senslogs.control.SensorsPreferences;
+import fr.inria.tyrex.senslogs.control.PreferencesManager;
 import fr.inria.tyrex.senslogs.model.Sensor;
 
 /**
@@ -22,13 +23,13 @@ public class SensorListAdapter extends BaseExpandableListAdapter {
 
     private List<Group> mGroups;
     private Context mContext;
-    private SensorsPreferences mSensorsPreferences;
+    private PreferencesManager mPreferencesManager;
     private SettingsClickListener mSettingsClickListener;
     private CheckboxClickListener mCheckboxClickListener;
 
-    public SensorListAdapter(Context context, List<Group> groups, SensorsPreferences sensorsPreferences) {
+    public SensorListAdapter(Context context, List<Group> groups, PreferencesManager preferencesManager) {
         mContext = context;
-        mSensorsPreferences = sensorsPreferences;
+        mPreferencesManager = preferencesManager;
         mGroups = groups;
     }
 
@@ -74,6 +75,15 @@ public class SensorListAdapter extends BaseExpandableListAdapter {
         }
         Group group = (Group) getGroup(groupPosition);
         ((TextView) convertView).setText(group.category.getName(mContext));
+
+
+        ExpandableListView mExpandableListView = (ExpandableListView) parent;
+        if(mPreferencesManager.isExpended(group.category)) {
+            mExpandableListView.expandGroup(groupPosition);
+        } else {
+            mExpandableListView.collapseGroup(groupPosition);
+        }
+
         return convertView;
     }
 
@@ -121,7 +131,7 @@ public class SensorListAdapter extends BaseExpandableListAdapter {
             }
         });
 
-        checkBoxItem.setChecked(mSensorsPreferences.isChecked(sensor));
+        checkBoxItem.setChecked(mPreferencesManager.isChecked(sensor));
 
         return convertView;
     }
@@ -131,6 +141,19 @@ public class SensorListAdapter extends BaseExpandableListAdapter {
         return true;
     }
 
+    @Override
+    public void onGroupCollapsed(int groupPosition) {
+        super.onGroupCollapsed(groupPosition);
+        Group group = (Group) getGroup(groupPosition);
+        mPreferencesManager.setCategoryExpended(group.category, false);
+    }
+
+    @Override
+    public void onGroupExpanded(int groupPosition) {
+        super.onGroupExpanded(groupPosition);
+        Group group = (Group) getGroup(groupPosition);
+        mPreferencesManager.setCategoryExpended(group.category, true);
+    }
 
     public static class Group {
 

@@ -157,7 +157,7 @@
 	</string>
 
 	<string name="description_position_references">
-		timestamp id name
-		Reference position clicked.
+		timestamp
+		Reference timestamp when clicked.
 	</string>
 </resources>

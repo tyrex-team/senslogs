@@ -1,23 +1,17 @@
 package fr.inria.tyrex.senslogs.model;
 
 /**
- * A triple of: sensor, if sensor should be recorded, and sensor's settings
+ * A triple of preferences: sensor, if sensor should be recorded, and sensor's settings
  */
 public class Preference {
 
     public Sensor sensor;
-    public boolean checked = false;
+    public boolean selected = false;
     public Sensor.Settings settings;
 
-    public Preference(Sensor sensor, boolean checked) {
+    public Preference(Sensor sensor, boolean selected, Sensor.Settings settings) {
         this.sensor = sensor;
-        this.checked = checked;
-        this.settings = sensor.getDefaultSettings();
-    }
-
-    public Preference(Sensor sensor, Sensor.Settings settings) {
-        this.sensor = sensor;
-        this.checked = false;
+        this.selected = selected;
         this.settings = settings;
     }
 
@@ -25,7 +19,7 @@ public class Preference {
     public String toString() {
         return "Preference{" +
                 "sensor=" + sensor +
-                ", checked=" + checked +
+                ", selected=" + selected +
                 ", settings=" + settings +
                 '}';
     }

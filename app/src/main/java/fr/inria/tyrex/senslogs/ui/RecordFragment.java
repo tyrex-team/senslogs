@@ -1,27 +1,22 @@
 package fr.inria.tyrex.senslogs.ui;
 
 import android.app.Activity;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -29,10 +24,9 @@ import java.text.DecimalFormat;
 import fr.inria.tyrex.senslogs.Application;
 import fr.inria.tyrex.senslogs.R;
 import fr.inria.tyrex.senslogs.control.LogsManager;
-import fr.inria.tyrex.senslogs.control.PositionReferenceManager;
 import fr.inria.tyrex.senslogs.control.Recorder;
+import fr.inria.tyrex.senslogs.control.SensorsManager;
 import fr.inria.tyrex.senslogs.model.Log;
-import fr.inria.tyrex.senslogs.model.PositionReference;
 import fr.inria.tyrex.senslogs.ui.dialog.FinishRecordDialog;
 import fr.inria.tyrex.senslogs.ui.utils.StringsFormat;
 import fr.inria.tyrex.senslogs.ui.utils.transitions.EnterSharedElementTextSizeHandler;
@@ -42,19 +36,18 @@ import fr.inria.tyrex.senslogs.ui.utils.transitions.EnterSharedElementTextSizeHa
  */
 public class RecordFragment extends Fragment {
 
-    private final static int mNotificationId = 1;
     public final static String RESULT_LOG = "log";
 
+    private SensorsManager mSensorsManager;
     private Recorder mRecorder;
     private LogsManager mLogManager;
-
-    private boolean hasNotification;
 
     private ImageView mStartPauseButton;
     private TextView mTimerTextView;
     private TextView mDataSizeTextView;
     private TextView mRecordCancelTextView;
     private TextView mRecordFinishTextView;
+    private Button mRecordTimestampButton;
 
 
     @Override
@@ -62,6 +55,7 @@ public class RecordFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
+        mSensorsManager = ((Application) getActivity().getApplication()).getSensorsManager();
         mRecorder = ((Application) getActivity().getApplication()).getRecorder();
         mLogManager = ((Application) getActivity().getApplication()).getLogsManager();
     }
@@ -75,9 +69,9 @@ public class RecordFragment extends Fragment {
         mStartPauseButton = (ImageView) rootView.findViewById(R.id.start_pause);
         mTimerTextView = (TextView) rootView.findViewById(R.id.timer);
         mDataSizeTextView = (TextView) rootView.findViewById(R.id.data_size);
-        final Spinner positionsListSpinner = (Spinner) rootView.findViewById(R.id.record_position_list);
         mRecordCancelTextView = (TextView) rootView.findViewById(R.id.record_cancel);
         mRecordFinishTextView = (TextView) rootView.findViewById(R.id.record_finish);
+        mRecordTimestampButton = (Button) rootView.findViewById(R.id.record_timestamp);
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -112,29 +106,13 @@ public class RecordFragment extends Fragment {
         mRecordFinishTextView.setEnabled(false);
         mRecordCancelTextView.setEnabled(false);
 
-        ArrayAdapter<PositionReference> positionListAdapter = new ArrayAdapter<>
-                (getActivity(), android.R.layout.simple_spinner_item,
-                        PositionReferenceManager.getPositionReferences());
-        positionsListSpinner.setAdapter(positionListAdapter);
 
-
-        rootView.findViewById(R.id.record_position_button)
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        PositionReference ref =
-                                (PositionReference) positionsListSpinner.getSelectedItem();
-                        mRecorder.addReference(System.currentTimeMillis(), ref);
-                    }
-                });
-
-        TextView numRecordingSensorsTextView = (TextView) rootView.findViewById(R.id.num_recording_sensors);
-        numRecordingSensorsTextView.setText(String.format(
-                getString(R.string.record_num_recording_sensors),
-                mRecorder.getSelectedSensors().size(),
-                ((Application) getActivity().getApplication()).getAvailableSensors().size()
-        ));
-
+        mRecordTimestampButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mRecorder.addReferenceTimestamp(System.currentTimeMillis());
+            }
+        });
 
         return rootView;
     }
@@ -151,10 +129,6 @@ public class RecordFragment extends Fragment {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        if (hasNotification) {
-            removeNotification();
-        }
-
     }
 
     @Override
@@ -162,33 +136,31 @@ public class RecordFragment extends Fragment {
         super.onPause();
         mRecorder.setTimerListener(null);
         mRecorder.setDataSizeListener(null);
-
-        if (mRecorder.isRecording() && !hasNotification) {
-            createNotification();
-        }
     }
+
 
     private void onPlayClick() {
 
-        mStartPauseButton.setBackgroundResource(R.drawable.pause_button);
+        mStartPauseButton.setBackgroundResource(R.drawable.ic_record_pause);
         mStartPauseButton.setContentDescription(getString(R.string.record_pause));
 
         mRecordFinishTextView.setEnabled(false);
         mRecordCancelTextView.setEnabled(false);
+        mRecordTimestampButton.setEnabled(true);
 
         mRecorder.resume();
     }
 
     private void onPauseClick() {
 
-        mStartPauseButton.setBackgroundResource(R.drawable.start_button);
+        mStartPauseButton.setBackgroundResource(R.drawable.ic_record);
         mStartPauseButton.setContentDescription(getString(R.string.record_start));
 
         mRecordFinishTextView.setEnabled(true);
         mRecordCancelTextView.setEnabled(true);
+        mRecordTimestampButton.setEnabled(false);
 
         mRecorder.pause();
-
     }
 
     private Recorder.DataSizeListener dataSizeListener = new Recorder.DataSizeListener() {
@@ -216,20 +188,37 @@ public class RecordFragment extends Fragment {
     };
 
 
-    private void cancelAction() {
-        cancelRecorder();
-        getActivity().supportFinishAfterTransition();
+    public void cancelAction() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+        builder.setMessage(R.string.record_cancel_dialog_message)
+                .setPositiveButton(R.string.record_cancel_dialog_yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        cancelRecorderConfirmed();
+                    }
+                })
+                .setNegativeButton(R.string.record_cancel_dialog_no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                })
+                .show();
+
     }
 
-    public void cancelRecorder() {
+    private void cancelRecorderConfirmed() {
         try {
             mRecorder.stop();
             mRecorder.cancel();
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(getActivity(), "Something bad happened with file creation",
-                    Toast.LENGTH_SHORT).show();
+            android.util.Log.e(Application.LOG_TAG, "Something bad happened with file creation");
         }
+
+        getActivity().setResult(Activity.RESULT_CANCELED);
+        getActivity().supportFinishAfterTransition();
     }
 
     private void finishAction() {
@@ -237,8 +226,7 @@ public class RecordFragment extends Fragment {
             mRecorder.stop();
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(getActivity(), "Something bad happened with file creation",
-                    Toast.LENGTH_SHORT).show();
+            android.util.Log.e(Application.LOG_TAG, "Something bad happened with file creation");
             return;
         }
 
@@ -257,9 +245,8 @@ public class RecordFragment extends Fragment {
                     getActivity().setResult(Activity.RESULT_OK, resultIntent);
 
                 } catch (IOException e) {
+                    android.util.Log.e(Application.LOG_TAG, "Something bad happened with file creation");
                     e.printStackTrace();
-                    Toast.makeText(getActivity(), "Something bad happened with file creation",
-                            Toast.LENGTH_SHORT).show();
                 }
 
                 getActivity().supportFinishAfterTransition();
@@ -277,38 +264,5 @@ public class RecordFragment extends Fragment {
 
         return true;
     }
-
-
-    private void createNotification() {
-
-        Intent intent = new Intent(getActivity(), RecordActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(getActivity(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(getActivity())
-                        .setSmallIcon(R.drawable.ic_notification)
-                        .setContentTitle(getString(R.string.app_name))
-                        .setContentText(getString(R.string.record_notification))
-                        .setContentIntent(pendingIntent);
-
-        Notification notification = builder.build();
-        notification.flags = Notification.FLAG_ONGOING_EVENT;
-
-        NotificationManager mNotificationManager =
-                (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(mNotificationId, notification);
-
-        hasNotification = true;
-    }
-
-    private void removeNotification() {
-        NotificationManager mNotificationManager =
-                (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.cancel(mNotificationId);
-
-        hasNotification = false;
-    }
-
 
 }

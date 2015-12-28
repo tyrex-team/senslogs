@@ -34,8 +34,9 @@ import java.util.Map;
 import fr.inria.tyrex.senslogs.Application;
 import fr.inria.tyrex.senslogs.R;
 import fr.inria.tyrex.senslogs.control.LogsManager;
-import fr.inria.tyrex.senslogs.control.SensorsPreferences;
+import fr.inria.tyrex.senslogs.control.PreferencesManager;
 import fr.inria.tyrex.senslogs.control.Recorder;
+import fr.inria.tyrex.senslogs.control.SensorsManager;
 import fr.inria.tyrex.senslogs.model.Log;
 import fr.inria.tyrex.senslogs.model.Sensor;
 import fr.inria.tyrex.senslogs.model.sensors.AndroidSensor;
@@ -55,8 +56,8 @@ public class MainFragment extends Fragment {
     private final static int REQUEST_CODE_RECORDER = 1;
     private final static int REQUEST_CODE_LOGS = 2;
 
-    private SensorsPreferences mSensorsPreferences;
-    private List<Sensor> mAvailableSensors;
+    private SensorsManager mSensorsManager;
+    private PreferencesManager mPreferencesManager;
     private Recorder mRecorder;
     private LogsManager mLogManager;
 
@@ -68,7 +69,8 @@ public class MainFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        mSensorsPreferences = ((Application) getActivity().getApplication()).getPreferences();
+        mSensorsManager = ((Application) getActivity().getApplication()).getSensorsManager();
+        mPreferencesManager = ((Application) getActivity().getApplication()).getPreferences();
         mRecorder = ((Application) getActivity().getApplication()).getRecorder();
         mLogManager = ((Application) getActivity().getApplication()).getLogsManager();
 
@@ -124,8 +126,8 @@ public class MainFragment extends Fragment {
 
     private void fillList() {
 
-        mAvailableSensors = ((Application) getActivity().getApplication()).getAvailableSensors();
-        Collections.sort(mAvailableSensors, new Comparator<Sensor>() {
+        List<Sensor> availableSensors = mSensorsManager.getAvailableSensors();
+        Collections.sort(availableSensors, new Comparator<Sensor>() {
             @Override
             public int compare(Sensor sensor1, Sensor sensor2) {
                 int compareCategoryResult = Sensor.Category.compareTo(
@@ -142,7 +144,7 @@ public class MainFragment extends Fragment {
         LinkedList<Group> mGroupList = new LinkedList<>();
 
         Sensor.Category lastCategory = null;
-        for (Sensor sensor : mAvailableSensors) {
+        for (Sensor sensor : availableSensors) {
             if (lastCategory != sensor.getCategory()) {
                 mGroupList.add(new Group(sensor.getCategory()));
             }
@@ -150,13 +152,9 @@ public class MainFragment extends Fragment {
             lastCategory = sensor.getCategory();
         }
 
-        final SensorListAdapter listAdapter = new SensorListAdapter(getActivity(), mGroupList, mSensorsPreferences);
+        final SensorListAdapter listAdapter = new SensorListAdapter(getActivity(), mGroupList, mPreferencesManager);
         final ExpandableListView listViewSensors = (ExpandableListView) mRootView.findViewById(R.id.sensors_list);
         listViewSensors.setAdapter(listAdapter);
-
-        for (int i = 0; i < listAdapter.getGroupCount(); i++) {
-            listViewSensors.expandGroup(i, false);
-        }
 
         listViewSensors.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
@@ -198,14 +196,14 @@ public class MainFragment extends Fragment {
     }
 
     public void onCheckboxClick(Sensor sensor, boolean isChecked) {
-        mSensorsPreferences.setChecked(sensor, isChecked);
+        mPreferencesManager.setChecked(sensor, isChecked);
     }
 
 
     private void onPlayClick() {
 
         Map<Sensor, Sensor.Settings> sensorsAndSettings =
-                mSensorsPreferences.getCheckedSensors(mAvailableSensors);
+                mPreferencesManager.getCheckedSensors();
 
         Iterator<Sensor> iterator = sensorsAndSettings.keySet().iterator();
         while (iterator.hasNext()) {
@@ -222,8 +220,7 @@ public class MainFragment extends Fragment {
             mRecorder.start(sensorsAndSettings);
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(getActivity(), "Something bad happened with file creation",
-                    Toast.LENGTH_SHORT).show();
+            android.util.Log.e(Application.LOG_TAG, "Something bad happened with file creation");
         }
 
         Intent intent = new Intent(getActivity(), RecordActivity.class);

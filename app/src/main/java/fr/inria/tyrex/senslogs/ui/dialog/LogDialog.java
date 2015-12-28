@@ -1,6 +1,6 @@
 package fr.inria.tyrex.senslogs.ui.dialog;
 
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -65,7 +65,8 @@ public class LogDialog extends DialogFragment {
 
 
         int usedSensors = mLog.getSensors().size();
-        int totalSensors = ((Application) getActivity().getApplication()).getAvailableSensors().size();
+        int totalSensors = ((Application) getActivity().getApplication())
+                .getSensorsManager().getAvailableSensors().size();
         ((TextView) v.findViewById(R.id.log_num_sensors)).setText(
                 String.format("%d/%d", usedSensors, totalSensors));
 
@@ -114,7 +115,7 @@ public class LogDialog extends DialogFragment {
 
                         @Override
                         public void onTaskFinished(File outputFile, long fileSize) {
-                            if(!isAdded()) {
+                            if (!isAdded()) {
                                 return;
                             }
                             progressBar.setVisibility(View.GONE);

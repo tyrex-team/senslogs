@@ -1,20 +1,43 @@
 <resources>
+    
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Main theme colors -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
 
-    <style name="AppTheme" parent="Base.Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:windowBackground">@color/background</item>
+
+        <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
     </style>
 
-    <style name="CustomKey">
-        <item name="android:textStyle">bold</item>
-        <item name="android:textSize">16sp</item>
+    <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
     </style>
 
-    <style name="CustomValue">
+
+
+    <style name="InformationCustomKey">
         <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
-        <item name="android:paddingLeft">5dp</item>
+    </style>
+    <style name="InformationCustomValue">
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="CustomLayout">
+        <item name="android:layout_marginTop">10dp</item>
     </style>
 
-    <style name="Theme.Closeable" parent="AppTheme">
-        <item name="android:homeAsUpIndicator">@android:drawable/ic_menu_close_clear_cancel</item>
-    </style>
 
+    <style name="LogCustomKey">
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+    </style>
+    <style name="LogCustomValue">
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>
