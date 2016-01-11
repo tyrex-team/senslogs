@@ -31,6 +31,9 @@ This Android application records values from internal sensors:
 
 and others available...
 
+Data are stored in files using space separated values. 
+This application has been designed for post-processing projects.
+
 # Academic
 
 This application have been used within:
