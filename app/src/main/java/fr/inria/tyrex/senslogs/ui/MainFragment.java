@@ -1,7 +1,9 @@
 package fr.inria.tyrex.senslogs.ui;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -9,6 +11,7 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -24,6 +27,7 @@ import android.widget.ExpandableListView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -56,6 +60,8 @@ public class MainFragment extends Fragment {
     private final static int REQUEST_CODE_RECORDER = 1;
     private final static int REQUEST_CODE_LOGS = 2;
 
+    private static final int MY_PERMISSIONS_REQUEST = 3;
+
     private SensorsManager mSensorsManager;
     private PreferencesManager mPreferencesManager;
     private Recorder mRecorder;
@@ -63,6 +69,8 @@ public class MainFragment extends Fragment {
 
     private View mRootView;
     private MenuItem mActionLogMenuItem;
+
+    private boolean mAskToPlay = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -205,16 +213,62 @@ public class MainFragment extends Fragment {
         Map<Sensor, Sensor.Settings> sensorsAndSettings =
                 mPreferencesManager.getCheckedSensors();
 
+
+        List<String> permissions = new ArrayList<>();
+
         Iterator<Sensor> iterator = sensorsAndSettings.keySet().iterator();
         while (iterator.hasNext()) {
             Sensor sensor = iterator.next();
-            if (!sensor.checkPermission(getActivity())) {
+
+            if (!mAskToPlay) {
+                switch (sensor.getType()) {
+                    case Sensor.TYPE_WIFI:
+                    case Sensor.TYPE_LOCATION_CELL_WIFI:
+                        if (ContextCompat.checkSelfPermission(getContext(),
+                                Manifest.permission.ACCESS_COARSE_LOCATION)
+                                != PackageManager.PERMISSION_GRANTED) {
+                            permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+                        }
+                        break;
+                    case Sensor.TYPE_LOCATION_GPS:
+                    case Sensor.TYPE_LOCATION_PASSIVE:
+                        if (ContextCompat.checkSelfPermission(getContext(),
+                                Manifest.permission.ACCESS_FINE_LOCATION)
+                                != PackageManager.PERMISSION_GRANTED) {
+                            permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+                        }
+                        break;
+                    case Sensor.TYPE_BLUETOOTH:
+                        if (ContextCompat.checkSelfPermission(getContext(),
+                                Manifest.permission.BLUETOOTH)
+                                != PackageManager.PERMISSION_GRANTED) {
+                            permissions.add(Manifest.permission.BLUETOOTH);
+                        }
+                        break;
+                    case Sensor.TYPE_NFC:
+                        if (ContextCompat.checkSelfPermission(getContext(),
+                                Manifest.permission.NFC)
+                                != PackageManager.PERMISSION_GRANTED) {
+                            permissions.add(Manifest.permission.NFC);
+                        }
+                        break;
+                }
+
+            } else if (!sensor.checkPermission(getActivity())) {
                 Toast.makeText(getActivity(), "No Permission on: " + sensor.getName(),
                         Toast.LENGTH_SHORT).show();
                 iterator.remove();
             }
         }
 
+        if (permissions.size() != 0) {
+            requestPermissions(permissions.toArray(new String[permissions.size()]),
+                    MY_PERMISSIONS_REQUEST);
+            mAskToPlay = true;
+            return;
+        }
+
+        mAskToPlay = false;
 
         try {
             mRecorder.start(sensorsAndSettings);
@@ -288,7 +342,9 @@ public class MainFragment extends Fragment {
             }
         }
 
-        if (!mActionLogMenuItem.isVisible() && mLogManager.getLogs().size() > 0) {
+        if (mActionLogMenuItem != null &&
+                !mActionLogMenuItem.isVisible() &&
+                mLogManager.getLogs().size() > 0) {
 
             mActionLogMenuItem.setVisible(true);
             Animation fade_in = AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in);
@@ -297,10 +353,22 @@ public class MainFragment extends Fragment {
 
             mActionLogMenuItem.getActionView().startAnimation(fade_in);
 
-        } else if (mLogManager.getLogs().size() == 0) {
+        } else if (mActionLogMenuItem != null && mLogManager.getLogs().size() == 0) {
             mActionLogMenuItem.setVisible(false);
         }
     }
 
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST: {
+                if (mAskToPlay) {
+                    onPlayClick();
+                }
+            }
+        }
+    }
 
 }

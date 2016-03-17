@@ -23,6 +23,7 @@ public class WifiSensor extends Sensor {
     transient private WifiScanReceiver mWifiScanReceiver = null;
 
     transient private static WifiSensor instance;
+    private long mStartTimestamp;
 
     public static WifiSensor getInstance() {
         if (instance == null) {
@@ -77,6 +78,8 @@ public class WifiSensor extends Sensor {
     @Override
     public void start(Context context, Settings settings) {
 
+        mStartTimestamp = System.currentTimeMillis();
+
         if (!checkPermission(context)) {
             return;
         }
@@ -102,8 +105,7 @@ public class WifiSensor extends Sensor {
 
         public void onReceive(Context c, Intent intent) {
 
-            long timeMillis = System.currentTimeMillis();
-
+            long timeSystem = System.currentTimeMillis();
 
             final WifiManager wifiManager = (WifiManager) c.getSystemService(Context.WIFI_SERVICE);
             if (mWifiScanReceiver != null) {
@@ -114,18 +116,21 @@ public class WifiSensor extends Sensor {
                 return;
             }
 
+
             for (ScanResult scan : wifiManager.getScanResults()) {
 
-                long time;
+                long timestampScan;
                 if (Build.VERSION.SDK_INT >= 17) {
                     // Scan timestamp is equivalent to elapsedTime in micro seconds
-                    time = bootTime + scan.timestamp / 1000;
+                    timestampScan = bootTime + scan.timestamp / 1000;
                 } else {
-                    time = timeMillis;
+                    timestampScan = timeSystem;
                 }
 
-                mListener.onNewValues(time,
-                        new Object[]{scan.BSSID, "\"" + scan.SSID + "\"", scan.frequency,
+                double timeScan = (timestampScan - mStartTimestamp) / 1e3d;
+
+                mListener.onNewValues(timeSystem,
+                        new Object[]{timeScan, scan.BSSID, "\"" + scan.SSID + "\"", scan.frequency,
                                 scan.level, scan.capabilities});
             }
         }

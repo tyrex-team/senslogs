@@ -130,7 +130,6 @@ public class SensorListAdapter extends BaseExpandableListAdapter {
                 }
             }
         });
-
         checkBoxItem.setChecked(mPreferencesManager.isChecked(sensor));
 
         return convertView;

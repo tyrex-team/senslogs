@@ -1,13 +1,16 @@
 package fr.inria.tyrex.senslogs.ui;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
@@ -52,7 +55,9 @@ public class LogsFragment extends Fragment {
 
     public static final String INPUT_LOG = "log";
     private static final String BUNDLE_TAG = "logsFragment";
+
     private static final int REQUEST_CODE_SHARE = 1;
+    private static final int MY_PERMISSIONS_REQUEST = 2;
 
     private RecyclerView mRecyclerView;
 
@@ -61,6 +66,10 @@ public class LogsFragment extends Fragment {
 
     private MultiSelector mMultiSelector = new MultiSelector();
     private FragmentLogsBinding mBinding;
+
+    private boolean mAskCopy = false;
+    private boolean mAskShare = false;
+    private Log mTmpLog = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,7 +92,7 @@ public class LogsFragment extends Fragment {
 
             if (bundle != null) {
                 Bundle bundleLog = bundle.getBundle(BUNDLE_TAG);
-                if(bundleLog != null)
+                if (bundleLog != null)
                     mMultiSelector.restoreSelectionStates(bundleLog);
             }
 
@@ -161,17 +170,6 @@ public class LogsFragment extends Fragment {
         });
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == 1 && mSharedTmpFile != null) {
-            if(!mSharedTmpFile.delete()) {
-                android.util.Log.e(Application.LOG_TAG, "Cannot delete log file");
-            }
-            mSharedTmpFile = null;
-        }
-    }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -231,6 +229,19 @@ public class LogsFragment extends Fragment {
 
     private void share(final Log log) {
 
+        if (!mAskShare && ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST);
+            mAskShare = true;
+            mTmpLog = log;
+            return;
+        }
+
+        mAskShare = false;
+        mTmpLog = null;
+
         mSharedTmpFile = new File(getActivity().getExternalCacheDir(), log.getFile().getName());
 
         final ProgressDialog alertDialog = new ProgressDialog(getActivity());
@@ -262,8 +273,34 @@ public class LogsFragment extends Fragment {
     }
 
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE_SHARE && mSharedTmpFile != null) {
+            // Following code works only if the file finished to be sent like gmail.
+//            if(!mSharedTmpFile.delete()) {
+//                android.util.Log.e(Application.LOG_TAG, "Cannot delete log file");
+//            }
+            mSharedTmpFile = null;
+        }
+    }
+
+
     private void copy(final Log log) {
 
+        if (!mAskCopy && ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST);
+            mAskCopy = true;
+            mTmpLog = log;
+            return;
+        }
+
+        mAskCopy = false;
+        mTmpLog = null;
 
         final ProgressDialog alertDialog = new ProgressDialog(getActivity());
         alertDialog.setCancelable(false);
@@ -438,5 +475,19 @@ public class LogsFragment extends Fragment {
         }
     }
 
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST: {
+                if (mAskCopy) {
+                    copy(mTmpLog);
+                } else if(mAskShare) {
+                    share(mTmpLog);
+                }
+            }
+        }
+    }
 
 }
