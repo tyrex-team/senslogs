@@ -257,25 +257,28 @@ public class AndroidSensor extends Sensor {
                 // https://code.google.com/p/android/issues/detail?id=78858
 
                 double diff1 = Math.abs(event.timestamp / 1e9d - System.currentTimeMillis() / 1e3d);
-                if (diff1 < 1) {
+                if (diff1 < 10) {
                     timestampFormat = TimestampFormat.UNIX_NANO;
                 }
 
                 if (Build.VERSION.SDK_INT >= 17) {
                     double diff2 = Math.abs(event.timestamp / 1e9d - SystemClock.elapsedRealtimeNanos() / 1e9d);
-                    if (diff2 < 1) {
+                    if (diff2 < 10) {
                         timestampFormat = TimestampFormat.BOOT_NANO;
                     }
                 }
 
                 double diff3 = Math.abs(event.timestamp / 1e9d - System.nanoTime() / 1e9d);
-                if (diff3 < 1) {
+                if (diff3 < 10) {
                     timestampFormat = TimestampFormat.MONOTONIC_NANO;
                 }
 
                 firstTimestampReached = true;
             }
 
+            if(timestampFormat == null) {
+                return;
+            }
 
             double diffTime;
             switch (timestampFormat) {
