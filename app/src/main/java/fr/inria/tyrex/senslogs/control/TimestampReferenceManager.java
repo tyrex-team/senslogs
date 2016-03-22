@@ -24,8 +24,13 @@ public class TimestampReferenceManager {
                 }
 
                 @Override
-                public String getDataDescription(Resources resources) {
+                public String getFieldsDescription(Resources resources) {
                     return resources.getString(R.string.description_position_references);
+                }
+
+                @Override
+                public String[] getFields(Resources resources) {
+                    return resources.getStringArray(R.array.fields_position_references);
                 }
             };
 

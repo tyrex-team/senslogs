@@ -38,7 +38,7 @@ public class LocationPassiveSensor extends LocationSensor {
     }
 
     @Override
-    public String getDataDescription(Resources res) {
+    public String getFieldsDescription(Resources res) {
         return res.getString(R.string.description_location_passive);
     }
 

@@ -2,8 +2,9 @@ package fr.inria.tyrex.senslogs.control;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.os.Build;
 import android.util.Pair;
+
+import org.ini4j.Wini;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,13 +22,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import fr.inria.tyrex.senslogs.Application;
-import fr.inria.tyrex.senslogs.R;
+import fr.inria.tyrex.senslogs.model.RecordProperties;
 
 /**
  * Creation of log files asynchronously in a folder
  */
 public class RecorderWriter {
-
 
     private final static String descriptionFileName = "description.txt";
 
@@ -37,13 +37,15 @@ public class RecorderWriter {
     public interface WritableObject {
         String getStorageFileName(Context context);
         String getWebPage(Resources resources);
-        String getDataDescription(Resources resources);
+        String getFieldsDescription(Resources resources);
+        String[] getFields(Resources resources);
     }
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private Context mContext;
 
-    private StringBuilder buffer = new StringBuilder();
+    private StringBuilder buffer1 = new StringBuilder();
+    private StringBuilder buffer2 = new StringBuilder();
 
     private Map<WritableObject, FileOutputStream> mSensorsFos;
     private Map<WritableObject, File> mSensorsFiles;
@@ -70,14 +72,39 @@ public class RecorderWriter {
             File file = new File(outputDirectory, fileName);
 
             mSensorsFiles.put(writableObject, file);
-            mSensorsFos.put(writableObject, new FileOutputStream(file));
+            FileOutputStream fos = new FileOutputStream(file);
+            mSensorsFos.put(writableObject, fos);
             mFilesSize = 0;
+
+
+            /*
+             * Write files headers
+             */
+            boolean first = true;
+            for(String field : writableObject.getFields(mContext.getResources())) {
+
+                if(!first) {
+                    buffer2.append(' ');
+                }
+                buffer2.append(field);
+                first = false;
+            }
+            buffer2.append('\n');
+            byte[] bytes = buffer2.toString().getBytes();
+            mFilesSize += bytes.length;
+
+            try {
+                fos.write(bytes);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            buffer2.setLength(0);
         }
     }
 
 
-    public void write(final WritableObject writableObject, final double time,
-                      final Object[] values) {
+    public void write(final WritableObject writableObject, final double diffTimeSystem,
+                      final double diffTimeSensor, final Object[] values) {
 
         executor.execute(new Runnable() {
             @Override
@@ -85,18 +112,43 @@ public class RecorderWriter {
 
                 FileOutputStream fos = mSensorsFos.get(writableObject);
                 try {
-                    buffer.append(time);
-                    for (Object value : values) {
-                        buffer.append(' ');
-                        buffer.append(value.toString());
-                    }
-                    buffer.append('\n');
+                    buffer1.append(String.format("%.3f %.3f", diffTimeSystem, diffTimeSensor));
 
-                    byte[] bytes = buffer.toString().getBytes();
+                    for (Object value : values) {
+                        buffer1.append(' ');
+                        buffer1.append(value.toString());
+                    }
+                    buffer1.append('\n');
+
+                    byte[] bytes = buffer1.toString().getBytes();
                     mFilesSize += bytes.length;
 
                     fos.write(bytes);
-                    buffer.setLength(0);
+                    buffer1.setLength(0);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+    }
+
+    public void write(final WritableObject writableObject, final double diffTimeSystem) {
+
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+
+                FileOutputStream fos = mSensorsFos.get(writableObject);
+                try {
+                    buffer2.append(diffTimeSystem);
+                    buffer2.append('\n');
+
+                    byte[] bytes = buffer2.toString().getBytes();
+                    mFilesSize += bytes.length;
+
+                    fos.write(bytes);
+                    buffer2.setLength(0);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -116,33 +168,45 @@ public class RecorderWriter {
         }
     }
 
-    private File writeDescriptionFile() throws IOException {
+    private File writeDescriptionFile(RecordProperties properties) throws IOException {
 
-        Resources res = mContext.getResources();
+//        Resources res = mContext.getResources();
 
         File file = new File(mOutputDirectory, descriptionFileName);
-        FileOutputStream fos = new FileOutputStream(file);
+
+        Wini iniFile = properties.generateIniFile(file);
+
+        if(iniFile == null) {
+            return file;
+        }
 
         String time = SimpleDateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
+        iniFile.setComment(time);
 
-        byte[] bytes = res.getString(R.string.description_file_begin,
-                time, Build.MODEL, mSensorsFiles.size()).getBytes();
-        fos.write(bytes);
+        iniFile.store();
 
-        mFilesSize += bytes.length;
-
-        for (WritableObject sensor : mSensorsFiles.keySet()) {
-
-            bytes = String.format(res.getString(R.string.description_file_line),
-                    mSensorsFiles.get(sensor).getName(),
-                    sensor.getWebPage(res),
-                    sensor.getDataDescription(res))
-                    .getBytes();
-            fos.write(bytes);
-
-            mFilesSize += bytes.length;
-
-        }
+//        FileOutputStream fos = new FileOutputStream(file);
+//
+//        String time = SimpleDateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
+//
+//        byte[] bytes = res.getString(R.string.description_file_begin,
+//                time, Build.MODEL, mSensorsFiles.size()).getBytes();
+//        fos.write(bytes);
+//
+//        mFilesSize += bytes.length;
+//
+//        for (WritableObject sensor : mSensorsFiles.keySet()) {
+//
+//            bytes = String.format(res.getString(R.string.description_file_line),
+//                    mSensorsFiles.get(sensor).getName(),
+//                    sensor.getWebPage(res),
+//                    sensor.getFieldsDescription(res))
+//                    .getBytes();
+//            fos.write(bytes);
+//
+//            mFilesSize += bytes.length;
+//
+//        }
 
         return file;
     }
@@ -187,7 +251,8 @@ public class RecorderWriter {
     }
 
 
-    public Pair<File, ZipCreationTask> createZipFile(String fileName) throws IOException {
+    public Pair<File, ZipCreationTask> createZipFile(String fileName, RecordProperties properties)
+            throws IOException {
 
         File outputFile = new File(mContext.getFilesDir(), fileName + ".zip");
 
@@ -197,7 +262,7 @@ public class RecorderWriter {
         }
 
         Collection<File> inputFiles = new ArrayList<>(mSensorsFiles.values());
-        inputFiles.add(writeDescriptionFile());
+        inputFiles.add(writeDescriptionFile(properties));
 
         ZipCreationTask zipTask = new ZipCreationTask();
         ZipCreationTask.Params params = new ZipCreationTask.Params(outputFile, inputFiles);

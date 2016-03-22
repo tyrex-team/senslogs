@@ -7,6 +7,7 @@ import android.content.res.Resources;
 import android.os.Build;
 
 import fr.inria.tyrex.senslogs.R;
+import fr.inria.tyrex.senslogs.model.RecordProperties;
 import fr.inria.tyrex.senslogs.model.Sensor;
 
 /**
@@ -41,8 +42,13 @@ public class NfcSensor extends Sensor {
     }
 
     @Override
-    public String getDataDescription(Resources res) {
+    public String getFieldsDescription(Resources res) {
         return res.getString(R.string.description_nfc);
+    }
+
+    @Override
+    public String[] getFields(Resources resources) {
+        return resources.getStringArray(R.array.fields_nfc);
     }
 
     @Override
@@ -70,7 +76,7 @@ public class NfcSensor extends Sensor {
     }
 
     @Override
-    public void start(Context context, Settings settings) {
+    public void start(Context context, Settings settings, RecordProperties mRecordProperties) {
         // TODO
     }
 

@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import fr.inria.tyrex.senslogs.R;
+import fr.inria.tyrex.senslogs.model.RecordProperties;
 import fr.inria.tyrex.senslogs.model.Sensor;
 
 /**
@@ -21,6 +22,7 @@ import fr.inria.tyrex.senslogs.model.Sensor;
 public class NmeaSensor extends Sensor {
 
     transient private static NmeaSensor instance;
+    transient private double mStartTime;
 
     public static NmeaSensor getInstance() {
         if (instance == null) {
@@ -49,8 +51,13 @@ public class NmeaSensor extends Sensor {
     }
 
     @Override
-    public String getDataDescription(Resources res) {
+    public String getFieldsDescription(Resources res) {
         return res.getString(R.string.description_nmea);
+    }
+
+    @Override
+    public String[] getFields(Resources resources) {
+        return resources.getStringArray(R.array.fields_nmea);
     }
 
     @Override
@@ -74,7 +81,7 @@ public class NmeaSensor extends Sensor {
 
 
     @Override
-    public void start(Context context, Settings settings) {
+    public void start(Context context, Settings settings, RecordProperties recordProperties) {
         LocationManager locationManager = (LocationManager)
                 context.getSystemService(Context.LOCATION_SERVICE);
 
@@ -84,6 +91,8 @@ public class NmeaSensor extends Sensor {
 
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
         locationManager.addNmeaListener(mNmeaListener);
+
+        mStartTime = recordProperties.startTime;
     }
 
     @Override
@@ -125,10 +134,11 @@ public class NmeaSensor extends Sensor {
     transient private GpsStatus.NmeaListener mNmeaListener = new GpsStatus.NmeaListener() {
         @Override
         public void onNmeaReceived(final long timestamp, final String nmea) {
+            double systemTimestamp = System.currentTimeMillis() / 1e3d - mStartTime;
             if (mListener == null) {
                 return;
             }
-            mListener.onNewValues(timestamp, new Object[]{nmea});
+            mListener.onNewValues(systemTimestamp, timestamp / 1e3d - mStartTime, new Object[]{nmea});
         }
     };
 

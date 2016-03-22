@@ -6,8 +6,10 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
+import android.os.SystemClock;
 
 import fr.inria.tyrex.senslogs.R;
+import fr.inria.tyrex.senslogs.model.RecordProperties;
 import fr.inria.tyrex.senslogs.model.Sensor;
 
 /**
@@ -16,6 +18,10 @@ import fr.inria.tyrex.senslogs.model.Sensor;
 public class AndroidSensor extends Sensor {
 
     transient private android.hardware.Sensor mSensor;
+    transient private double mStartTimeMinusBoot;
+    transient private double mStartTime;
+    transient private double mMonotonicAtStart;
+
 
     public AndroidSensor(android.hardware.Sensor sensor) {
         super(sensor.getType(), getCategoryFromSensor(sensor));
@@ -104,15 +110,28 @@ public class AndroidSensor extends Sensor {
     }
 
     @Override
-    public String getDataDescription(Resources res) {
+    public String getFieldsDescription(Resources res) {
 
-        int descriptionResourceId = getDataDescriptionResourceId();
+        int descriptionResourceId = getFieldsDescriptionResourceId();
 
         if (descriptionResourceId != -1) {
             return res.getString(descriptionResourceId);
         }
 
         return res.getString(R.string.description_unknown);
+    }
+
+
+    @Override
+    public String[] getFields(Resources res) {
+
+        int descriptionResourceId = getFieldsResourceId();
+
+        if (descriptionResourceId != -1) {
+            return res.getStringArray(descriptionResourceId);
+        }
+
+        return res.getStringArray(R.array.fields_unknown);
     }
 
 
@@ -132,7 +151,7 @@ public class AndroidSensor extends Sensor {
     }
 
     @Override
-    public void start(Context context, Sensor.Settings settings) {
+    public void start(Context context, Sensor.Settings settings, RecordProperties recordProperties) {
 
         if (!(settings instanceof Settings)) {
             return;
@@ -141,6 +160,10 @@ public class AndroidSensor extends Sensor {
 
         SensorManager sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         sensorManager.registerListener(mSensorEventListener, mSensor, sensorSettings.sensorDelay);
+
+        mMonotonicAtStart = recordProperties.monotonicAtStart;
+        mStartTime = recordProperties.startTime;
+        mStartTimeMinusBoot = recordProperties.startTime - recordProperties.bootTime;
     }
 
     @Override
@@ -208,9 +231,15 @@ public class AndroidSensor extends Sensor {
         }
     }
 
+    private enum TimestampFormat {UNIX_NANO, BOOT_NANO, MONOTONIC_NANO}
+
+    private TimestampFormat timestampFormat;
+    private boolean firstTimestampReached = false;
+
     transient private SensorEventListener mSensorEventListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(final SensorEvent event) {
+            double systemTimestamp = System.currentTimeMillis() / 1e3d - mStartTime;
 
             if (mListener == null) {
                 return;
@@ -221,7 +250,52 @@ public class AndroidSensor extends Sensor {
                 output[i] = event.values[i];
             }
 
-            mListener.onNewValues(event.timestamp, output);
+            if (!firstTimestampReached) {
+
+                // https://code.google.com/p/android/issues/detail?id=7981
+                // https://code.google.com/p/android/issues/detail?id=56561
+                // https://code.google.com/p/android/issues/detail?id=78858
+
+                double diff1 = Math.abs(event.timestamp / 1e9d - System.currentTimeMillis() / 1e3d);
+                if (diff1 < 1) {
+                    timestampFormat = TimestampFormat.UNIX_NANO;
+                }
+
+                if (Build.VERSION.SDK_INT >= 17) {
+                    double diff2 = Math.abs(event.timestamp / 1e9d - SystemClock.elapsedRealtimeNanos() / 1e9d);
+                    if (diff2 < 1) {
+                        timestampFormat = TimestampFormat.BOOT_NANO;
+                    }
+                }
+
+                double diff3 = Math.abs(event.timestamp / 1e9d - System.nanoTime() / 1e9d);
+                if (diff3 < 1) {
+                    timestampFormat = TimestampFormat.MONOTONIC_NANO;
+                }
+
+                firstTimestampReached = true;
+            }
+
+
+            double diffTime;
+            switch (timestampFormat) {
+                case UNIX_NANO:
+                    diffTime = event.timestamp / 1e9d - mStartTime;
+                    break;
+
+                case BOOT_NANO:
+                    diffTime = event.timestamp / 1e9d - mStartTimeMinusBoot;
+                    break;
+
+                case MONOTONIC_NANO:
+                    diffTime = event.timestamp / 1e9d - mMonotonicAtStart;
+                    break;
+
+                default:
+                    diffTime = systemTimestamp;
+            }
+
+            mListener.onNewValues(systemTimestamp, diffTime, output);
         }
 
         @Override
@@ -312,7 +386,7 @@ public class AndroidSensor extends Sensor {
 
     }
 
-    private int getDataDescriptionResourceId() {
+    private int getFieldsDescriptionResourceId() {
 
         switch (mSensor.getType()) {
             case android.hardware.Sensor.TYPE_ACCELEROMETER:
@@ -353,6 +427,53 @@ public class AndroidSensor extends Sensor {
                 return R.string.description_heart_rate;
             case android.hardware.Sensor.TYPE_PROXIMITY:
                 return R.string.description_proximity;
+        }
+        return -1;
+
+    }
+
+
+    private int getFieldsResourceId() {
+
+        switch (mSensor.getType()) {
+            case android.hardware.Sensor.TYPE_ACCELEROMETER:
+                return R.array.fields_accelerometer;
+            case android.hardware.Sensor.TYPE_GYROSCOPE_UNCALIBRATED:
+                return R.array.fields_gyroscope_uncalibrated;
+            case android.hardware.Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED:
+                return R.array.fields_magnetometer_uncalibrated;
+            case android.hardware.Sensor.TYPE_GYROSCOPE:
+                return R.array.fields_gyroscope;
+            case android.hardware.Sensor.TYPE_MAGNETIC_FIELD:
+                return R.array.fields_magnetometer;
+            case android.hardware.Sensor.TYPE_GAME_ROTATION_VECTOR:
+                return R.array.fields_game_rotation_vector;
+            case android.hardware.Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR:
+                return R.array.fields_geomagnetic_rotation_vector;
+            case android.hardware.Sensor.TYPE_GRAVITY:
+                return R.array.fields_gravity;
+            case android.hardware.Sensor.TYPE_LINEAR_ACCELERATION:
+                return R.array.fields_linear_acceleration;
+            case android.hardware.Sensor.TYPE_ROTATION_VECTOR:
+                return R.array.fields_rotation_vector;
+            case android.hardware.Sensor.TYPE_SIGNIFICANT_MOTION:
+                return R.array.fields_significant_motion;
+            case android.hardware.Sensor.TYPE_STEP_COUNTER:
+                return R.array.fields_step_counter;
+            case android.hardware.Sensor.TYPE_STEP_DETECTOR:
+                return R.array.fields_step_detector;
+            case android.hardware.Sensor.TYPE_AMBIENT_TEMPERATURE:
+                return R.array.fields_ambient_temperature;
+            case android.hardware.Sensor.TYPE_LIGHT:
+                return R.array.fields_light;
+            case android.hardware.Sensor.TYPE_PRESSURE:
+                return R.array.fields_pressure;
+            case android.hardware.Sensor.TYPE_RELATIVE_HUMIDITY:
+                return R.array.fields_relative_humidity;
+            case android.hardware.Sensor.TYPE_HEART_RATE:
+                return R.array.fields_heart_rate;
+            case android.hardware.Sensor.TYPE_PROXIMITY:
+                return R.array.fields_proximity;
         }
         return -1;
 

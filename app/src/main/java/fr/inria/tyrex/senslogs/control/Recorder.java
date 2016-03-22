@@ -1,5 +1,6 @@
 package fr.inria.tyrex.senslogs.control;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -7,29 +8,28 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Build;
+import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.SystemClock;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.util.Pair;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import fr.inria.tyrex.senslogs.ui.utils.KillNotificationsService;
 import fr.inria.tyrex.senslogs.R;
 import fr.inria.tyrex.senslogs.model.Log;
+import fr.inria.tyrex.senslogs.model.RecordProperties;
 import fr.inria.tyrex.senslogs.model.Sensor;
-import fr.inria.tyrex.senslogs.model.sensors.AndroidSensor;
-import fr.inria.tyrex.senslogs.model.sensors.LocationSensor;
 import fr.inria.tyrex.senslogs.ui.RecordActivity;
+import fr.inria.tyrex.senslogs.ui.utils.KillNotificationsService;
 
 /**
  * Handle timers and record sensors data
@@ -42,41 +42,25 @@ public class Recorder {
     private final Context mContext;
     private final LogsManager mLogsManager;
     private RecorderWriter mRecorderWriter;
+    private RecordProperties mRecordProperties;
 
     private Map<Sensor, Sensor.Settings> mSensorsAndSettings;
 
-    private long mStartTime;
-    private long mStartTimeLocation;
-    private long mStartTimeAndroidSensors;
 
-    private Date mStartDate;
-    private Date mStopDate;
     private boolean isRecording = false;
 
     public Recorder(Context context, LogsManager logsManager) {
         mContext = context;
         mLogsManager = logsManager;
+        mRecordProperties = new RecordProperties();
     }
 
     public void start(Map<Sensor, Sensor.Settings> sensorsAndSettings) throws FileNotFoundException {
         mSensorsAndSettings = sensorsAndSettings;
 
-        mStartTimeLocation = System.nanoTime();
+        mRecordProperties.init();
 
-        // https://code.google.com/p/android/issues/detail?id=7981
-        // https://code.google.com/p/android/issues/detail?id=56561
-        // https://code.google.com/p/android/issues/detail?id=78858
-        if (Build.DEVICE.equals("mako")) {
-            mStartTimeAndroidSensors = System.currentTimeMillis() * 1000000L;
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            mStartTimeAndroidSensors = SystemClock.elapsedRealtimeNanos();
-        } else {
-            mStartTimeAndroidSensors = System.nanoTime();
-        }
 
-        mStartTime = System.currentTimeMillis();
-
-        mStartDate = new Date();
         mRecorderWriter = new RecorderWriter(mContext);
 
         File tmpSubFolder = new File(mContext.getFilesDir(), String.valueOf(UUID.randomUUID()));
@@ -93,19 +77,38 @@ public class Recorder {
         for (final Sensor sensor : mSensorsAndSettings.keySet()) {
             sensor.setListener(new Sensor.Listener() {
                 @Override
-                public void onNewValues(long timestamp, Object[] objects) {
-
-                    double diffTime; // in second
-                    if (sensor instanceof AndroidSensor) {
-                        diffTime = (timestamp - mStartTimeAndroidSensors) / 1e9d;
-                    } else if (sensor instanceof LocationSensor) {
-                        diffTime = (timestamp - mStartTimeLocation) / 1e9d;
-                    } else {
-                        diffTime = (timestamp - mStartTime) / 1e3d;
-                    }
-                    mRecorderWriter.write(sensor, diffTime, objects);
+                public void onNewValues(double diffTimeSystem, double diffTimeSensor, Object[] objects) {
+                    mRecorderWriter.write(sensor, diffTimeSystem, diffTimeSensor, objects);
                 }
             });
+        }
+
+        LocationManager locationManager =
+                (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+        for (final Map.Entry<Sensor, Sensor.Settings> sensorAndSetting : mSensorsAndSettings.entrySet()) {
+
+            Sensor sensor = sensorAndSetting.getKey();
+
+            if (sensor.getType() == Sensor.TYPE_LOCATION_GPS &&
+                    ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED){
+                mRecordProperties.gpsLastKnownLocation =
+                        locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            }
+
+            if (sensor.getType() == Sensor.TYPE_LOCATION_PASSIVE &&
+                    ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED){
+                mRecordProperties.passiveLastKnownLocation =
+                        locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+            }
+
+            if (sensor.getType() == Sensor.TYPE_LOCATION_CELL_WIFI &&
+                    ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED){
+                mRecordProperties.networkLastKnownLocation =
+                        locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            }
         }
 
         resetTimer();
@@ -125,12 +128,12 @@ public class Recorder {
 
         for (final Map.Entry<Sensor, Sensor.Settings> sensorAndSetting : mSensorsAndSettings.entrySet()) {
             if (sensorAndSetting.getKey().mustRunOnUiThread()) {
-                sensorAndSetting.getKey().start(mContext, sensorAndSetting.getValue());
+                sensorAndSetting.getKey().start(mContext, sensorAndSetting.getValue(), mRecordProperties);
             } else {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        sensorAndSetting.getKey().start(mContext, sensorAndSetting.getValue());
+                        sensorAndSetting.getKey().start(mContext, sensorAndSetting.getValue(), mRecordProperties);
                     }
                 }).start();
             }
@@ -163,7 +166,7 @@ public class Recorder {
             }
         }
 
-        mStopDate = new Date();
+        mRecordProperties.endTime = System.currentTimeMillis() / 1e3d;
         removeNotification();
         isRecording = false;
     }
@@ -193,10 +196,11 @@ public class Recorder {
         }
         String filename = title.replaceAll("\\W+", "_");
 
-        final Pair<File, ZipCreationTask> zipCreationPair = mRecorderWriter.createZipFile(filename);
+        final Pair<File, ZipCreationTask> zipCreationPair = mRecorderWriter.createZipFile(filename,
+                mRecordProperties);
         final HashSet<Sensor> sensors = new HashSet<>(mSensorsAndSettings.keySet());
         Log newLog = new Log(title, zipCreationPair.first, mRecorderWriter.getFilesSize(),
-                mStartDate, mStopDate, sensors, zipCreationPair.second);
+                mRecordProperties, sensors, zipCreationPair.second);
 
         mLogsManager.addLog(newLog);
 
@@ -217,10 +221,8 @@ public class Recorder {
 
 
     public void addReferenceTimestamp(long timestamp) {
-        double diffTime = (timestamp - mStartTime) / 1e3d;
-        mRecorderWriter.write(
-                TimestampReferenceManager.getWritableObject(),
-                diffTime, new Object[]{});
+        double diffTime = timestamp / 1e3d - mRecordProperties.startTime;
+        mRecorderWriter.write(TimestampReferenceManager.getWritableObject(), diffTime);
     }
 
     //<editor-fold desc="DataSize">

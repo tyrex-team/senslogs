@@ -7,6 +7,7 @@ import android.content.res.Resources;
 import android.os.Build;
 
 import fr.inria.tyrex.senslogs.R;
+import fr.inria.tyrex.senslogs.model.RecordProperties;
 import fr.inria.tyrex.senslogs.model.Sensor;
 
 /**
@@ -46,8 +47,13 @@ public class BluetoothSensor extends Sensor {
     }
 
     @Override
-    public String getDataDescription(Resources res) {
+    public String getFieldsDescription(Resources res) {
         return res.getString(R.string.description_bluetooth);
+    }
+
+    @Override
+    public String[] getFields(Resources resources) {
+        return resources.getStringArray(R.array.fields_bluetooth);
     }
 
     @Override
@@ -69,7 +75,7 @@ public class BluetoothSensor extends Sensor {
     }
 
     @Override
-    public void start(Context context, Settings settings) {
+    public void start(Context context, Settings settings, RecordProperties mRecordProperties) {
         //TODO
 //        BluetoothManager bluetoothManager = (BluetoothManager)
 //                context.getSystemService(Context.BLUETOOTH_SERVICE);

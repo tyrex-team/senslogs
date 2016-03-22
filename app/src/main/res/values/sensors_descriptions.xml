@@ -1,83 +1,176 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string-array name="fields_wifi">
+        <item>elapsed-time-system</item>
+        <item>elapsed-time-sensor</item>
+        <item>bssid</item>
+        <item>ssid</item>
+        <item>frequency</item>
+        <item>rssi</item>
+        <item>capabilities</item>
+    </string-array>
 	<string name="description_wifi">
-		timestamp BSSID SSID frequency(MHz) level(dBm) capabilities\n
-		Capabilities describes the authentication, key management, and encryption schemes supported by the access point.
+		Frequency is in MHz. RSSI is in dBm. Capabilities describes the authentication,
+		key management, and encryption schemes supported by the access point.
 	</string>
 
+    <string-array name="fields_accelerometer">
+        <item>elapsed-time-system</item>
+        <item>elapsed-time-sensor</item>
+        <item>x</item>
+        <item>y</item>
+        <item>z</item>
+    </string-array>
 	<string name="description_accelerometer">
-		timestamp x y z\n
-		All values are in SI units (m/s^2)
+		All values are in SI units (m/s^2).
 	</string>
 
+    <string-array name="fields_gyroscope_uncalibrated">
+        <item>elapsed-time-system</item>
+        <item>elapsed-time-sensor</item>
+        <item>x</item>
+        <item>y</item>
+        <item>z</item>
+        <item>estimated-drift-x</item>
+        <item>estimated-drift-y</item>
+        <item>estimated-drift-z</item>
+    </string-array>
 	<string name="description_gyroscope_uncalibrated">
-		timestamp x y z estimated-drift-x estimated-drift-y estimated-drift-z\n
-		All values are in radians/second\n
-		Factory calibration and temperature compensation is still applied to the rate of rotation (angular speeds).
+		All values are in radians/second. Factory calibration and temperature compensation are
+		still applied to the rate of rotation (angular speeds).
 	</string>
 
+	<string-array name="fields_magnetometer_uncalibrated">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+		<item>x</item>
+		<item>y</item>
+		<item>z</item>
+		<item>estimated-bias-x</item>
+		<item>estimated-bias-y</item>
+		<item>estimated-bias-z</item>
+	</string-array>
 	<string name="description_magnetometer_uncalibrated">
-		timestamp x y z estimated-bias-x estimated-bias-y estimated-bias-z\n
-		All values are in micro-Tesla (uT)\n
-		Factory calibration and temperature compensation are applied to this measurement
+		All values are in micro-Tesla (uT). Factory calibration and temperature compensation
+		are applied to this measurement
 	</string>
 
+	<string-array name="fields_gyroscope">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+		<item>x</item>
+		<item>y</item>
+		<item>z</item>
+	</string-array>
 	<string name="description_gyroscope">
-		timestamp x y z\n
-		All values are in radians/second
+		All values are in radians/second.
 	</string>
 
+	<string-array name="fields_magnetometer">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+		<item>x</item>
+		<item>y</item>
+		<item>z</item>
+	</string-array>
 	<string name="description_magnetometer">
-		timestamp x y z\n
-		All values are in micro-Tesla (uT)
+		All values are in micro-Tesla (uT).
 	</string>
 
+	<string-array name="fields_game_rotation_vector">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+		<item>x*sin(&#952;/2)</item>
+		<item>y*sin(&#952;/2)</item>
+		<item>z*sin(&#952;/2)</item>
+		<item>cos(&#952;/2)</item>
+		<item>estimated-heading-accuracy</item>
+	</string-array>
 	<string name="description_game_rotation_vector">
-		timestamp x*sin(&#952;/2) y*sin(&#952;/2) z*sin(&#952;/2) [cos(&#952;/2)] [estimated-heading-accuracy(radians)]\n
-		Identical to rotation-vector except that it doesn\'t use the geomagnetic field.
-		Therefore the Y axis doesn\'t point north, but instead to some other reference.
+		Estimated-heading-accuracy is in radians. Identical to rotation-vector except that it
+		doesn\'t use the geomagnetic field. Therefore the Y axis doesn\'t point north, but instead
+		to some other reference.
 	</string>
 
+	<string-array name="fields_geomagnetic_rotation_vector">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+		<item>x*sin(&#952;/2)</item>
+		<item>y*sin(&#952;/2)</item>
+		<item>z*sin(&#952;/2)</item>
+		<item>cos(&#952;/2)</item>
+	</string-array>
 	<string name="description_geomagnetic_rotation_vector">
-		timestamp x*sin(&#952;/2) y*sin(&#952;/2) z*sin(&#952;/2) [cos(&#952;/2)]\n
 		Similar to rotation-vector, but using a magnetometer instead of using a gyroscope.
 	</string>
 
+	<string-array name="fields_gravity">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+		<item>x</item>
+		<item>y</item>
+		<item>z</item>
+	</string-array>
 	<string name="description_gravity">
-		timestamp x y z\n
-		All values are in SI units (m/s^2)\n
-		A three dimensional vector indicating the direction and magnitude of gravity.
+		All values are in SI units (m/s^2). A three dimensional vector indicating the direction
+		and magnitude of gravity.
 	</string>
 
+	<string-array name="fields_linear_acceleration">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+		<item>x</item>
+		<item>y</item>
+		<item>z</item>
+	</string-array>
 	<string name="description_linear_acceleration">
-		timestamp x y z\n
-		All values are in SI units (m/s^2)
+		All values are in SI units (m/s^2).
 	</string>
 
+	<string-array name="fields_rotation_vector">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+		<item>x*sin(&#952;/2)</item>
+		<item>y*sin(&#952;/2)</item>
+		<item>z*sin(&#952;/2)</item>
+		<item>cos(&#952;/2)</item>
+		<item>estimated-heading-accuracy</item>
+	</string-array>
 	<string name="description_rotation_vector">
-		timestamp x*sin(&#952;/2) y*sin(&#952;/2) z*sin(&#952;/2) [cos(&#952;/2)] [estimated-heading-accuracy(radians)]\n
-		The rotation vector represents the orientation of the device as a combination of
-		an angle and an axis, in which the device has rotated through an angle &#952; around
-		an axis &#60;x, y, z&#62;.\n\n
-		The reference coordinate system is defined as a direct orthonormal basis, where:\n
-		- X is defined as the vector product Y.Z (It is tangential to the ground at the device\'s current location and roughly points East).\n
-		- Y is tangential to the ground at the device\'s current location and points towards magnetic north.\n
-		- Z points towards the sky and is perpendicular to the ground.
+		Estimated-heading-accuracy is in radians. The rotation vector represents the orientation of
+		the device as a combination of an angle and an axis, in which the device has rotated through
+		an angle &#952; around an axis &#60;x, y, z&#62;.
+		The reference coordinate system is defined as a direct orthonormal basis, where:
+		X is defined as the vector product Y.Z (It is tangential to the ground at the device\'s
+			current location and roughly points East).
+		Y is tangential to the ground at the device\'s current location and points towards magnetic
+			north.
+		Z points towards the sky and is perpendicular to the ground.
 	</string>
 
+	<string-array name="fields_significant_motion">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+	</string-array>
 	<string name="description_significant_motion">
-		timestamp
 		It triggers when an event occurs and then automatically disables itself.
 	</string>
 
+	<string-array name="fields_step_counter">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+	</string-array>
 	<string name="description_step_counter">
-		timestamp
-		A sensor of this type returns the number of steps taken by the user since the last reboot while activated.
+		A sensor of this type returns the number of steps taken by the user since the last reboot
+		while activated.
 	</string>
 
+	<string-array name="fields_step_detector">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+	</string-array>
 	<string name="description_step_detector">
-		timestamp
 		A sensor of this type triggers an event each time a step is taken by the
 		user. The only allowed value to return is 1.0 and an event is generated
 		for each step. Like with any other event, the timestamp indicates when
@@ -85,77 +178,131 @@
 		hit the ground, generating a high variation in acceleration.
 	</string>
 
+	<string-array name="fields_ambient_temperature">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+		<item>temperature</item>
+	</string-array>
 	<string name="description_ambient_temperature">
-		timestamp temperature(degree)
 		Ambient (room) temperature in degree Celsius.
 	</string>
 
+	<string-array name="fields_light">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+		<item>light</item>
+	</string-array>
 	<string name="description_light">
-		timestamp light(lux)
 		Ambient light level in SI lux units.
 	</string>
 
+	<string-array name="fields_pressure">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+		<item>pressure</item>
+	</string-array>
 	<string name="description_pressure">
-		timestamp pressure(hPa)
 		Atmospheric pressure in hPa (millibar).
 	</string>
 
+	<string-array name="fields_relative_humidity">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+		<item>humidity</item>
+	</string-array>
 	<string name="description_relative_humidity">
-		timestamp humidity(%)
 		Relative ambient air humidity in percent.
 	</string>
 
+	<string-array name="fields_heart_rate">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+		<item>heart-rate</item>
+	</string-array>
 	<string name="description_heart_rate">
-		timestamp heart-rate
-		A constant describing a heart rate monitor.\n
-		The reported value is the heart rate in beats per minute.
+		A constant describing a heart rate monitor. The reported value is the heart rate in
+		beats per minute.
 	</string>
 
+	<string-array name="fields_proximity">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+		<item>proximity</item>
+	</string-array>
 	<string name="description_proximity">
-		timestamp proximity (in centimeters) [unknown] [unknown]
-		Proximity sensor distance measured in centimeters.\n
-		Note: Some proximity sensors only support a binary near or far measurement.
-		In this case, the sensor should report its maximum range value in the far
-		state and a lesser value in the near state.
+		Proximity sensor distance measured in centimeters. Note: Some proximity sensors only support
+		a binary near or far measurement. In this case, the sensor should report its maximum range
+		value in the far state and a lesser value in the near state.
 	</string>
 
+	<string-array name="fields_unknown">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+	</string-array>
 	<string name="description_unknown">
 		Sorry, there is no description for this sensor.
 	</string>
 
+	<string-array name="fields_location">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+		<item>latitude</item>
+		<item>longitude</item>
+		<item>altitude</item>
+		<item>bearing</item>
+		<item>accuracy</item>
+		<item>speed</item>
+	</string-array>
 	<string name="description_location_passive">
-		timestamp latitude(degrees) longitude(degrees) altitude(meters) bearing(degrees) accuracy(meters) speed(meters/second)\n
-		This provider can be used to passively receive location updates when other applications or
-		services request them without actually requesting the locations yourself.
+		Latitude, longitude and bearing are in degrees. Altitude and accuracy are in meters.
+		Speed is in meters/second. This provider can be used to passively receive location updates
+		when other applications or services request them without actually requesting the locations
+		yourself.
 	</string>
 
+
 	<string name="description_location_gps">
-		timestamp latitude(degrees) longitude(degrees) altitude(meters) bearing(degrees) accuracy(meters) speed(meters/second)\n
 		This provider determines location using satellites. Depending on conditions, this provider
 		may take a while to return a location fix..
 	</string>
 
 	<string name="description_location_wifi_and_cells">
-		timestamp latitude(degrees) longitude(degrees) altitude(meters) bearing(degrees) accuracy(meters) speed(meters/second)\n
 		This provider determines location based on availability of cell tower and WiFi access points.
 		Results are retrieved by means of a network lookup.
 	</string>
 
+	<string-array name="fields_bluetooth">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+		<item>BSSID</item>
+		<item>rssi</item>
+		<item>data</item>
+	</string-array>
 	<string name="description_bluetooth">
-		timestamp mac-address rssi(dBm) data
+		RSSI is in dBm.
 	</string>
 
+	<string-array name="fields_nmea">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+		<item>data</item>
+	</string-array>
 	<string name="description_nmea">
-		timestamp sentence
-		NMEA sentences from the GPS.\n
-		NMEA 0183 is a standard for communicating with marine electronic devices and
-		is a common method for receiving data from a GPS, typically over a serial port.
+		NMEA data from the GPS. NMEA 0183 is a standard for communicating with marine electronic
+		devices and is a common method for receiving data from a GPS, typically over a serial port.
 	</string>
 
+	<string-array name="fields_nfc">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+		<item>data</item>
+	</string-array>
 	<string name="description_nfc">
-		timestamp
 	</string>
 
+	<string-array name="fields_position_references">
+		<item>elapsed-time-system</item>
+	</string-array>
 	<string name="description_position_references">
 		timestamp
 		Reference timestamp when clicked.

@@ -11,6 +11,7 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 
 import fr.inria.tyrex.senslogs.R;
+import fr.inria.tyrex.senslogs.model.RecordProperties;
 import fr.inria.tyrex.senslogs.model.Sensor;
 
 /**
@@ -19,11 +20,11 @@ import fr.inria.tyrex.senslogs.model.Sensor;
  */
 public class WifiSensor extends Sensor {
 
-    private final long bootTime;
     transient private WifiScanReceiver mWifiScanReceiver = null;
 
     transient private static WifiSensor instance;
-    private long mStartTimestamp;
+    transient private double mStartTime;
+    transient private double mStartTimeMinusBoot;
 
     public static WifiSensor getInstance() {
         if (instance == null) {
@@ -34,7 +35,6 @@ public class WifiSensor extends Sensor {
 
     private WifiSensor() {
         super(TYPE_WIFI, Category.RADIO);
-        bootTime = java.lang.System.currentTimeMillis() - android.os.SystemClock.elapsedRealtime();
     }
 
     @Override
@@ -53,8 +53,13 @@ public class WifiSensor extends Sensor {
     }
 
     @Override
-    public String getDataDescription(Resources res) {
+    public String getFieldsDescription(Resources res) {
         return res.getString(R.string.description_wifi);
+    }
+
+    @Override
+    public String[] getFields(Resources resources) {
+        return resources.getStringArray(R.array.fields_wifi);
     }
 
     @Override
@@ -76,9 +81,7 @@ public class WifiSensor extends Sensor {
     }
 
     @Override
-    public void start(Context context, Settings settings) {
-
-        mStartTimestamp = System.currentTimeMillis();
+    public void start(Context context, Settings settings, RecordProperties recordProperties) {
 
         if (!checkPermission(context)) {
             return;
@@ -88,6 +91,9 @@ public class WifiSensor extends Sensor {
         wifiManager.startScan();
         mWifiScanReceiver = new WifiScanReceiver();
         context.registerReceiver(mWifiScanReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+
+        mStartTime = recordProperties.startTime;
+        mStartTimeMinusBoot = recordProperties.startTime - recordProperties.bootTime;
     }
 
     @Override
@@ -104,8 +110,7 @@ public class WifiSensor extends Sensor {
     private class WifiScanReceiver extends BroadcastReceiver {
 
         public void onReceive(Context c, Intent intent) {
-
-            long timeSystem = System.currentTimeMillis();
+            double systemTimestamp = System.currentTimeMillis() / 1e3d - mStartTime;
 
             final WifiManager wifiManager = (WifiManager) c.getSystemService(Context.WIFI_SERVICE);
             if (mWifiScanReceiver != null) {
@@ -119,19 +124,16 @@ public class WifiSensor extends Sensor {
 
             for (ScanResult scan : wifiManager.getScanResults()) {
 
-                long timestampScan;
+                double diffTime;
                 if (Build.VERSION.SDK_INT >= 17) {
-                    // Scan timestamp is equivalent to elapsedTime in micro seconds
-                    timestampScan = bootTime + scan.timestamp / 1000;
+                    diffTime = scan.timestamp / 1e6d - mStartTimeMinusBoot;
                 } else {
-                    timestampScan = timeSystem;
+                    diffTime = systemTimestamp;
                 }
 
-                double timeScan = (timestampScan - mStartTimestamp) / 1e3d;
-
-                mListener.onNewValues(timeSystem,
-                        new Object[]{timeScan, scan.BSSID, "\"" + scan.SSID + "\"", scan.frequency,
-                                scan.level, scan.capabilities});
+                mListener.onNewValues(systemTimestamp, diffTime,
+                        new Object[]{scan.BSSID, "\"" + scan.SSID + "\"",
+                                scan.frequency, scan.level, scan.capabilities});
             }
         }
     }

@@ -40,15 +40,15 @@ public class Log implements Serializable {
         this.mEndCapture = endCapture;
     }
 
-    public Log(String name, File file, long uncompressedSize, Date startCapture,
-               Date endCapture, HashSet<Sensor> sensors, final ZipCreationTask zipCreationTask) {
+    public Log(String name, File file, long uncompressedSize, RecordProperties recordProperties,
+               HashSet<Sensor> sensors, final ZipCreationTask zipCreationTask) {
 
         this.mName = name;
         this.mFile = file;
         this.mUncompressedSize = uncompressedSize;
         this.mSensors = sensors;
-        this.mStartCapture = startCapture;
-        this.mEndCapture = endCapture;
+        this.mStartCapture = new Date((long) (recordProperties.startTime * 1e3));
+        this.mEndCapture = new Date((long) (recordProperties.endTime * 1e3));
         this.mZipCreationTask = zipCreationTask;
 
         mZipCreationTask.addListener(new ZipCreationTask.ZipCreationListener() {

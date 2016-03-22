@@ -10,6 +10,7 @@ import android.os.Bundle;
 import java.io.Serializable;
 
 import fr.inria.tyrex.senslogs.R;
+import fr.inria.tyrex.senslogs.model.RecordProperties;
 import fr.inria.tyrex.senslogs.model.Sensor;
 
 /**
@@ -17,6 +18,8 @@ import fr.inria.tyrex.senslogs.model.Sensor;
  * A special location provider for receiving locations without actually initiating a location fix.
  */
 public abstract class LocationSensor extends Sensor implements Serializable {
+
+    transient private double mStartTime;
 
     protected LocationSensor(int type) {
         super(type, Category.RADIO_COMPUTED);
@@ -39,7 +42,7 @@ public abstract class LocationSensor extends Sensor implements Serializable {
     }
 
     @Override
-    public void start(Context context, Sensor.Settings settings) {
+    public void start(Context context, Sensor.Settings settings, RecordProperties recordProperties) {
         LocationManager locationManager = (LocationManager)
                 context.getSystemService(Context.LOCATION_SERVICE);
 
@@ -54,6 +57,8 @@ public abstract class LocationSensor extends Sensor implements Serializable {
         Settings ls = (Settings) settings;
         locationManager.requestLocationUpdates(getLocationProvider(),
                 ls.minTime, ls.minDistance, mLocationListener);
+        
+        mStartTime = recordProperties.startTime;
     }
 
     @Override
@@ -87,12 +92,14 @@ public abstract class LocationSensor extends Sensor implements Serializable {
     transient private LocationListener mLocationListener = new LocationListener() {
         @Override
         public void onLocationChanged(final Location location) {
-            long nanoTime = System.nanoTime();
+            double systemTimestamp = System.currentTimeMillis() / 1e3d - mStartTime;
+
             if (mListener == null) {
                 return;
             }
 
-            mListener.onNewValues(nanoTime, new Object[]{location.getLatitude(), location.getLongitude(),
+            mListener.onNewValues(systemTimestamp, location.getTime() / 1e3d - mStartTime,
+                    new Object[]{location.getLatitude(), location.getLongitude(),
                     location.getAltitude(), location.getBearing(), location.getAccuracy(),
                     location.getSpeed()});
         }
@@ -135,4 +142,8 @@ public abstract class LocationSensor extends Sensor implements Serializable {
         return true;
     }
 
+    @Override
+    public String[] getFields(Resources resources) {
+        return resources.getStringArray(R.array.fields_location);
+    }
 }

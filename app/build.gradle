@@ -30,4 +30,5 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:23.1.1'
     compile 'com.bignerdranch.android:recyclerview-multiselect:0.2'
     compile 'com.google.code.gson:gson:2.4'
+    compile 'org.ini4j:ini4j:0.5.1'
 }

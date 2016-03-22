@@ -57,7 +57,7 @@ public abstract class Sensor implements Serializable, RecorderWriter.WritableObj
         return false;
     }
 
-    public abstract void start(Context context, Settings settings);
+    public abstract void start(Context context, Settings settings, RecordProperties mRecordProperties);
 
     public abstract void stop(Context context);
 
@@ -140,11 +140,14 @@ public abstract class Sensor implements Serializable, RecorderWriter.WritableObj
     public interface Listener {
         /**
          * Called for each new value from a sensor
-         * @param timestamp monotonic time in nanoseconds for Android sensor and Location sensor,
-         *                  time in millis for others
+         * @param diffTimeSystem difference time between beginning of capture and event received
+         *                       by system from sensor
+         * @param diffTimeSensor difference time between begining of capture and sensor event. This
+         *                       value is equal to diffTimeSystem if there is no specific timestamp
+         *                       from sensor
          * @param objects data
          */
-        void onNewValues(long timestamp, Object[] objects);
+        void onNewValues(double diffTimeSystem, double diffTimeSensor, Object[] objects);
     }
 
 
