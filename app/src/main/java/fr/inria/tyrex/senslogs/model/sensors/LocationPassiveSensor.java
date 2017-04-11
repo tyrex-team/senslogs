@@ -9,6 +9,7 @@ import android.os.Build;
 
 import fr.inria.tyrex.senslogs.R;
 
+
 /**
  * A special location provider for receiving locations without actually initiating a location fix.
  * http://developer.android.com/guide/topics/location/strategies.html

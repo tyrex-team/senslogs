@@ -9,6 +9,7 @@ import android.os.Build;
 
 import fr.inria.tyrex.senslogs.R;
 
+
 /**
  * Wifi and Cells Sensor provides a computed value from wifi and cells signals
  * http://developer.android.com/guide/topics/location/strategies.html

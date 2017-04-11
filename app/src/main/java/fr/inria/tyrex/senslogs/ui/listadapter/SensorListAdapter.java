@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -14,6 +15,7 @@ import java.util.List;
 
 import fr.inria.tyrex.senslogs.R;
 import fr.inria.tyrex.senslogs.control.PreferencesManager;
+import fr.inria.tyrex.senslogs.control.SensorsManager;
 import fr.inria.tyrex.senslogs.model.Sensor;
 
 /**
@@ -24,12 +26,16 @@ public class SensorListAdapter extends BaseExpandableListAdapter {
     private List<Group> mGroups;
     private Context mContext;
     private PreferencesManager mPreferencesManager;
+    private SensorsManager mSensorsManager;
     private SettingsClickListener mSettingsClickListener;
-    private CheckboxClickListener mCheckboxClickListener;
+    private CalibrationClickListener mCalibrationClickListener;
+    private CheckboxClickListener mCheckboxListener;
 
-    public SensorListAdapter(Context context, List<Group> groups, PreferencesManager preferencesManager) {
+    public SensorListAdapter(Context context, List<Group> groups, PreferencesManager preferencesManager,
+                             SensorsManager sensorsManager) {
         mContext = context;
         mPreferencesManager = preferencesManager;
+        mSensorsManager = sensorsManager;
         mGroups = groups;
     }
 
@@ -78,7 +84,7 @@ public class SensorListAdapter extends BaseExpandableListAdapter {
 
 
         ExpandableListView mExpandableListView = (ExpandableListView) parent;
-        if(mPreferencesManager.isExpended(group.category)) {
+        if (mPreferencesManager.isExpended(group.category)) {
             mExpandableListView.expandGroup(groupPosition);
         } else {
             mExpandableListView.collapseGroup(groupPosition);
@@ -88,7 +94,8 @@ public class SensorListAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
+    public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
+                             View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = View.inflate(mContext, R.layout.sensor_list_item, null);
         }
@@ -99,13 +106,17 @@ public class SensorListAdapter extends BaseExpandableListAdapter {
         TextView sensorNameTextView = (TextView) convertView.findViewById(R.id.sensor_name);
         TextView sensorTypeTextView = (TextView) convertView.findViewById(R.id.sensor_type);
         ImageButton settingsImageView = (ImageButton) convertView.findViewById(R.id.settings);
+        ImageButton calibrationImageView = (ImageButton) convertView.findViewById(R.id.calibration);
 
         sensorNameTextView.setText(sensor.getName());
         sensorTypeTextView.setText(sensor.getStringType());
         settingsImageView.setVisibility(sensor.hasSettings() ?
                 View.VISIBLE : View.GONE);
 
-        if(sensor.getName().equals(sensor.getStringType()) ||
+        calibrationImageView.setVisibility(mSensorsManager.getSensorsToCalibrate().contains(sensor) ?
+                View.VISIBLE : View.GONE);
+
+        if (sensor.getName().equals(sensor.getStringType()) ||
                 sensor.getStringType() == null) {
             sensorTypeTextView.setVisibility(View.GONE);
         } else {
@@ -121,16 +132,27 @@ public class SensorListAdapter extends BaseExpandableListAdapter {
             }
         });
 
+        calibrationImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mCalibrationClickListener != null) {
+                    mCalibrationClickListener.onCalibrationClick(sensor);
+                }
+            }
+        });
+
         // Not use setOnCheckedChangeListener() because it's called too often
         checkBoxItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mCheckboxClickListener != null) {
-                    mCheckboxClickListener.onCheckboxClick(sensor, checkBoxItem.isChecked());
+                if (mCheckboxListener != null) {
+                    mCheckboxListener.onCheckboxClick(sensor, checkBoxItem.isChecked(),
+                            (CompoundButton) v);
                 }
             }
         });
-        checkBoxItem.setChecked(mPreferencesManager.isChecked(sensor));
+
+        checkBoxItem.setChecked(mPreferencesManager.isChecked(sensor) && sensor.checkPermission(mContext));
 
         return convertView;
     }
@@ -173,12 +195,20 @@ public class SensorListAdapter extends BaseExpandableListAdapter {
         void onSettingsClick(Sensor sensor);
     }
 
+    public void setOnCalibrationClickListener(CalibrationClickListener listener) {
+        mCalibrationClickListener = listener;
+    }
+
+    public interface CalibrationClickListener {
+        void onCalibrationClick(Sensor sensor);
+    }
+
 
     public void setOnCheckboxClickListener(CheckboxClickListener listener) {
-        mCheckboxClickListener = listener;
+        mCheckboxListener = listener;
     }
 
     public interface CheckboxClickListener {
-        void onCheckboxClick(Sensor sensor, boolean isChecked);
+        void onCheckboxClick(Sensor sensor, boolean isChecked, CompoundButton view);
     }
 }

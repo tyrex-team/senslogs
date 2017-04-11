@@ -35,9 +35,9 @@ public class FinishRecordDialog extends DialogFragment {
 
         builder.setView(editText);
 
-        builder.setTitle(R.string.record_finish_dialog_title);
+        builder.setTitle(R.string.record_finished_dialog_title);
 
-        builder.setPositiveButton(R.string.record_finish_dialog_ok,
+        builder.setPositiveButton(R.string.record_finished_dialog_ok,
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -47,7 +47,7 @@ public class FinishRecordDialog extends DialogFragment {
                     }
                 });
 
-        builder.setNegativeButton(R.string.record_finish_dialog_cancel,
+        builder.setNegativeButton(R.string.record_finished_dialog_cancel,
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

@@ -16,7 +16,7 @@ import fr.inria.tyrex.senslogs.model.preferences.PreferencesDataSource;
 public class PreferencesManager {
 
     private final PreferencesDataSource mDataSource;
-    private List<Preference> mCachePreferences;
+    private List<Preference> mSensorsPreferences;
     private Map<Sensor.Category, Boolean> mCacheCategories;
 
     public PreferencesManager(Context context, SensorsManager sensorsManager) {
@@ -44,11 +44,11 @@ public class PreferencesManager {
         return preference != null && preference.selected;
     }
 
-    public Map<Sensor, Sensor.Settings> getCheckedSensors() {
+    public Map<Sensor, Sensor.Settings> getSelectedSensors() {
 
         Map<Sensor, Sensor.Settings> output = new HashMap<>();
 
-        for (Preference pref : mCachePreferences) {
+        for (Preference pref : mSensorsPreferences) {
             if (!pref.selected) {
                 continue;
             }
@@ -62,7 +62,6 @@ public class PreferencesManager {
     public void setSettings(Sensor sensor, Sensor.Settings settings) {
 
         Preference preference = getPreference(sensor);
-
 
         // Should never be called
         if (preference == null) {
@@ -79,7 +78,7 @@ public class PreferencesManager {
     }
 
     private Preference getPreference(Sensor sensor) {
-        for (Preference preference : mCachePreferences) {
+        for (Preference preference : mSensorsPreferences) {
             if (preference.sensor.equals(sensor)) {
                 return preference;
             }
@@ -89,7 +88,7 @@ public class PreferencesManager {
 
 
     private void loadPreferences() {
-        mCachePreferences = mDataSource.getPreferences();
+        mSensorsPreferences = mDataSource.getPreferences();
     }
 
 
@@ -111,7 +110,7 @@ public class PreferencesManager {
 
 
     public void clearAll() {
-        mCachePreferences.clear();
+        mSensorsPreferences.clear();
         mDataSource.removeAll();
     }
 

@@ -21,7 +21,10 @@ import fr.inria.tyrex.senslogs.model.sensors.WifiSensor;
  */
 public class SensorsManager {
 
-    private static ArrayList<Sensor> mAvailableSensorsList;
+
+    private ArrayList<Sensor> mAvailableSensorsList;
+    private List<Sensor> mSensorsToCalibrate;
+
 
     public SensorsManager(Context context) {
         generateAvailableSensors(context);
@@ -31,13 +34,23 @@ public class SensorsManager {
         return mAvailableSensorsList;
     }
 
+    public List<Sensor> getSensorsToCalibrate() { return mSensorsToCalibrate;}
+
     private void generateAvailableSensors(Context context) {
 
         mAvailableSensorsList = new ArrayList<>();
+        mSensorsToCalibrate = new ArrayList<>();
 
         SensorManager sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         for (android.hardware.Sensor sensor : sensorManager.getSensorList(android.hardware.Sensor.TYPE_ALL)) {
-            mAvailableSensorsList.add(new AndroidSensor(sensor));
+            AndroidSensor as = new AndroidSensor(sensor);
+            mAvailableSensorsList.add(as);
+            switch(sensor.getType()) {
+                case android.hardware.Sensor.TYPE_ACCELEROMETER:
+                case android.hardware.Sensor.TYPE_GYROSCOPE_UNCALIBRATED:
+                case android.hardware.Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED:
+                    mSensorsToCalibrate.add(as);
+            }
         }
 
         if (LocationGpsSensor.getInstance().exists(context)) {
@@ -66,6 +79,15 @@ public class SensorsManager {
     public Sensor getSensorByName(String name) {
         for (Sensor sensor : mAvailableSensorsList) {
             if (sensor.getName().equals(name)) {
+                return sensor;
+            }
+        }
+        return null;
+    }
+
+    public Sensor getSensorByType(int type) {
+        for (Sensor sensor : mAvailableSensorsList) {
+            if (sensor.getType() == type) {
                 return sensor;
             }
         }

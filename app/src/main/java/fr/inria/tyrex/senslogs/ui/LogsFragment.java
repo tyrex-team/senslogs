@@ -34,6 +34,8 @@ import com.bignerdranch.android.multiselector.SwappingHolder;
 import java.io.File;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import fr.inria.tyrex.senslogs.Application;
@@ -124,6 +126,14 @@ public class LogsFragment extends Fragment {
         View v = mBinding.getRoot();
 
         mLogs = mLogsManager.getLogs();
+        Collections.sort(mLogs, new Comparator<Log>() {
+            @Override
+            public int compare(Log lhs, Log rhs) {
+                return Double.compare(lhs.getRecordTimes().startTime, rhs.getRecordTimes().startTime);
+            }
+        });
+        Collections.reverse(mLogs);
+
         LogsAdapter adapter = new LogsAdapter();
 
         mRecyclerView = (RecyclerView) v.findViewById(R.id.logs_recycler_view);
@@ -181,7 +191,6 @@ public class LogsFragment extends Fragment {
 
         if (item.getItemId() == android.R.id.home) {
             getActivity().supportFinishAfterTransition();
-            getActivity().overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
         }
 
         return true;
@@ -224,6 +233,10 @@ public class LogsFragment extends Fragment {
         }
 
         Snackbar.make(mRecyclerView, Html.fromHtml(snackBarMessage), Snackbar.LENGTH_LONG).show();
+
+        if (mLogsManager.getLogs().size() == 0) {
+            mBinding.invalidateAll();
+        }
     }
 
 
@@ -397,7 +410,7 @@ public class LogsFragment extends Fragment {
             mLog = log;
 
             mName.setText(log.getName());
-            mDateTime.setText(DateFormat.getDateTimeInstance().format(log.getStartCapture()));
+            mDateTime.setText(DateFormat.getDateTimeInstance().format(log.getRecordTimes().startTime * 1000));
             mCompressedSize.setText(StringsFormat.getSize(getResources(), log.getCompressedSize()));
             mShare.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -483,7 +496,7 @@ public class LogsFragment extends Fragment {
             case MY_PERMISSIONS_REQUEST: {
                 if (mAskCopy) {
                     copy(mTmpLog);
-                } else if(mAskShare) {
+                } else if (mAskShare) {
                     share(mTmpLog);
                 }
             }
@@ -491,3 +504,4 @@ public class LogsFragment extends Fragment {
     }
 
 }
+

@@ -9,6 +9,8 @@ import android.os.Build;
 
 import fr.inria.tyrex.senslogs.R;
 
+import static fr.inria.tyrex.senslogs.model.Sensor.TYPE_LOCATION_GPS;
+
 /**
  * GPS Sensor provides a computed value from NMEA data
  * http://developer.android.com/guide/topics/location/strategies.html

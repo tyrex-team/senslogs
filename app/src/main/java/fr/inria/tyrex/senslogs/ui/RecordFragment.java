@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
@@ -110,7 +111,7 @@ public class RecordFragment extends Fragment {
         mRecordTimestampButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mRecorder.addReferenceTimestamp(System.currentTimeMillis());
+                mRecorder.addReference(0, 0, null);
             }
         });
 
@@ -148,7 +149,11 @@ public class RecordFragment extends Fragment {
         mRecordCancelTextView.setEnabled(false);
         mRecordTimestampButton.setEnabled(true);
 
-        mRecorder.resume();
+        try {
+            mRecorder.play();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     private void onPauseClick() {
@@ -191,14 +196,14 @@ public class RecordFragment extends Fragment {
     public void cancelAction() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        builder.setMessage(R.string.record_cancel_dialog_message)
-                .setPositiveButton(R.string.record_cancel_dialog_yes, new DialogInterface.OnClickListener() {
+        builder.setMessage(R.string.record_cancelled_dialog_message)
+                .setPositiveButton(R.string.record_cancelled_dialog_yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         cancelRecorderConfirmed();
                     }
                 })
-                .setNegativeButton(R.string.record_cancel_dialog_no, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.record_cancelled_dialog_no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
@@ -210,7 +215,6 @@ public class RecordFragment extends Fragment {
 
     private void cancelRecorderConfirmed() {
         try {
-            mRecorder.stop();
             mRecorder.cancel();
         } catch (IOException e) {
             e.printStackTrace();
@@ -222,13 +226,6 @@ public class RecordFragment extends Fragment {
     }
 
     private void finishAction() {
-        try {
-            mRecorder.stop();
-        } catch (IOException e) {
-            e.printStackTrace();
-            android.util.Log.e(Application.LOG_TAG, "Something bad happened with file creation");
-            return;
-        }
 
         FragmentManager fm = getActivity().getSupportFragmentManager();
         FinishRecordDialog newFragment = new FinishRecordDialog();

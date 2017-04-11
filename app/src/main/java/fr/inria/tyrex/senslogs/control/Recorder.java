@@ -20,13 +20,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import fr.inria.tyrex.senslogs.R;
 import fr.inria.tyrex.senslogs.model.Log;
-import fr.inria.tyrex.senslogs.model.RecordProperties;
+import fr.inria.tyrex.senslogs.model.PositionReference;
 import fr.inria.tyrex.senslogs.model.Sensor;
 import fr.inria.tyrex.senslogs.ui.RecordActivity;
 import fr.inria.tyrex.senslogs.ui.utils.KillNotificationsService;
@@ -38,111 +39,139 @@ public class Recorder {
 
     public final static int NOTIFICATION_ID = 1;
 
-
     private final Context mContext;
     private final LogsManager mLogsManager;
+    private final PreferencesManager mPreferencesManager;
+
     private RecorderWriter mRecorderWriter;
-    private RecordProperties mRecordProperties;
+    private Log mLog;
 
     private Map<Sensor, Sensor.Settings> mSensorsAndSettings;
+    private LinkedList<PositionReference> mReferences;
 
 
     private boolean isRecording = false;
+    private boolean isFirstPlay = true;
 
-    public Recorder(Context context, LogsManager logsManager) {
+    public Recorder(Context context, LogsManager logsManager,
+                    PreferencesManager preferencesManager) {
         mContext = context;
         mLogsManager = logsManager;
-        mRecordProperties = new RecordProperties();
-    }
-
-    public void start(Map<Sensor, Sensor.Settings> sensorsAndSettings) throws FileNotFoundException {
-        mSensorsAndSettings = sensorsAndSettings;
-
-        mRecordProperties.init();
-
-
-        mRecorderWriter = new RecorderWriter(mContext);
-
-        File tmpSubFolder = new File(mContext.getFilesDir(), String.valueOf(UUID.randomUUID()));
-
-        if (!tmpSubFolder.mkdir()) {
-            throw new FileNotFoundException();
-        }
-
-        Set<RecorderWriter.WritableObject> writableObjects = new HashSet<>();
-        writableObjects.addAll(mSensorsAndSettings.keySet());
-        writableObjects.add(TimestampReferenceManager.getWritableObject());
-
-        mRecorderWriter.init(writableObjects, tmpSubFolder);
-        for (final Sensor sensor : mSensorsAndSettings.keySet()) {
-            sensor.setListener(new Sensor.Listener() {
-                @Override
-                public void onNewValues(double diffTimeSystem, double diffTimeSensor, Object[] objects) {
-                    mRecorderWriter.write(sensor, diffTimeSystem, diffTimeSensor, objects);
-                }
-            });
-        }
-
-        LocationManager locationManager =
-                (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-        for (final Map.Entry<Sensor, Sensor.Settings> sensorAndSetting : mSensorsAndSettings.entrySet()) {
-
-            Sensor sensor = sensorAndSetting.getKey();
-
-            if (sensor.getType() == Sensor.TYPE_LOCATION_GPS &&
-                    ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED){
-                mRecordProperties.gpsLastKnownLocation =
-                        locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            }
-
-            if (sensor.getType() == Sensor.TYPE_LOCATION_PASSIVE &&
-                    ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED){
-                mRecordProperties.passiveLastKnownLocation =
-                        locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-            }
-
-            if (sensor.getType() == Sensor.TYPE_LOCATION_CELL_WIFI &&
-                    ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED){
-                mRecordProperties.networkLastKnownLocation =
-                        locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            }
-        }
-
-        resetTimer();
-        resume();
+        mPreferencesManager = preferencesManager;
+        mReferences = new LinkedList<>();
     }
 
 
-    public void resume() {
+    public boolean isRecording() {
+        return isRecording;
+    }
+
+
+    public void play() throws FileNotFoundException {
+        play(mPreferencesManager.getSelectedSensors());
+    }
+
+    public void play(Map<Sensor, Sensor.Settings> sensorsAndSettings) throws FileNotFoundException {
+        play(sensorsAndSettings, Log.Calibration.NO);
+    }
+
+    public void play(Map<Sensor, Sensor.Settings> sensorsAndSettings, Log.Calibration calibration)
+            throws FileNotFoundException {
 
         if (isRecording) {
             return;
         }
 
-        startTimer();
-        (mDataSizeHandler = new Handler()).post(dataSizeUpdate);
+        // Need to init some properties for the first play
+        if (isFirstPlay) {
+
+            // Retrieve sensors from preferences
+            mSensorsAndSettings = sensorsAndSettings;
+
+            mLog = new Log(calibration, mSensorsAndSettings.keySet());
+            mLog.init();
+            mReferences.clear();
+
+            // Create new folder for records
+            File tmpSubFolder = new File(mContext.getFilesDir(), String.valueOf(UUID.randomUUID()));
+            if (!tmpSubFolder.mkdir()) {
+                throw new FileNotFoundException();
+            }
+
+            // Retrieve and init writer with sensors
+            Set<RecorderWriter.WritableObject> writableObjects = new HashSet<>();
+            writableObjects.addAll(mSensorsAndSettings.keySet());
+
+            // We need to create a new instance because writer is used during zip creation task
+            mRecorderWriter = new RecorderWriter(mContext);
+            mRecorderWriter.init(tmpSubFolder);
+            mRecorderWriter.createFiles(writableObjects);
+
+            // Retrieve last known locations for ini file
+            LocationManager locationManager =
+                    (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+            for (final Map.Entry<Sensor, Sensor.Settings> sensorAndSetting : mSensorsAndSettings.entrySet()) {
+
+                Sensor sensor = sensorAndSetting.getKey();
+
+                if (sensor.getType() == Sensor.TYPE_LOCATION_GPS &&
+                        ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION)
+                                == PackageManager.PERMISSION_GRANTED) {
+                    mLog.setGpsLastKnownLocation(
+                            locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
+                }
+
+                if (sensor.getType() == Sensor.TYPE_LOCATION_PASSIVE &&
+                        ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION)
+                                == PackageManager.PERMISSION_GRANTED) {
+                    mLog.setPassiveLastKnownLocation(
+                            locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER));
+                }
+
+                if (sensor.getType() == Sensor.TYPE_LOCATION_CELL_WIFI &&
+                        ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION)
+                                == PackageManager.PERMISSION_GRANTED) {
+                    mLog.setNetworkLastKnownLocation(
+                            locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER));
+                }
+            }
+
+            isFirstPlay = false;
+        }
 
 
+        // Start and listen sensors
         for (final Map.Entry<Sensor, Sensor.Settings> sensorAndSetting : mSensorsAndSettings.entrySet()) {
-            if (sensorAndSetting.getKey().mustRunOnUiThread()) {
-                sensorAndSetting.getKey().start(mContext, sensorAndSetting.getValue(), mRecordProperties);
+
+            final Sensor sensor = sensorAndSetting.getKey();
+            final Sensor.Settings settings = sensorAndSetting.getValue();
+
+            sensor.setListener(new Sensor.Listener() {
+                @Override
+                public void onNewValues(double diffTimeSystem, double diffTimeSensor, Object[] objects) {
+                    mRecorderWriter.asycWrite(sensor, diffTimeSystem, diffTimeSensor, objects);
+                }
+            });
+
+            // Some sensors take a long time to start but have to be run on UI thread
+            if (sensor.mustRunOnUiThread()) {
+                sensor.start(mContext, settings, mLog.getRecordTimes());
             } else {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        sensorAndSetting.getKey().start(mContext, sensorAndSetting.getValue(), mRecordProperties);
+                        sensor.start(mContext, settings, mLog.getRecordTimes());
                     }
                 }).start();
             }
         }
 
         createNotification();
+        startTimer();
+        (mDataSizeHandler = new Handler()).post(dataSizeUpdate);
         isRecording = true;
-
     }
+
 
     public void pause() {
 
@@ -152,8 +181,12 @@ public class Recorder {
 
         stopTimer();
         mDataSizeHandler.removeCallbacks(dataSizeUpdate);
+        removeNotification();
 
         for (final Sensor sensor : mSensorsAndSettings.keySet()) {
+
+            sensor.setListener(null);
+
             if (sensor.mustRunOnUiThread()) {
                 sensor.stop(mContext);
             } else {
@@ -166,64 +199,101 @@ public class Recorder {
             }
         }
 
-        mRecordProperties.endTime = System.currentTimeMillis() / 1e3d;
-        removeNotification();
+        mLog.getRecordTimes().endTime = System.currentTimeMillis() / 1e3d;
         isRecording = false;
     }
 
 
-    public void stop() throws IOException {
+    public void cancel() throws IOException {
 
-        pause();
-
-        for (final Sensor sensor : mSensorsAndSettings.keySet()) {
-            sensor.setListener(null);
+        if (isRecording) {
+            pause();
         }
-
-        resetTimer();
         mRecorderWriter.finish();
-
-    }
-
-    public void cancel() {
         mRecorderWriter.removeFiles();
+        isFirstPlay = true;
+        isRecording = false;
     }
+
 
     public Log save(String title) throws IOException {
+        return save(title, null, null, null);
+    }
 
+    public Log save(String title, String user, String positionOrientation, String comment) throws IOException {
+
+        if(mReferences.size() > 0) {
+
+            // Write reference positions
+            RecorderWriter.WritableObject prWritableObject = PositionsReferenceManager.getWritableObject();
+            mRecorderWriter.createFile(prWritableObject);
+            for (PositionReference reference : mReferences) {
+                mRecorderWriter.write(prWritableObject, reference.elapsedTime, null, reference.toObject());
+            }
+
+        }
+
+        mRecorderWriter.finish();
+
+        resetTimer();
+
+        // Set title to unknown if null and replace non word characters by underscore
         if (title == null || title.isEmpty()) {
-            title = mContext.getString(R.string.record_finish_empty_filename);
+            title = mContext.getString(R.string.record_finished_empty_filename);
         }
         String filename = title.replaceAll("\\W+", "_");
 
-        final Pair<File, ZipCreationTask> zipCreationPair = mRecorderWriter.createZipFile(filename,
-                mRecordProperties);
-        final HashSet<Sensor> sensors = new HashSet<>(mSensorsAndSettings.keySet());
-        Log newLog = new Log(title, zipCreationPair.first, mRecorderWriter.getFilesSize(),
-                mRecordProperties, sensors, zipCreationPair.second);
+        mLog.setName(title);
+        mLog.setUser(user);
+        mLog.setComment(comment);
+        mLog.setPositionOrientation(positionOrientation);
+        mLog.setUncompressedSize(mRecorderWriter.getFilesSize());
 
-        mLogsManager.addLog(newLog);
 
-        zipCreationPair.second.addListener(new ZipCreationTask.ZipCreationListener() {
+        // Create Zip File
+        final Pair<File, ZipCreationTask> zipCreationPair = mRecorderWriter.createZipFile(filename, mLog);
+        final File zipFile = zipCreationPair.first;
+        final ZipCreationTask zipTask = zipCreationPair.second;
+
+        mLog.setZipCreationTask(zipTask);
+
+        zipTask.addListener(new ZipCreationTask.ZipCreationListener() {
             @Override
             public void onProgress(File currentFile, float ratio) {
             }
 
             @Override
             public void onTaskFinished(File outputFile, long fileSize) {
+                // Remove files when recorder finished
                 mRecorderWriter.removeFiles();
-                zipCreationPair.second.removeListener(this);
+                zipTask.removeListener(this);
             }
         });
 
-        return newLog;
+        mLog.setFile(zipFile);
+
+        mLogsManager.addLog(mLog);
+
+        isFirstPlay = true;
+
+        return mLog;
     }
 
 
-    public void addReferenceTimestamp(long timestamp) {
-        double diffTime = timestamp / 1e3d - mRecordProperties.startTime;
-        mRecorderWriter.write(TimestampReferenceManager.getWritableObject(), diffTime);
+    public Log.RecordTimes getRecordTimes() {
+        return mLog.getRecordTimes();
     }
+
+
+    public void addReference(double latitude, double longitude, Float level) {
+        double elapsedTime = System.currentTimeMillis() / 1e3d - mLog.getRecordTimes().startTime;
+        mReferences.add(new PositionReference(elapsedTime, latitude, longitude, level));
+    }
+
+    public void removeLastReference() {
+        mReferences.pollLast();
+    }
+
 
     //<editor-fold desc="DataSize">
     private Handler mDataSizeHandler;
@@ -259,20 +329,17 @@ public class Recorder {
         mDataSizeListener = new Pair<>(new Handler(), listener);
     }
 
-    public boolean isRecording() {
-        return isRecording;
-    }
-
 
     public interface DataSizeListener {
         void onNewTotalSize(long totalSize);
     }
     //</editor-fold>
 
+
     //<editor-fold desc="Timer">
     private Handler timerHandler;
     private long firstTime;
-    private long computeTime = 0;
+    private long computeTime;
 
     private Runnable timer = new Runnable() {
         @Override
@@ -299,6 +366,7 @@ public class Recorder {
     private void startTimer() {
         timerHandler = new Handler();
         firstTime = System.currentTimeMillis();
+        computeTime = 0;
         timerHandler.post(timer);
     }
 
@@ -337,12 +405,8 @@ public class Recorder {
     }
     //</editor-fold>
 
-    public Set<Sensor> getSelectedSensors() {
-        if (mSensorsAndSettings != null)
-            return mSensorsAndSettings.keySet();
-        return new HashSet<>();
-    }
 
+    //<editor-fold desc="Notification">
 
     private void createNotification() {
         mContext.bindService(new Intent(mContext, KillNotificationsService.class),
@@ -388,4 +452,8 @@ public class Recorder {
         }
 
     };
+    //</editor-fold>
+
+
 }
+

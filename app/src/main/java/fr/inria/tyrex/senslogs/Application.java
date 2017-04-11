@@ -32,7 +32,7 @@ public class Application extends android.app.Application {
         mSensorsManager = new SensorsManager(this);
         mLogsManager = new LogsManager(this, mSensorsManager);
         mPreferencesManager = new PreferencesManager(this, mSensorsManager);
-        mRecorder = new Recorder(this, mLogsManager);
+        mRecorder = new Recorder(this, mLogsManager, mPreferencesManager);
 
         // Clean internal directory (just in case)
         cleanTmpFiles();

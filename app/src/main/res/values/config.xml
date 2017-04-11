@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<string name="folder_logs_sd_card">Senslogs</string>
+    <string name="folder_logs_sd_card" translatable="false">senslogs</string>
+
+    <string name="folder_calibration_accelerometer" translatable="false">%1$s_calib_acc</string>
+    <string name="folder_calibration_gyroscope" translatable="false">%1$s_calib_gyr</string>
+    <string name="folder_calibration_magnetometer" translatable="false">%1$s_calib_mag</string>
+
+    <string name="date_format_file_default" translatable="false">yyyyMMdd_HHmmss</string>
+
+    <string name="file_record_properties" translatable="false">record.properties</string>
 
 </resources>

@@ -10,8 +10,9 @@ import android.os.Bundle;
 import java.io.Serializable;
 
 import fr.inria.tyrex.senslogs.R;
-import fr.inria.tyrex.senslogs.model.RecordProperties;
+import fr.inria.tyrex.senslogs.model.Log;
 import fr.inria.tyrex.senslogs.model.Sensor;
+
 
 /**
  * Describes a generic sensor from LocationManager
@@ -42,7 +43,7 @@ public abstract class LocationSensor extends Sensor implements Serializable {
     }
 
     @Override
-    public void start(Context context, Sensor.Settings settings, RecordProperties recordProperties) {
+    public void start(Context context, Sensor.Settings settings, Log.RecordTimes recordTimes) {
         LocationManager locationManager = (LocationManager)
                 context.getSystemService(Context.LOCATION_SERVICE);
 
@@ -58,7 +59,7 @@ public abstract class LocationSensor extends Sensor implements Serializable {
         locationManager.requestLocationUpdates(getLocationProvider(),
                 ls.minTime, ls.minDistance, mLocationListener);
         
-        mStartTime = recordProperties.startTime;
+        mStartTime = recordTimes.startTime;
     }
 
     @Override

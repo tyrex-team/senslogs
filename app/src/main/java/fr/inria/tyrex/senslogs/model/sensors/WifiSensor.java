@@ -1,5 +1,6 @@
 package fr.inria.tyrex.senslogs.model.sensors;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,9 +10,11 @@ import android.content.res.Resources;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 
 import fr.inria.tyrex.senslogs.R;
-import fr.inria.tyrex.senslogs.model.RecordProperties;
+import fr.inria.tyrex.senslogs.model.Log;
 import fr.inria.tyrex.senslogs.model.Sensor;
 
 /**
@@ -25,6 +28,8 @@ public class WifiSensor extends Sensor {
     transient private static WifiSensor instance;
     transient private double mStartTime;
     transient private double mStartTimeMinusBoot;
+
+    transient private long mTimeStartScan;
 
     public static WifiSensor getInstance() {
         if (instance == null) {
@@ -77,27 +82,47 @@ public class WifiSensor extends Sensor {
     @Override
     public boolean checkPermission(Context context) {
         return !(Build.VERSION.SDK_INT >= 23 &&
-                context.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED);
+                context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED);
     }
 
     @Override
-    public void start(Context context, Settings settings, RecordProperties recordProperties) {
+    public void start(Context context, Settings settings, Log.RecordTimes recordTimes) {
 
         if (!checkPermission(context)) {
             return;
         }
 
-        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        wifiManager.startScan();
         mWifiScanReceiver = new WifiScanReceiver();
         context.registerReceiver(mWifiScanReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
-        mStartTime = recordProperties.startTime;
-        mStartTimeMinusBoot = recordProperties.startTime - recordProperties.bootTime;
+
+        final WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        wifiManager.startScan();
+        mTimeStartScan = System.currentTimeMillis();
+
+        mStartTime = recordTimes.startTime;
+        mStartTimeMinusBoot = recordTimes.startTime - recordTimes.bootTime;
+
+        final Handler handler = new Handler(Looper.getMainLooper());
+        final Runnable runnableRescan = new Runnable() {
+            public void run() {
+                handler.postDelayed(this, 1000);
+
+                if (System.currentTimeMillis() - mTimeStartScan > 6000) {
+                    wifiManager.startScan();
+                }
+            }
+        };
+        handler.post(runnableRescan);
     }
 
     @Override
     public void stop(Context context) {
+
+        if (!checkPermission(context)) {
+            return;
+        }
+
         context.unregisterReceiver(mWifiScanReceiver);
         mWifiScanReceiver = null;
     }
@@ -115,6 +140,7 @@ public class WifiSensor extends Sensor {
             final WifiManager wifiManager = (WifiManager) c.getSystemService(Context.WIFI_SERVICE);
             if (mWifiScanReceiver != null) {
                 wifiManager.startScan();
+                mTimeStartScan = System.currentTimeMillis();
             }
 
             if (mListener == null) {

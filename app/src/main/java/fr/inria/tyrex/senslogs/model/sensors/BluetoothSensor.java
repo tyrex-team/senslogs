@@ -7,7 +7,7 @@ import android.content.res.Resources;
 import android.os.Build;
 
 import fr.inria.tyrex.senslogs.R;
-import fr.inria.tyrex.senslogs.model.RecordProperties;
+import fr.inria.tyrex.senslogs.model.Log;
 import fr.inria.tyrex.senslogs.model.Sensor;
 
 /**
@@ -75,7 +75,7 @@ public class BluetoothSensor extends Sensor {
     }
 
     @Override
-    public void start(Context context, Settings settings, RecordProperties mRecordProperties) {
+    public void start(Context context, Settings settings, Log.RecordTimes recordTimes) {
         //TODO
 //        BluetoothManager bluetoothManager = (BluetoothManager)
 //                context.getSystemService(Context.BLUETOOTH_SERVICE);

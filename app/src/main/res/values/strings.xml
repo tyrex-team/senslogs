@@ -94,6 +94,22 @@
 	<string name="settings_cancel">Cancel</string>
 
 
+	<string name="list_item_calibration">Calibration</string>
+	<string name="calibration_title">Calibration of %1$s</string>
+	<string name="calibration_magnetometer_help">For the magnetometer calibration, turn your device
+		in a maximum of orientations. For example you can reproduce the infinity shape.</string>
+	<string name="calibration_gyroscope_help">For the gyroscope calibration, let your device static
+		(laid) during 5 sec.</string>
+	<string name="calibration_accelerometer_help">For the accelerometer calibration, let your device
+		static (laid) in a minimum of 9 different positions during 2 seconds. If it\'s possible with
+		9 distinct orientations.</string>
+	<string name="calibration_start">Start</string>
+	<string name="calibration_pause">Pause</string>
+	<string name="calibration_restart">Restart</string>
+	<string name="calibration_save">Save</string>
+	<string name="calibration_cancel">Cancel</string>
+
+
 	<string name="record_notification">Recording&#8230;</string>
 	<string name="record_start">Start</string>
 	<string name="record_pause">Pause</string>
@@ -104,14 +120,14 @@
 	<string name="record_data_size_default">0 kB</string>
 	<string name="record_timestamp">Record timestamp</string>
 
-	<string name="record_finish_dialog_title">Record Title</string>
-	<string name="record_finish_dialog_ok">Save</string>
-	<string name="record_finish_dialog_cancel">Cancel</string>
-	<string name="record_finish_empty_filename">untitled</string>
+	<string name="record_finished_dialog_title">Record Title</string>
+	<string name="record_finished_dialog_ok">Save</string>
+	<string name="record_finished_dialog_cancel">Cancel</string>
+	<string name="record_finished_empty_filename">untitled</string>
 
-	<string name="record_cancel_dialog_message">Are you sure you want to delete current record ?</string>
-	<string name="record_cancel_dialog_yes">Delete</string>
-	<string name="record_cancel_dialog_no">Back</string>
+	<string name="record_cancelled_dialog_message">Are you sure you want to delete current record ?</string>
+	<string name="record_cancelled_dialog_yes">Delete</string>
+	<string name="record_cancelled_dialog_no">Back</string>
 
 	<string name="record_data_saved"><![CDATA[<b>%1$s</b> saved in logs]]></string>
 	<string name="record_data_saved_see">SEE</string>

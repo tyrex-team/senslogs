@@ -9,8 +9,9 @@ import android.os.Build;
 import android.os.SystemClock;
 
 import fr.inria.tyrex.senslogs.R;
-import fr.inria.tyrex.senslogs.model.RecordProperties;
+import fr.inria.tyrex.senslogs.model.Log;
 import fr.inria.tyrex.senslogs.model.Sensor;
+
 
 /**
  * Sensor from Android's SensorManager
@@ -151,7 +152,7 @@ public class AndroidSensor extends Sensor {
     }
 
     @Override
-    public void start(Context context, Sensor.Settings settings, RecordProperties recordProperties) {
+    public void start(Context context, Sensor.Settings settings, Log.RecordTimes recordTimes) {
 
         if (!(settings instanceof Settings)) {
             return;
@@ -161,9 +162,9 @@ public class AndroidSensor extends Sensor {
         SensorManager sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         sensorManager.registerListener(mSensorEventListener, mSensor, sensorSettings.sensorDelay);
 
-        mMonotonicAtStart = recordProperties.monotonicAtStart;
-        mStartTime = recordProperties.startTime;
-        mStartTimeMinusBoot = recordProperties.startTime - recordProperties.bootTime;
+        mMonotonicAtStart = recordTimes.monotonicAtStart;
+        mStartTime = recordTimes.startTime;
+        mStartTimeMinusBoot = recordTimes.startTime - recordTimes.bootTime;
     }
 
     @Override
@@ -190,7 +191,7 @@ public class AndroidSensor extends Sensor {
     public static class Settings extends Sensor.Settings {
         public int sensorDelay;
 
-        public static Settings DEFAULT = new Settings(SensorManager.SENSOR_DELAY_NORMAL);
+        public static Settings DEFAULT = new Settings(SensorManager.SENSOR_DELAY_GAME);
 
         public Settings(int sensorDelay) {
             this.sensorDelay = sensorDelay;

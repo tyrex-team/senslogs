@@ -12,7 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import fr.inria.tyrex.senslogs.R;
-import fr.inria.tyrex.senslogs.model.RecordProperties;
+import fr.inria.tyrex.senslogs.model.Log;
 import fr.inria.tyrex.senslogs.model.Sensor;
 
 /**
@@ -81,7 +81,7 @@ public class NmeaSensor extends Sensor {
 
 
     @Override
-    public void start(Context context, Settings settings, RecordProperties recordProperties) {
+    public void start(Context context, Settings settings, Log.RecordTimes recordTimes) {
         LocationManager locationManager = (LocationManager)
                 context.getSystemService(Context.LOCATION_SERVICE);
 
@@ -92,7 +92,7 @@ public class NmeaSensor extends Sensor {
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
         locationManager.addNmeaListener(mNmeaListener);
 
-        mStartTime = recordProperties.startTime;
+        mStartTime = recordTimes.startTime;
     }
 
     @Override

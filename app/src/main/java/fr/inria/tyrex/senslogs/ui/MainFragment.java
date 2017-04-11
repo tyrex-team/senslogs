@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.DialogFragment;
@@ -23,17 +24,14 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.CompoundButton;
 import android.widget.ExpandableListView;
-import android.widget.Toast;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import fr.inria.tyrex.senslogs.Application;
 import fr.inria.tyrex.senslogs.R;
@@ -44,10 +42,10 @@ import fr.inria.tyrex.senslogs.control.SensorsManager;
 import fr.inria.tyrex.senslogs.model.Log;
 import fr.inria.tyrex.senslogs.model.Sensor;
 import fr.inria.tyrex.senslogs.model.sensors.AndroidSensor;
+import fr.inria.tyrex.senslogs.ui.dialog.CalibrationSensorDialog;
 import fr.inria.tyrex.senslogs.ui.dialog.InformationSensorDialog;
 import fr.inria.tyrex.senslogs.ui.dialog.SettingsSensorDialog;
 import fr.inria.tyrex.senslogs.ui.listadapter.SensorListAdapter;
-import fr.inria.tyrex.senslogs.ui.utils.Utils;
 
 import static fr.inria.tyrex.senslogs.ui.listadapter.SensorListAdapter.Group;
 
@@ -70,7 +68,7 @@ public class MainFragment extends Fragment {
     private View mRootView;
     private MenuItem mActionLogMenuItem;
 
-    private boolean mAskToPlay = false;
+    private CompoundButton mCheckboxAskingForPermission;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -135,6 +133,7 @@ public class MainFragment extends Fragment {
     private void fillList() {
 
         List<Sensor> availableSensors = mSensorsManager.getAvailableSensors();
+
         Collections.sort(availableSensors, new Comparator<Sensor>() {
             @Override
             public int compare(Sensor sensor1, Sensor sensor2) {
@@ -160,7 +159,8 @@ public class MainFragment extends Fragment {
             lastCategory = sensor.getCategory();
         }
 
-        final SensorListAdapter listAdapter = new SensorListAdapter(getActivity(), mGroupList, mPreferencesManager);
+        final SensorListAdapter listAdapter = new SensorListAdapter(getActivity(), mGroupList,
+                mPreferencesManager, mSensorsManager);
         final ExpandableListView listViewSensors = (ExpandableListView) mRootView.findViewById(R.id.sensors_list);
         listViewSensors.setAdapter(listAdapter);
 
@@ -179,22 +179,29 @@ public class MainFragment extends Fragment {
             }
         });
 
+        listAdapter.setOnCalibrationClickListener(new SensorListAdapter.CalibrationClickListener() {
+            @Override
+            public void onCalibrationClick(Sensor sensor) {
+                MainFragment.this.onCalibrationClick(sensor);
+            }
+        });
+
         listAdapter.setOnCheckboxClickListener(new SensorListAdapter.CheckboxClickListener() {
             @Override
-            public void onCheckboxClick(Sensor sensor, boolean isChecked) {
-                MainFragment.this.onCheckboxClick(sensor, isChecked);
+            public void onCheckboxClick(Sensor sensor, boolean isChecked, CompoundButton view) {
+                MainFragment.this.onCheckboxClick(sensor, isChecked, view);
             }
         });
     }
 
-
     private void onAndroidSensorClick(Sensor sensor) {
-        if (sensor instanceof AndroidSensor) {
-            FragmentManager fm = getFragmentManager();
-            DialogFragment newFragment = InformationSensorDialog.newInstance(
-                    (AndroidSensor) sensor);
-            newFragment.show(fm, "fragment_information_sensor");
+        if (!(sensor instanceof AndroidSensor)) {
+            return;
         }
+        FragmentManager fm = getFragmentManager();
+        DialogFragment newFragment = InformationSensorDialog.newInstance(
+                (AndroidSensor) sensor);
+        newFragment.show(fm, "fragment_information_sensor");
     }
 
     private void onSettingsClick(Sensor sensor) {
@@ -203,75 +210,28 @@ public class MainFragment extends Fragment {
         newFragment.show(fm, "fragment_settings_sensor");
     }
 
-    public void onCheckboxClick(Sensor sensor, boolean isChecked) {
+    private void onCalibrationClick(Sensor sensor) {
+        FragmentManager fm = getFragmentManager();
+        DialogFragment newFragment = CalibrationSensorDialog.newInstance(sensor);
+        newFragment.show(fm, "fragment_calibration_sensor");
+    }
+
+    public void onCheckboxClick(Sensor sensor, boolean isChecked, CompoundButton view) {
         mPreferencesManager.setChecked(sensor, isChecked);
+
+        mCheckboxAskingForPermission = null;
+        if (isChecked && !verifyPermissions(sensor)) {
+            view.setChecked(false);
+            mCheckboxAskingForPermission = view;
+        }
     }
 
 
     private void onPlayClick() {
 
-        Map<Sensor, Sensor.Settings> sensorsAndSettings =
-                mPreferencesManager.getCheckedSensors();
-
-
-        List<String> permissions = new ArrayList<>();
-
-        Iterator<Sensor> iterator = sensorsAndSettings.keySet().iterator();
-        while (iterator.hasNext()) {
-            Sensor sensor = iterator.next();
-
-            if (!mAskToPlay) {
-                switch (sensor.getType()) {
-                    case Sensor.TYPE_WIFI:
-                    case Sensor.TYPE_LOCATION_CELL_WIFI:
-                        if (ContextCompat.checkSelfPermission(getContext(),
-                                Manifest.permission.ACCESS_COARSE_LOCATION)
-                                != PackageManager.PERMISSION_GRANTED) {
-                            permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-                        }
-                        break;
-                    case Sensor.TYPE_LOCATION_GPS:
-                    case Sensor.TYPE_LOCATION_PASSIVE:
-                        if (ContextCompat.checkSelfPermission(getContext(),
-                                Manifest.permission.ACCESS_FINE_LOCATION)
-                                != PackageManager.PERMISSION_GRANTED) {
-                            permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
-                        }
-                        break;
-                    case Sensor.TYPE_BLUETOOTH:
-                        if (ContextCompat.checkSelfPermission(getContext(),
-                                Manifest.permission.BLUETOOTH)
-                                != PackageManager.PERMISSION_GRANTED) {
-                            permissions.add(Manifest.permission.BLUETOOTH);
-                        }
-                        break;
-                    case Sensor.TYPE_NFC:
-                        if (ContextCompat.checkSelfPermission(getContext(),
-                                Manifest.permission.NFC)
-                                != PackageManager.PERMISSION_GRANTED) {
-                            permissions.add(Manifest.permission.NFC);
-                        }
-                        break;
-                }
-
-            } else if (!sensor.checkPermission(getActivity())) {
-                Toast.makeText(getActivity(), "No Permission on: " + sensor.getName(),
-                        Toast.LENGTH_SHORT).show();
-                iterator.remove();
-            }
-        }
-
-        if (permissions.size() != 0) {
-            requestPermissions(permissions.toArray(new String[permissions.size()]),
-                    MY_PERMISSIONS_REQUEST);
-            mAskToPlay = true;
-            return;
-        }
-
-        mAskToPlay = false;
 
         try {
-            mRecorder.start(sensorsAndSettings);
+            mRecorder.play();
         } catch (IOException e) {
             e.printStackTrace();
             android.util.Log.e(Application.LOG_TAG, "Something bad happened with file creation");
@@ -291,13 +251,62 @@ public class MainFragment extends Fragment {
 
             ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
                     pair1, pair2, pair3);
-            Utils.startActivityForResult(this, intent, REQUEST_CODE_RECORDER, options.toBundle());
+//            Utils.startActivityForResult(this, intent, REQUEST_CODE_RECORDER, options.toBundle());
+            getActivity().startActivityFromFragment(this, intent, REQUEST_CODE_RECORDER, options.toBundle());
 
         } else {
             startActivityForResult(intent, REQUEST_CODE_RECORDER);
         }
     }
 
+
+
+    private boolean verifyPermissions(Sensor sensor) {
+
+        String permission = null;
+        switch (sensor.getType()) {
+            case Sensor.TYPE_WIFI:
+            case Sensor.TYPE_LOCATION_CELL_WIFI:
+                if (ContextCompat.checkSelfPermission(getContext(),
+                        Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    permission = Manifest.permission.ACCESS_COARSE_LOCATION;
+                }
+                break;
+            case Sensor.TYPE_LOCATION_GPS:
+            case Sensor.TYPE_LOCATION_PASSIVE:
+            case Sensor.TYPE_NMEA:
+                if (ContextCompat.checkSelfPermission(getContext(),
+                        Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    permission = Manifest.permission.ACCESS_FINE_LOCATION;
+                }
+                break;
+            case Sensor.TYPE_BLUETOOTH:
+                if (ContextCompat.checkSelfPermission(getContext(),
+                        Manifest.permission.BLUETOOTH)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    permission = Manifest.permission.BLUETOOTH;
+                }
+                break;
+            case Sensor.TYPE_NFC:
+                if (ContextCompat.checkSelfPermission(getContext(),
+                        Manifest.permission.NFC)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    permission = Manifest.permission.NFC;
+                }
+                break;
+        }
+
+        if (permission == null) {
+            return true;
+        }
+
+        requestPermissions(new String[]{permission}, MY_PERMISSIONS_REQUEST);
+
+        return false;
+
+    }
 
     private void startLogsActivity(Log log) {
 
@@ -359,15 +368,13 @@ public class MainFragment extends Fragment {
     }
 
 
+
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST: {
-                if (mAskToPlay) {
-                    onPlayClick();
-                }
-            }
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        if (requestCode == MY_PERMISSIONS_REQUEST && grantResults.length > 0) {
+            mCheckboxAskingForPermission.setChecked(grantResults[0] == PackageManager.PERMISSION_GRANTED);
         }
     }
 

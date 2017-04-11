@@ -1,16 +1,17 @@
 package fr.inria.tyrex.senslogs.ui.dialog;
 
-import android.support.v7.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.File;
 import java.text.DateFormat;
+import java.util.Locale;
 
 import fr.inria.tyrex.senslogs.Application;
 import fr.inria.tyrex.senslogs.R;
@@ -56,11 +57,11 @@ public class LogDialog extends DialogFragment {
         ((TextView) v.findViewById(R.id.log_uncompressed)).setText(StringsFormat.getSize(getResources(),
                 mLog.getUncompressedSize()));
 
-        long diff = (mLog.getEndCapture().getTime() - mLog.getStartCapture().getTime()) / 1000;
+        long diff = (long) (mLog.getRecordTimes().endTime - mLog.getRecordTimes().startTime);
         ((TextView) v.findViewById(R.id.log_duration)).setText(StringsFormat.getDuration(diff));
 
         String startTime = DateFormat.getDateTimeInstance().format(
-                mLog.getStartCapture().getTime());
+                mLog.getRecordTimes().startTime * 1000);
         ((TextView) v.findViewById(R.id.log_start_time)).setText(startTime);
 
 
@@ -68,7 +69,7 @@ public class LogDialog extends DialogFragment {
         int totalSensors = ((Application) getActivity().getApplication())
                 .getSensorsManager().getAvailableSensors().size();
         ((TextView) v.findViewById(R.id.log_num_sensors)).setText(
-                String.format("%d/%d", usedSensors, totalSensors));
+                String.format(Locale.US, "%d/%d", usedSensors, totalSensors));
 
 
         v.findViewById(R.id.log_share).setOnClickListener(new View.OnClickListener() {

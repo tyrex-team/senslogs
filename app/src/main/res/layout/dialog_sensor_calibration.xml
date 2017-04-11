@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:minWidth="200dp"
+    android:padding="25dp">
+
+    <TextView
+        android:id="@+id/calibration_help_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="@string/calibration_accelerometer_help"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+
+    <ImageButton
+        android:id="@+id/calibration_start"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_below="@id/calibration_help_message"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="15dp"
+        android:layout_marginTop="40dp"
+        android:background="?android:selectableItemBackground"
+        android:contentDescription="@string/calibration_start"
+        android:src="@drawable/ic_play_circle_filled_black_48dp" />
+
+    <ImageButton
+        android:id="@+id/calibration_pause"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_below="@id/calibration_help_message"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="15dp"
+        android:layout_marginTop="40dp"
+        android:background="?android:selectableItemBackground"
+        android:contentDescription="@string/calibration_pause"
+        android:src="@drawable/ic_pause_circle_filled_black_48dp"
+        android:visibility="gone" />
+
+
+</RelativeLayout>
+
+

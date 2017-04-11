@@ -9,25 +9,32 @@ import java.io.Serializable;
  */
 public class PositionReference implements Serializable {
 
-    public int id;
-    public String name;
+    public double elapsedTime;
+    public double latitude;
+    public double longitude;
+    public Float level;
 
-    public long latitude;
-    public long longitude;
-    public float floor;
-    public float altitude;
 
-    public PositionReference(int id, String name) {
-        this.name = name;
-        this.id = id;
+    public PositionReference(double elapsedTime, double latitude, double longitude, Float level) {
+        this.elapsedTime = elapsedTime;
+        this.longitude = longitude;
+        this.latitude = latitude;
+        this.level = level;
     }
 
     @Override
     public String toString() {
-        return name;
+        return "PositionReference{" +
+                "elapsedTime=" + elapsedTime +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", level=" + level +
+                '}';
     }
 
     public Object[] toObject() {
-        return new Object[]{id, "\"" + name + "\""};
+        if(level == null)
+            return new Object[] {latitude, longitude};
+        return new Object[] {latitude, longitude, level};
     }
 }

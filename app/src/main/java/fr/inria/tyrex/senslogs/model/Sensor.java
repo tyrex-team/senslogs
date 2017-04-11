@@ -57,7 +57,7 @@ public abstract class Sensor implements Serializable, RecorderWriter.WritableObj
         return false;
     }
 
-    public abstract void start(Context context, Settings settings, RecordProperties mRecordProperties);
+    public abstract void start(Context context, Settings settings, Log.RecordTimes mRecordTimes);
 
     public abstract void stop(Context context);
 
@@ -191,3 +191,4 @@ public abstract class Sensor implements Serializable, RecorderWriter.WritableObj
     }
 
 }
+
