@@ -38,5 +38,5 @@ This application has been designed for post-processing projects.
 
 This application have been used within:
 
-- 
-A comparative analysis of attitude estimation for pedestrian navigation with smartphones - [IEEE](http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=7346767) - [Website](http://tyrex.inria.fr/mobile/benchmarks-attitude/)
+- A Comparative Analysis of Attitude Estimation for Pedestrian Navigation with Smartphones, IPIN'15 - [Paper](https://hal.inria.fr/hal-01194811) - [Website](http://tyrex.inria.fr/mobile/benchmarks-attitude/)
+- On Attitude Estimation with Smartphones, PerCom'17 - [Paper](https://hal.inria.fr/hal-01376745) - [Website](http://tyrex.inria.fr/mobile/benchmarks-attitude/)
