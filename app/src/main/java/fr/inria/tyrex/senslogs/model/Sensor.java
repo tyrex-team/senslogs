@@ -31,6 +31,7 @@ public abstract class Sensor implements Serializable, RecorderWriter.WritableObj
     public final static int TYPE_WIFI = 0x304;
     public final static int TYPE_BLUETOOTH = 0x305;
     public final static int TYPE_NFC = 0x306;
+    public final static int TYPE_CAMERA = 0x307;
 
 
     protected Category mCategory;

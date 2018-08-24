@@ -7,6 +7,7 @@
 	<string name="webpage_bluetooth">http://developer.android.com/reference/android/bluetooth/le/ScanResult.html</string>
 	<string name="webpage_nmea">http://developer.android.com/reference/android/location/GpsStatus.NmeaListener.html</string>
 	<string name="webpage_nfc">http://developer.android.com/guide/topics/connectivity/nfc/nfc.html</string>
+	<string name="webpage_camera">https://developer.android.com/guide/topics/media/camera</string>
 	<string name="webpage_position_references">http://TODO</string>
 
 </resources>

@@ -296,6 +296,13 @@ public class MainFragment extends Fragment {
                     permission = Manifest.permission.NFC;
                 }
                 break;
+            case Sensor.TYPE_CAMERA:
+                if (ContextCompat.checkSelfPermission(getContext(),
+                        Manifest.permission.CAMERA)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    permission = Manifest.permission.CAMERA;
+                }
+                break;
         }
 
         if (permission == null) {

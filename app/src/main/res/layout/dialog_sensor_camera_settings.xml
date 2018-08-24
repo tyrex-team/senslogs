@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingLeft="25dp"
+    android:paddingRight="25dp"	>
+
+    <TextView
+        android:id="@+id/settings_sensor_camera_quality_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/settings_sensor_camera_quality_title"
+        android:textAppearance="?android:textAppearanceSmall"/>
+
+    <Spinner
+        android:id="@+id/settings_sensor_camera_quality"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/settings_sensor_camera_quality_title" />
+
+
+    <TextView
+        android:id="@+id/settings_sensor_camera_af_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/settings_sensor_camera_quality"
+        android:layout_marginTop="10dp"
+        android:text="@string/settings_sensor_camera_af_title"
+        android:textAppearance="?android:textAppearanceSmall"/>
+
+    <Spinner
+        android:id="@+id/settings_sensor_camera_af"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/settings_sensor_camera_af_title" />
+
+
+</RelativeLayout>
+

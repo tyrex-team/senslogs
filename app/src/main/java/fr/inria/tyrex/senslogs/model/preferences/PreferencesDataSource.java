@@ -26,6 +26,7 @@ import fr.inria.tyrex.senslogs.control.SensorsManager;
 import fr.inria.tyrex.senslogs.model.Preference;
 import fr.inria.tyrex.senslogs.model.Sensor;
 import fr.inria.tyrex.senslogs.model.sensors.AndroidSensor;
+import fr.inria.tyrex.senslogs.model.sensors.CameraRecorder;
 import fr.inria.tyrex.senslogs.model.sensors.LocationSensor;
 
 /**
@@ -179,6 +180,8 @@ public class PreferencesDataSource {
                     = gson.getDelegateAdapter(this, TypeToken.get(LocationSensor.Settings.class));
             final TypeAdapter<AndroidSensor.Settings> settingsAndroidAdapter
                     = gson.getDelegateAdapter(this, TypeToken.get(AndroidSensor.Settings.class));
+            final TypeAdapter<CameraRecorder.Settings> settingsCameraAdapter
+                    = gson.getDelegateAdapter(this, TypeToken.get(CameraRecorder.Settings.class));
 
 
             TypeAdapter<Preference> result = new TypeAdapter<Preference>() {
@@ -204,6 +207,8 @@ public class PreferencesDataSource {
                             settings = settingsLocationAdapter.fromJsonTree(settingsObject);
                         } else if (settingsClass.equals(AndroidSensor.Settings.class.getName())) {
                             settings = settingsAndroidAdapter.fromJsonTree(settingsObject);
+                        } else if(settingsClass.equals(CameraRecorder.Settings.class.getName())) {
+                            settings = settingsCameraAdapter.fromJsonTree(settingsObject);
                         }
                     }
 

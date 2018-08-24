@@ -300,6 +300,10 @@
 	<string name="description_nfc">
 	</string>
 
+	<string name="description_camera">
+		Video stream from the rear camera.
+	</string>
+
 	<string-array name="fields_position_references">
 		<item>elapsed-time-system</item>
 	</string-array>

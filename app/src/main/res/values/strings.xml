@@ -90,6 +90,8 @@
 	</string-array>
 	<string name="settings_sensor_min_time_title">Minimum Time (ms)</string>
 	<string name="settings_sensor_min_distance_title">Minimum Distance (m)</string>
+	<string name="settings_sensor_camera_quality_title">Output quality</string>
+	<string name="settings_sensor_camera_af_title">Auto-Focus</string>
 	<string name="settings_ok">Ok</string>
 	<string name="settings_cancel">Cancel</string>
 

@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
@@ -16,6 +17,7 @@ import fr.inria.tyrex.senslogs.R;
 import fr.inria.tyrex.senslogs.control.PreferencesManager;
 import fr.inria.tyrex.senslogs.model.Sensor;
 import fr.inria.tyrex.senslogs.model.sensors.AndroidSensor;
+import fr.inria.tyrex.senslogs.model.sensors.CameraRecorder;
 import fr.inria.tyrex.senslogs.model.sensors.LocationSensor;
 
 /**
@@ -85,6 +87,46 @@ public class SettingsSensorDialog extends DialogFragment {
             ((TextView) v.findViewById(R.id.settings_sensor_min_distance)).
                     setText(String.format("%.1f", locationSensorSettings.minDistance));
 
+        } else if (sensor instanceof CameraRecorder) {
+            v = View.inflate(getActivity(), R.layout.dialog_sensor_camera_settings, null);
+
+            CameraRecorder.Settings cameraSettings = (CameraRecorder.Settings) settings;
+
+            if (cameraSettings != null) {
+
+                Spinner spinnerQuality = (Spinner) v.findViewById(R.id.settings_sensor_camera_quality);
+                CameraRecorder.OutputQuality[] qualities = CameraRecorder.OutputQuality.values();
+                ArrayAdapter<CameraRecorder.OutputQuality> dataAdapterQuality =
+                        new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, qualities);
+                dataAdapterQuality.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinnerQuality.setAdapter(dataAdapterQuality);
+
+                int numberOfItemsQuality = spinnerQuality.getCount();
+                for (int i = 0; i < numberOfItemsQuality; i++) {
+                    if (cameraSettings.outputQuality.equals(spinnerQuality.getItemAtPosition(i))) {
+                        spinnerQuality.setSelection(i);
+                        break;
+                    }
+                }
+
+
+                Spinner spinnerAF = (Spinner) v.findViewById(R.id.settings_sensor_camera_af);
+                CameraRecorder.AutoFocus[] afs = CameraRecorder.AutoFocus.values();
+                ArrayAdapter<CameraRecorder.AutoFocus> dataAdapterAutoFocus =
+                        new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, afs);
+                dataAdapterAutoFocus.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinnerAF.setAdapter(dataAdapterAutoFocus);
+
+                int numberOfItemsAF = spinnerAF.getCount();
+                for (int i = 0; i < numberOfItemsAF; i++) {
+                    if (cameraSettings.autoFocus.equals(spinnerAF.getItemAtPosition(i))) {
+                        spinnerAF.setSelection(i);
+                        break;
+                    }
+                }
+            }
+
+
         } else {
             return builder.create();
 
@@ -105,7 +147,7 @@ public class SettingsSensorDialog extends DialogFragment {
                             int delay = AndroidSensor.Settings.getDelayIntegerFromString(result);
                             settings = new AndroidSensor.Settings(delay);
 
-                        } else {
+                        } else if (sensor instanceof LocationSensor) {
 
                             String minTimeString = ((TextView) v.findViewById(R.id.settings_sensor_min_time)).
                                     getText().toString();
@@ -114,8 +156,14 @@ public class SettingsSensorDialog extends DialogFragment {
 
                             settings = new LocationSensor.Settings(Long.valueOf(minTimeString),
                                     Float.valueOf(minDistanceString));
-                        }
+                        } else {
+                            Spinner spinnerQuality = (Spinner) v.findViewById(R.id.settings_sensor_camera_quality);
+                            Spinner spinnerAF = (Spinner) v.findViewById(R.id.settings_sensor_camera_af);
 
+                            settings = new CameraRecorder.Settings(
+                                    (CameraRecorder.OutputQuality) spinnerQuality.getSelectedItem(),
+                                    (CameraRecorder.AutoFocus) spinnerAF.getSelectedItem());
+                        }
                         preferencesManager.setSettings(sensor, settings);
                     }
                 }

@@ -9,6 +9,7 @@ import java.util.List;
 import fr.inria.tyrex.senslogs.model.Sensor;
 import fr.inria.tyrex.senslogs.model.sensors.AndroidSensor;
 import fr.inria.tyrex.senslogs.model.sensors.BluetoothSensor;
+import fr.inria.tyrex.senslogs.model.sensors.CameraRecorder;
 import fr.inria.tyrex.senslogs.model.sensors.LocationGpsSensor;
 import fr.inria.tyrex.senslogs.model.sensors.LocationPassiveSensor;
 import fr.inria.tyrex.senslogs.model.sensors.LocationWifiAndCellsSensor;
@@ -73,6 +74,9 @@ public class SensorsManager {
         }
         if (NmeaSensor.getInstance().exists(context)) {
             mAvailableSensorsList.add(NmeaSensor.getInstance());
+        }
+        if (CameraRecorder.getInstance().exists(context)) {
+            mAvailableSensorsList.add(CameraRecorder.getInstance());
         }
     }
 
