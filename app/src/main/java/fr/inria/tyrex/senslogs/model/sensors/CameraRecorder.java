@@ -65,9 +65,11 @@ public class CameraRecorder extends Sensor {
      * Settings
      */
     transient private Settings mSettings;
+    transient private String mVideoPath;
 
 
     transient private static CameraRecorder instance;
+
     public static CameraRecorder getInstance() {
         if (instance == null) {
             instance = new CameraRecorder();
@@ -98,18 +100,13 @@ public class CameraRecorder extends Sensor {
     }
 
     @Override
-    public String getFieldsDescription(Resources res) {
-        return res.getString(R.string.description_camera);
-    }
-
-    @Override
-    public String[] getFields(Resources resources) {
-        return null;
-    }
-
-    @Override
     public String getWebPage(Resources res) {
         return res.getString(R.string.webpage_camera);
+    }
+
+    @Override
+    public String getFileExtension() {
+        return "mp4";
     }
 
     @Override
@@ -120,7 +117,8 @@ public class CameraRecorder extends Sensor {
     @Override
     public boolean checkPermission(Context context) {
         return !(Build.VERSION.SDK_INT >= 23 &&
-                context.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED);
+                context.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED &&
+                context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED);
     }
 
     @Override
@@ -138,14 +136,20 @@ public class CameraRecorder extends Sensor {
 
         mSettings = (Settings) settings;
 
-        // TODO path
-        startInternal(null);
+        if (mVideoPath == null) {
+            throw new RuntimeException("Video path is not set");
+        }
+        startInternal(mVideoPath);
+    }
+
+    public void setVideoPath(String videoPath) {
+        mVideoPath = videoPath;
     }
 
     /**
      * Start the camera recording process
      *
-     * @param videoPath     The path where the video will be stored
+     * @param videoPath The path where the video will be stored
      */
     public void startInternal(String videoPath) {
 

@@ -45,6 +45,7 @@ public class Recorder {
 
     private RecorderWriter mRecorderWriter;
     private Log mLog;
+    private File mFolderLogs;
 
     private Map<Sensor, Sensor.Settings> mSensorsAndSettings;
     private LinkedList<PositionReference> mReferences;
@@ -93,8 +94,8 @@ public class Recorder {
             mReferences.clear();
 
             // Create new folder for records
-            File tmpSubFolder = new File(mContext.getFilesDir(), String.valueOf(UUID.randomUUID()));
-            if (!tmpSubFolder.mkdir()) {
+            mFolderLogs = new File(mContext.getFilesDir(), String.valueOf(UUID.randomUUID()));
+            if (!mFolderLogs.mkdir()) {
                 throw new FileNotFoundException();
             }
 
@@ -104,7 +105,7 @@ public class Recorder {
 
             // We need to create a new instance because writer is used during zip creation task
             mRecorderWriter = new RecorderWriter(mContext);
-            mRecorderWriter.init(tmpSubFolder);
+            mRecorderWriter.init(mFolderLogs);
             mRecorderWriter.createFiles(writableObjects);
 
             // Retrieve last known locations for ini file
@@ -112,7 +113,7 @@ public class Recorder {
                     (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
             for (final Map.Entry<Sensor, Sensor.Settings> sensorAndSetting : mSensorsAndSettings.entrySet()) {
 
-                Sensor sensor = sensorAndSetting.getKey();
+                final Sensor sensor = sensorAndSetting.getKey();
 
                 if (sensor.getType() == Sensor.TYPE_LOCATION_GPS &&
                         ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -134,9 +135,14 @@ public class Recorder {
                     mLog.setNetworkLastKnownLocation(
                             locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER));
                 }
+
+
             }
 
             isFirstPlay = false;
+        }
+        else {
+            mRecorderWriter.updateVideoPath();
         }
 
 
@@ -146,12 +152,14 @@ public class Recorder {
             final Sensor sensor = sensorAndSetting.getKey();
             final Sensor.Settings settings = sensorAndSetting.getValue();
 
-            sensor.setListener(new Sensor.Listener() {
-                @Override
-                public void onNewValues(double diffTimeSystem, double diffTimeSensor, Object[] objects) {
-                    mRecorderWriter.asycWrite(sensor, diffTimeSystem, diffTimeSensor, objects);
-                }
-            });
+            if (sensor instanceof RecorderWriter.FieldsWritableObject) {
+                sensor.setListener(new Sensor.Listener() {
+                    @Override
+                    public void onNewValues(double diffTimeSystem, double diffTimeSensor, Object[] objects) {
+                        mRecorderWriter.asycWrite(sensor, diffTimeSystem, diffTimeSensor, objects);
+                    }
+                });
+            }
 
             // Some sensors take a long time to start but have to be run on UI thread
             if (sensor.mustRunOnUiThread()) {
@@ -222,10 +230,10 @@ public class Recorder {
 
     public Log save(String title, String user, String positionOrientation, String comment) throws IOException {
 
-        if(mReferences.size() > 0) {
+        if (mReferences.size() > 0) {
 
             // Write reference positions
-            RecorderWriter.WritableObject prWritableObject = PositionsReferenceManager.getWritableObject();
+            RecorderWriter.FieldsWritableObject prWritableObject = PositionsReferenceManager.getFieldsWritableObject();
             mRecorderWriter.createFile(prWritableObject);
             for (PositionReference reference : mReferences) {
                 mRecorderWriter.write(prWritableObject, reference.elapsedTime, null, reference.toObject());
@@ -366,7 +374,7 @@ public class Recorder {
     private void startTimer() {
         timerHandler = new Handler();
         firstTime = System.currentTimeMillis();
-        computeTime = 0;
+//        computeTime = 0;
         timerHandler.post(timer);
     }
 

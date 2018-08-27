@@ -10,6 +10,7 @@ import android.os.Bundle;
 import java.io.Serializable;
 
 import fr.inria.tyrex.senslogs.R;
+import fr.inria.tyrex.senslogs.control.RecorderWriter;
 import fr.inria.tyrex.senslogs.model.Log;
 import fr.inria.tyrex.senslogs.model.Sensor;
 
@@ -18,7 +19,8 @@ import fr.inria.tyrex.senslogs.model.Sensor;
  * Describes a generic sensor from LocationManager
  * A special location provider for receiving locations without actually initiating a location fix.
  */
-public abstract class LocationSensor extends Sensor implements Serializable {
+public abstract class LocationSensor extends Sensor
+        implements Serializable, RecorderWriter.FieldsWritableObject {
 
     transient private double mStartTime;
 

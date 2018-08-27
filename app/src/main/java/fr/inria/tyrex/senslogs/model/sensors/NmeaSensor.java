@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import fr.inria.tyrex.senslogs.R;
+import fr.inria.tyrex.senslogs.control.RecorderWriter;
 import fr.inria.tyrex.senslogs.model.Log;
 import fr.inria.tyrex.senslogs.model.Sensor;
 
@@ -19,7 +20,7 @@ import fr.inria.tyrex.senslogs.model.Sensor;
  * NMEA Sensor provides NMEA sentences from the GPS
  * http://developer.android.com/reference/android/location/GpsStatus.NmeaListener.html
  */
-public class NmeaSensor extends Sensor {
+public class NmeaSensor extends Sensor implements RecorderWriter.FieldsWritableObject {
 
     transient private static NmeaSensor instance;
     transient private double mStartTime;

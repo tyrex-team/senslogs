@@ -260,56 +260,53 @@ public class MainFragment extends Fragment {
     }
 
 
-
     private boolean verifyPermissions(Sensor sensor) {
 
-        String permission = null;
+        String[] permissions = null;
         switch (sensor.getType()) {
             case Sensor.TYPE_WIFI:
             case Sensor.TYPE_LOCATION_CELL_WIFI:
                 if (ContextCompat.checkSelfPermission(getContext(),
-                        Manifest.permission.ACCESS_COARSE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    permission = Manifest.permission.ACCESS_COARSE_LOCATION;
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION};
                 }
                 break;
             case Sensor.TYPE_LOCATION_GPS:
             case Sensor.TYPE_LOCATION_PASSIVE:
             case Sensor.TYPE_NMEA:
                 if (ContextCompat.checkSelfPermission(getContext(),
-                        Manifest.permission.ACCESS_FINE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    permission = Manifest.permission.ACCESS_FINE_LOCATION;
+                        Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
                 }
                 break;
             case Sensor.TYPE_BLUETOOTH:
-                if (ContextCompat.checkSelfPermission(getContext(),
-                        Manifest.permission.BLUETOOTH)
+                if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH)
                         != PackageManager.PERMISSION_GRANTED) {
-                    permission = Manifest.permission.BLUETOOTH;
+                    permissions = new String[]{Manifest.permission.BLUETOOTH};
                 }
                 break;
             case Sensor.TYPE_NFC:
                 if (ContextCompat.checkSelfPermission(getContext(),
-                        Manifest.permission.NFC)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    permission = Manifest.permission.NFC;
+                        Manifest.permission.NFC) != PackageManager.PERMISSION_GRANTED) {
+                    permissions = new String[]{Manifest.permission.NFC};
                 }
                 break;
             case Sensor.TYPE_CAMERA:
                 if (ContextCompat.checkSelfPermission(getContext(),
-                        Manifest.permission.CAMERA)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    permission = Manifest.permission.CAMERA;
+                        Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                        ContextCompat.checkSelfPermission(getContext(),
+                                Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                    permissions = new String[]{Manifest.permission.CAMERA,
+                            Manifest.permission.RECORD_AUDIO};
                 }
                 break;
         }
 
-        if (permission == null) {
+        if (permissions == null) {
             return true;
         }
 
-        requestPermissions(new String[]{permission}, MY_PERMISSIONS_REQUEST);
+        requestPermissions(permissions, MY_PERMISSIONS_REQUEST);
 
         return false;
 
@@ -346,7 +343,7 @@ public class MainFragment extends Fragment {
 
                 Snackbar snackbar = Snackbar
                         .make(mRootView, Html.fromHtml(String.format(
-                                        getString(R.string.record_data_saved), log.getName())),
+                                getString(R.string.record_data_saved), log.getName())),
                                 Snackbar.LENGTH_LONG)
                         .setAction(R.string.record_data_saved_see, new View.OnClickListener() {
                             @Override
@@ -373,7 +370,6 @@ public class MainFragment extends Fragment {
             mActionLogMenuItem.setVisible(false);
         }
     }
-
 
 
     @Override

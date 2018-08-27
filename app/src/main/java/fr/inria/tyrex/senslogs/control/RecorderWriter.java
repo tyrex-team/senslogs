@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -23,12 +24,12 @@ import java.util.concurrent.Executors;
 import fr.inria.tyrex.senslogs.Application;
 import fr.inria.tyrex.senslogs.R;
 import fr.inria.tyrex.senslogs.model.Log;
+import fr.inria.tyrex.senslogs.model.sensors.CameraRecorder;
 
 /**
  * Creation of log files asynchronously in a folder
  */
 public class RecorderWriter {
-
 
     /**
      * Object writable by {@link RecorderWriter}
@@ -37,6 +38,14 @@ public class RecorderWriter {
         String getStorageFileName(Context context);
 
         String getWebPage(Resources resources);
+
+        String getFileExtension();
+    }
+
+    /**
+     * Object writable by {@link RecorderWriter}
+     */
+    public interface FieldsWritableObject extends WritableObject {
 
         String getFieldsDescription(Resources resources);
 
@@ -63,8 +72,7 @@ public class RecorderWriter {
         mSensorsFiles = new HashMap<>();
     }
 
-    public void init(File outputDirectory)
-            throws FileNotFoundException {
+    public void init(File outputDirectory) {
 
         executor = Executors.newSingleThreadExecutor();
         mSensorsFos.clear();
@@ -80,23 +88,37 @@ public class RecorderWriter {
     }
 
     public void createFiles(Set<WritableObject> writableObjects) throws FileNotFoundException {
-        for(WritableObject writableObject : writableObjects) {
-            createFile(writableObject);
+        for (WritableObject writableObject : writableObjects) {
+            if (!(writableObject instanceof FieldsWritableObject)) continue;
+            createFile((FieldsWritableObject) writableObject);
         }
+        updateVideoPath();
     }
 
-    public void createFile(WritableObject writableObject) throws FileNotFoundException {
+    public void updateVideoPath() {
+        CameraRecorder cameraRecorder = CameraRecorder.getInstance();
+        String fileName = avoidDuplicateFiles(mFileNames,
+                cameraRecorder.getStorageFileName(mContext)) +
+                "." + cameraRecorder.getFileExtension();
+        File file = new File(mOutputDirectory, fileName);
+        cameraRecorder.setVideoPath(file.getAbsolutePath());
+    }
+
+    public void createFile(FieldsWritableObject fwo) throws FileNotFoundException {
 
         Resources resources = mContext.getResources();
 
         String fileName = avoidDuplicateFiles(mFileNames,
-                writableObject.getStorageFileName(mContext)) + ".txt";
+                fwo.getStorageFileName(mContext)) +
+                "." + fwo.getFileExtension();
         File file = new File(mOutputDirectory, fileName);
 
-        mSensorsFiles.put(writableObject, file);
-        FileOutputStream fos = new FileOutputStream(file);
-        mSensorsFos.put(writableObject, fos);
+        mSensorsFiles.put(fwo, file);
         mFilesSize = 0;
+
+
+        FileOutputStream fos = new FileOutputStream(file);
+        mSensorsFos.put(fwo, fos);
 
         /*
          * Write files headers
@@ -104,14 +126,14 @@ public class RecorderWriter {
         buffer2.append(fileName);
         buffer2.append('\n');
         buffer2.append('\n');
-        buffer2.append(writableObject.getFieldsDescription(resources));
+        buffer2.append(fwo.getFieldsDescription(resources));
         buffer2.append('\n');
-        buffer2.append(writableObject.getWebPage(resources));
+        buffer2.append(fwo.getWebPage(resources));
         buffer2.append('\n');
         buffer2.append('\n');
 
         boolean first = true;
-        for (String field : writableObject.getFields(resources)) {
+        for (String field : fwo.getFields(resources)) {
 
             if (!first) {
                 buffer2.append(' ');
@@ -248,8 +270,11 @@ public class RecorderWriter {
                 ;
         }
 
-        Collection<File> inputFiles = new ArrayList<>(mSensorsFiles.values());
-        inputFiles.add(writeDescriptionFile(log));
+        writeDescriptionFile(log);
+        Collection<File> inputFiles = Arrays.asList(mOutputDirectory.listFiles());
+
+//                Collection<File> inputFiles = new ArrayList<>(mSensorsFiles.values());
+//        inputFiles.add(writeDescriptionFile(log));
 
         ZipCreationTask zipTask = new ZipCreationTask();
         ZipCreationTask.Params params = new ZipCreationTask.Params(outputFile, inputFiles);

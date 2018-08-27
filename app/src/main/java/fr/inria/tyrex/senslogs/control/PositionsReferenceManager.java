@@ -11,8 +11,8 @@ import fr.inria.tyrex.senslogs.R;
  */
 public class PositionsReferenceManager {
 
-    private static RecorderWriter.WritableObject mWritableObject =
-            new RecorderWriter.WritableObject() {
+    private static RecorderWriter.FieldsWritableObject mWritableObject =
+            new RecorderWriter.FieldsWritableObject() {
                 @Override
                 public String getStorageFileName(Context context) {
                     return context.getString(R.string.file_name_reference_timestamps);
@@ -32,12 +32,17 @@ public class PositionsReferenceManager {
                 public String[] getFields(Resources resources) {
                     return resources.getStringArray(R.array.fields_position_references);
                 }
+
+                @Override
+                public String getFileExtension() {
+                    return "txt";
+                }
             };
 
     /**
      * Get a WritableObject for RecorderWriter
      */
-    public static RecorderWriter.WritableObject getWritableObject() {
+    public static RecorderWriter.FieldsWritableObject getFieldsWritableObject() {
         return mWritableObject;
     }
 }

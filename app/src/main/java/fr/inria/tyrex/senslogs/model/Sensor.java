@@ -44,6 +44,7 @@ public abstract class Sensor implements Serializable, RecorderWriter.WritableObj
     }
 
     public abstract String getName();
+
     public int getType() {
         return mType;
     }
@@ -73,6 +74,12 @@ public abstract class Sensor implements Serializable, RecorderWriter.WritableObj
         Sensor sensor = (Sensor) o;
         return sensor.getName() != null && getName() != null &&
                 getName().equals(sensor.getName());
+    }
+
+
+    @Override
+    public String getFileExtension() {
+        return "txt";
     }
 
 
@@ -130,7 +137,6 @@ public abstract class Sensor implements Serializable, RecorderWriter.WritableObj
     }
 
 
-
     /*
     Listener
      */
@@ -141,16 +147,16 @@ public abstract class Sensor implements Serializable, RecorderWriter.WritableObj
     public interface Listener {
         /**
          * Called for each new value from a sensor
+         *
          * @param diffTimeSystem difference time between beginning of capture and event received
          *                       by system from sensor
          * @param diffTimeSensor difference time between begining of capture and sensor event. This
          *                       value is equal to diffTimeSystem if there is no specific timestamp
          *                       from sensor
-         * @param objects data
+         * @param objects        data
          */
         void onNewValues(double diffTimeSystem, double diffTimeSensor, Object[] objects);
     }
-
 
 
     public static class Serializer implements JsonDeserializer<Sensor>,
@@ -160,7 +166,7 @@ public abstract class Sensor implements Serializable, RecorderWriter.WritableObj
 
         private final List<Sensor> mSensors;
 
-        public Serializer(List<Sensor> sensors){
+        public Serializer(List<Sensor> sensors) {
             mSensors = sensors;
         }
 
@@ -170,12 +176,12 @@ public abstract class Sensor implements Serializable, RecorderWriter.WritableObj
                 throws JsonParseException {
 
             String sensorName = json.getAsJsonObject().get(JSON_ATTRIBUTE_NAME).getAsString();
-            if(sensorName == null) {
+            if (sensorName == null) {
                 return null;
             }
 
-            for(Sensor sensor : mSensors) {
-                if(sensorName.equals(sensor.getName())) {
+            for (Sensor sensor : mSensors) {
+                if (sensorName.equals(sensor.getName())) {
                     return sensor;
                 }
             }

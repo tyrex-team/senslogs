@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.SystemClock;
 
 import fr.inria.tyrex.senslogs.R;
+import fr.inria.tyrex.senslogs.control.RecorderWriter;
 import fr.inria.tyrex.senslogs.model.Log;
 import fr.inria.tyrex.senslogs.model.Sensor;
 
@@ -16,7 +17,7 @@ import fr.inria.tyrex.senslogs.model.Sensor;
 /**
  * Sensor from Android's SensorManager
  */
-public class AndroidSensor extends Sensor {
+public class AndroidSensor extends Sensor implements RecorderWriter.FieldsWritableObject {
 
     transient private android.hardware.Sensor mSensor;
     transient private double mStartTimeMinusBoot;
