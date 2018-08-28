@@ -7,7 +7,10 @@ import android.content.res.Resources;
 import android.location.LocationManager;
 import android.os.Build;
 
+import java.util.List;
+
 import fr.inria.tyrex.senslogs.R;
+import fr.inria.tyrex.senslogs.model.Log;
 
 
 /**
@@ -15,6 +18,8 @@ import fr.inria.tyrex.senslogs.R;
  * http://developer.android.com/guide/topics/location/strategies.html
  */
 public class LocationPassiveSensor extends LocationSensor {
+
+    transient private final static String INI_SECTION_NAME = "LastKnownPassiveLocation";
 
     transient private static LocationPassiveSensor instance;
     public static LocationPassiveSensor getInstance() {
@@ -54,4 +59,8 @@ public class LocationPassiveSensor extends LocationSensor {
                 context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED);
     }
 
+    @Override
+    public List<Log.IniRecord> getExtraIniRecords(Context context) {
+        return super.getExtraIniRecords(context, INI_SECTION_NAME, LocationManager.PASSIVE_PROVIDER);
+    }
 }

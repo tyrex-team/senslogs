@@ -51,7 +51,7 @@ public class LogDialog extends DialogFragment {
 
         View v = View.inflate(getActivity(), R.layout.dialog_log_information, null);
 
-        ((TextView) v.findViewById(R.id.log_file_name)).setText(mLog.getFile().getName());
+        ((TextView) v.findViewById(R.id.log_file_name)).setText(mLog.getZipFile().getName());
         final TextView logCompressedTextView = (TextView) v.findViewById(R.id.log_compressed);
         logCompressedTextView.setText(StringsFormat.getSize(getResources(), mLog.getCompressedSize()));
         ((TextView) v.findViewById(R.id.log_uncompressed)).setText(StringsFormat.getSize(getResources(),

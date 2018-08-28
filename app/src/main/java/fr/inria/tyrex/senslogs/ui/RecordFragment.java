@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
@@ -26,7 +27,6 @@ import fr.inria.tyrex.senslogs.Application;
 import fr.inria.tyrex.senslogs.R;
 import fr.inria.tyrex.senslogs.control.LogsManager;
 import fr.inria.tyrex.senslogs.control.Recorder;
-import fr.inria.tyrex.senslogs.control.SensorsManager;
 import fr.inria.tyrex.senslogs.model.Log;
 import fr.inria.tyrex.senslogs.ui.dialog.FinishRecordDialog;
 import fr.inria.tyrex.senslogs.ui.utils.StringsFormat;
@@ -39,7 +39,6 @@ public class RecordFragment extends Fragment {
 
     public final static String RESULT_LOG = "log";
 
-    private SensorsManager mSensorsManager;
     private Recorder mRecorder;
     private LogsManager mLogManager;
 
@@ -50,15 +49,20 @@ public class RecordFragment extends Fragment {
     private TextView mRecordFinishTextView;
     private Button mRecordTimestampButton;
 
+    private Handler mDataSizeHandler;
+    private Handler mTimerHandler;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        mSensorsManager = ((Application) getActivity().getApplication()).getSensorsManager();
         mRecorder = ((Application) getActivity().getApplication()).getRecorder();
         mLogManager = ((Application) getActivity().getApplication()).getLogsManager();
+
+        mDataSizeHandler = new Handler();
+        mTimerHandler = new Handler();
     }
 
 
@@ -67,12 +71,12 @@ public class RecordFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_record, parent, false);
 
-        mStartPauseButton = (ImageView) rootView.findViewById(R.id.start_pause);
-        mTimerTextView = (TextView) rootView.findViewById(R.id.timer);
-        mDataSizeTextView = (TextView) rootView.findViewById(R.id.data_size);
-        mRecordCancelTextView = (TextView) rootView.findViewById(R.id.record_cancel);
-        mRecordFinishTextView = (TextView) rootView.findViewById(R.id.record_finish);
-        mRecordTimestampButton = (Button) rootView.findViewById(R.id.record_timestamp);
+        mStartPauseButton = rootView.findViewById(R.id.start_pause);
+        mTimerTextView = rootView.findViewById(R.id.timer);
+        mDataSizeTextView = rootView.findViewById(R.id.data_size);
+        mRecordCancelTextView = rootView.findViewById(R.id.record_cancel);
+        mRecordFinishTextView = rootView.findViewById(R.id.record_finish);
+        mRecordTimestampButton = rootView.findViewById(R.id.record_timestamp);
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -122,8 +126,11 @@ public class RecordFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mRecorder.setTimerListener(timerListener);
-        mRecorder.setDataSizeListener(dataSizeListener);
+
+        if(mRecorder.isRecording()) {
+            mDataSizeHandler.post(mDataSizeRunnable);
+            mTimerHandler.post(mTimerRunnable);
+        }
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
@@ -135,8 +142,8 @@ public class RecordFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        mRecorder.setTimerListener(null);
-        mRecorder.setDataSizeListener(null);
+        mDataSizeHandler.removeCallbacks(mDataSizeRunnable);
+        mTimerHandler.removeCallbacks(mTimerRunnable);
     }
 
 
@@ -151,6 +158,8 @@ public class RecordFragment extends Fragment {
 
         try {
             mRecorder.play();
+            mDataSizeHandler.post(mDataSizeRunnable);
+            mTimerHandler.post(mTimerRunnable);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -166,29 +175,27 @@ public class RecordFragment extends Fragment {
         mRecordTimestampButton.setEnabled(false);
 
         mRecorder.pause();
+
+        mDataSizeHandler.removeCallbacks(mDataSizeRunnable);
+        mTimerHandler.removeCallbacks(mTimerRunnable);
     }
 
-    private Recorder.DataSizeListener dataSizeListener = new Recorder.DataSizeListener() {
-
+    private Runnable mDataSizeRunnable = new Runnable() {
         private final DecimalFormat decimalFormat = new DecimalFormat("#0");
-
         @Override
-        public void onNewTotalSize(long totalSize) {
-            mDataSizeTextView.setText(StringsFormat.getSize(getResources(), totalSize, decimalFormat));
+        public void run() {
+            mDataSizeTextView.setText(StringsFormat.getSize(getResources(),
+                    mRecorder.getDataSize(), decimalFormat));
+
+            mDataSizeHandler.postDelayed(this, 666);
         }
     };
 
-    private Recorder.TimerListener timerListener = new Recorder.TimerListener() {
-
-
+    private Runnable mTimerRunnable = new Runnable() {
         @Override
-        public void onNewTime(long diffTime) {
-            mTimerTextView.setText(StringsFormat.getDurationMs(diffTime));
-        }
-
-        @Override
-        public void onReset() {
-            mTimerTextView.setText(R.string.default_timer_millisec);
+        public void run() {
+            mTimerTextView.setText(StringsFormat.getDurationMs(mRecorder.getCurrentTime()));
+            mTimerHandler.postDelayed(this, 73);
         }
     };
 
@@ -215,6 +222,8 @@ public class RecordFragment extends Fragment {
 
     private void cancelRecorderConfirmed() {
         try {
+            mDataSizeHandler.removeCallbacks(mDataSizeRunnable);
+            mTimerHandler.removeCallbacks(mTimerRunnable);
             mRecorder.cancel();
         } catch (IOException e) {
             e.printStackTrace();

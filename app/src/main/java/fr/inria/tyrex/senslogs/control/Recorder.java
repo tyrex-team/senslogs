@@ -1,6 +1,5 @@
 package fr.inria.tyrex.senslogs.control;
 
-import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -8,11 +7,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
-import android.location.LocationManager;
-import android.os.Handler;
 import android.os.IBinder;
-import android.support.v4.app.ActivityCompat;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Pair;
 
@@ -23,9 +20,9 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import fr.inria.tyrex.senslogs.R;
+import fr.inria.tyrex.senslogs.model.CalibrationLog;
 import fr.inria.tyrex.senslogs.model.Log;
 import fr.inria.tyrex.senslogs.model.PositionReference;
 import fr.inria.tyrex.senslogs.model.Sensor;
@@ -45,14 +42,13 @@ public class Recorder {
 
     private RecorderWriter mRecorderWriter;
     private Log mLog;
-    private File mFolderLogs;
 
     private Map<Sensor, Sensor.Settings> mSensorsAndSettings;
     private LinkedList<PositionReference> mReferences;
 
 
     private boolean isRecording = false;
-    private boolean isFirstPlay = true;
+    private boolean isInitialized = true;
 
     public Recorder(Context context, LogsManager logsManager,
                     PreferencesManager preferencesManager) {
@@ -68,80 +64,50 @@ public class Recorder {
     }
 
 
+    private void initialize(@NonNull Map<Sensor, Sensor.Settings> sensorsAndSettings,
+                            @Nullable CalibrationLog.Type calibration)
+            throws FileNotFoundException {
+
+        // Store sensors and their settings
+        mSensorsAndSettings = sensorsAndSettings;
+
+        mLog = calibration != null ?
+                CalibrationLog.create(calibration, mSensorsAndSettings.keySet()) :
+                new Log(mSensorsAndSettings.keySet());
+
+        mLog.init(mContext);
+        mReferences.clear();
+
+        // Retrieve and init writer with sensors
+        Set<RecorderWriter.WritableObject> writableObjects = new HashSet<>();
+        writableObjects.addAll(mSensorsAndSettings.keySet());
+
+        // We need to create a new instance because writer is used during zip creation task
+        mRecorderWriter = new RecorderWriter(mContext);
+        mRecorderWriter.init(mLog);
+        mRecorderWriter.createFiles(writableObjects);
+    }
+
+
     public void play() throws FileNotFoundException {
         play(mPreferencesManager.getSelectedSensors());
     }
 
     public void play(Map<Sensor, Sensor.Settings> sensorsAndSettings) throws FileNotFoundException {
-        play(sensorsAndSettings, Log.Calibration.NO);
+        play(sensorsAndSettings, null);
     }
 
-    public void play(Map<Sensor, Sensor.Settings> sensorsAndSettings, Log.Calibration calibration)
+    public void play(Map<Sensor, Sensor.Settings> sensorsAndSettings, CalibrationLog.Type calibration)
             throws FileNotFoundException {
 
-        if (isRecording) {
-            return;
-        }
+        if (isRecording) return;
+
 
         // Need to init some properties for the first play
-        if (isFirstPlay) {
-
-            // Retrieve sensors from preferences
-            mSensorsAndSettings = sensorsAndSettings;
-
-            mLog = new Log(calibration, mSensorsAndSettings.keySet());
-            mLog.init();
-            mReferences.clear();
-
-            // Create new folder for records
-            mFolderLogs = new File(mContext.getFilesDir(), String.valueOf(UUID.randomUUID()));
-            if (!mFolderLogs.mkdir()) {
-                throw new FileNotFoundException();
-            }
-
-            // Retrieve and init writer with sensors
-            Set<RecorderWriter.WritableObject> writableObjects = new HashSet<>();
-            writableObjects.addAll(mSensorsAndSettings.keySet());
-
-            // We need to create a new instance because writer is used during zip creation task
-            mRecorderWriter = new RecorderWriter(mContext);
-            mRecorderWriter.init(mFolderLogs);
-            mRecorderWriter.createFiles(writableObjects);
-
-            // Retrieve last known locations for ini file
-            LocationManager locationManager =
-                    (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-            for (final Map.Entry<Sensor, Sensor.Settings> sensorAndSetting : mSensorsAndSettings.entrySet()) {
-
-                final Sensor sensor = sensorAndSetting.getKey();
-
-                if (sensor.getType() == Sensor.TYPE_LOCATION_GPS &&
-                        ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION)
-                                == PackageManager.PERMISSION_GRANTED) {
-                    mLog.setGpsLastKnownLocation(
-                            locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
-                }
-
-                if (sensor.getType() == Sensor.TYPE_LOCATION_PASSIVE &&
-                        ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION)
-                                == PackageManager.PERMISSION_GRANTED) {
-                    mLog.setPassiveLastKnownLocation(
-                            locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER));
-                }
-
-                if (sensor.getType() == Sensor.TYPE_LOCATION_CELL_WIFI &&
-                        ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION)
-                                == PackageManager.PERMISSION_GRANTED) {
-                    mLog.setNetworkLastKnownLocation(
-                            locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER));
-                }
-
-
-            }
-
-            isFirstPlay = false;
-        }
-        else {
+        if (isInitialized) {
+            initialize(sensorsAndSettings, calibration);
+            isInitialized = false;
+        } else {
             mRecorderWriter.updateVideoPath();
         }
 
@@ -176,7 +142,6 @@ public class Recorder {
 
         createNotification();
         startTimer();
-        (mDataSizeHandler = new Handler()).post(dataSizeUpdate);
         isRecording = true;
     }
 
@@ -188,7 +153,6 @@ public class Recorder {
         }
 
         stopTimer();
-        mDataSizeHandler.removeCallbacks(dataSizeUpdate);
         removeNotification();
 
         for (final Sensor sensor : mSensorsAndSettings.keySet()) {
@@ -217,9 +181,10 @@ public class Recorder {
         if (isRecording) {
             pause();
         }
+        resetTimer();
         mRecorderWriter.finish();
         mRecorderWriter.removeFiles();
-        isFirstPlay = true;
+        isInitialized = true;
         isRecording = false;
     }
 
@@ -278,11 +243,11 @@ public class Recorder {
             }
         });
 
-        mLog.setFile(zipFile);
+        mLog.setZipFile(zipFile);
 
         mLogsManager.addLog(mLog);
 
-        isFirstPlay = true;
+        isInitialized = true;
 
         return mLog;
     }
@@ -304,112 +269,30 @@ public class Recorder {
 
 
     //<editor-fold desc="DataSize">
-    private Handler mDataSizeHandler;
-
-    private Runnable dataSizeUpdate = new Runnable() {
-        @Override
-        public void run() {
-
-            if (mDataSizeListener != null) {
-
-                mDataSizeListener.first.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mDataSizeListener == null || mDataSizeListener.second == null) {
-                            return;
-                        }
-                        mDataSizeListener.second.onNewTotalSize(mRecorderWriter.getFilesSize());
-                    }
-                });
-            }
-
-            mDataSizeHandler.postDelayed(dataSizeUpdate, 50);
-        }
-    };
-
-    private Pair<Handler, DataSizeListener> mDataSizeListener;
-
-    public void setDataSizeListener(DataSizeListener listener) {
-        if (listener == null) {
-            mDataSizeListener = null;
-            return;
-        }
-        mDataSizeListener = new Pair<>(new Handler(), listener);
-    }
-
-
-    public interface DataSizeListener {
-        void onNewTotalSize(long totalSize);
+    public long getDataSize() {
+        return mRecorderWriter.getDataSize();
     }
     //</editor-fold>
 
 
     //<editor-fold desc="Timer">
-    private Handler timerHandler;
     private long firstTime;
     private long computeTime;
 
-    private Runnable timer = new Runnable() {
-        @Override
-        public void run() {
-
-            final long diffTime = computeTime + System.currentTimeMillis() - firstTime;
-
-            if (mTimerListener != null) {
-                mTimerListener.first.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mTimerListener == null || mTimerListener.second == null) {
-                            return;
-                        }
-                        mTimerListener.second.onNewTime(diffTime);
-                    }
-                });
-            }
-
-            timerHandler.postDelayed(timer, 73);
-        }
-    };
-
-    private void startTimer() {
-        timerHandler = new Handler();
-        firstTime = System.currentTimeMillis();
-//        computeTime = 0;
-        timerHandler.post(timer);
+    public long getCurrentTime() {
+        return computeTime + System.currentTimeMillis() - firstTime;
     }
 
+    private void startTimer() {
+        firstTime = System.currentTimeMillis();
+    }
 
     private void stopTimer() {
         computeTime += System.currentTimeMillis() - firstTime;
-        timerHandler.removeCallbacks(timer);
     }
 
     private void resetTimer() {
         computeTime = 0;
-        if (mTimerListener != null) {
-            mTimerListener.first.post(new Runnable() {
-                @Override
-                public void run() {
-                    mTimerListener.second.onReset();
-                }
-            });
-        }
-    }
-
-    private Pair<Handler, TimerListener> mTimerListener;
-
-    public void setTimerListener(TimerListener listener) {
-        if (listener == null) {
-            mTimerListener = null;
-            return;
-        }
-        mTimerListener = new Pair<>(new Handler(), listener);
-    }
-
-    public interface TimerListener {
-        void onNewTime(long diffTime);
-
-        void onReset();
     }
     //</editor-fold>
 

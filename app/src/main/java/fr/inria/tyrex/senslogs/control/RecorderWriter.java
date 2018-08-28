@@ -31,6 +31,7 @@ import fr.inria.tyrex.senslogs.model.sensors.CameraRecorder;
  */
 public class RecorderWriter {
 
+
     /**
      * Object writable by {@link RecorderWriter}
      */
@@ -72,7 +73,7 @@ public class RecorderWriter {
         mSensorsFiles = new HashMap<>();
     }
 
-    public void init(File outputDirectory) {
+    public void init(Log log) {
 
         executor = Executors.newSingleThreadExecutor();
         mSensorsFos.clear();
@@ -81,7 +82,7 @@ public class RecorderWriter {
         buffer2.setLength(0);
         mFilesSize = 0;
 
-        mOutputDirectory = outputDirectory;
+        mOutputDirectory = log.getTemporaryFolder();
 
         mFileNames = new ArrayList<>();
 
@@ -206,22 +207,31 @@ public class RecorderWriter {
         File file = new File(mOutputDirectory, mContext.getString(R.string.file_record_properties));
 
         Wini iniFile = log.generateIniFile(mContext, file, mSensorsFiles);
-
-        if (iniFile == null) {
-            return file;
-        }
-
-//        String time = SimpleDateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
-//        iniFile.setComment(time);
-
+        if (iniFile == null) return file;
         iniFile.store();
-
         return file;
     }
 
 
     public long getFilesSize() {
         return mFilesSize;
+    }
+
+
+    public long getDataSize() {
+        return getDataSize(mOutputDirectory);
+    }
+
+    private static long getDataSize(File directory) {
+        long length = 0;
+        if (!directory.exists()) return 0;
+        for (File file : directory.listFiles()) {
+            if (file.isFile())
+                length += file.length();
+            else
+                length += getDataSize(file);
+        }
+        return length;
     }
 
     private String avoidDuplicateFiles(List<String> fileNames, final String fileName) {

@@ -12,6 +12,7 @@ import com.google.gson.JsonSerializer;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import fr.inria.tyrex.senslogs.R;
@@ -80,6 +81,10 @@ public abstract class Sensor implements Serializable, RecorderWriter.WritableObj
     @Override
     public String getFileExtension() {
         return "txt";
+    }
+
+    public List<Log.IniRecord> getExtraIniRecords(Context context) {
+        return new ArrayList<>();
     }
 
 

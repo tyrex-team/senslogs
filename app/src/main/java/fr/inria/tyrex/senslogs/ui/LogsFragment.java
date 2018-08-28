@@ -255,11 +255,11 @@ public class LogsFragment extends Fragment {
         mAskShare = false;
         mTmpLog = null;
 
-        mSharedTmpFile = new File(getActivity().getExternalCacheDir(), log.getFile().getName());
+        mSharedTmpFile = new File(getActivity().getExternalCacheDir(), log.getZipFile().getName());
 
         final ProgressDialog alertDialog = new ProgressDialog(getActivity());
         alertDialog.setCancelable(false);
-        alertDialog.setMax((int) log.getFile().length());
+        alertDialog.setMax((int) log.getZipFile().length());
 
         CopyTask task = new CopyTask();
         CopyTask.Listener listener = new CopyTask.Listener() {
@@ -274,7 +274,7 @@ public class LogsFragment extends Fragment {
             }
         };
         task.setListener(listener);
-        task.execute(new CopyTask.Input(log.getFile(), mSharedTmpFile));
+        task.execute(new CopyTask.Input(log.getZipFile(), mSharedTmpFile));
 
 
         Intent shareIntent = new Intent();
@@ -317,7 +317,7 @@ public class LogsFragment extends Fragment {
 
         final ProgressDialog alertDialog = new ProgressDialog(getActivity());
         alertDialog.setCancelable(false);
-        alertDialog.setMax((int) log.getFile().length());
+        alertDialog.setMax((int) log.getZipFile().length());
         alertDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         alertDialog.setMessage(getString(R.string.log_copy_to_sd_card_progress));
 

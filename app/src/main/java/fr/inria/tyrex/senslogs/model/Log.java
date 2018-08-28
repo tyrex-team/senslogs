@@ -1,7 +1,6 @@
 package fr.inria.tyrex.senslogs.model;
 
 import android.content.Context;
-import android.location.Location;
 import android.os.Build;
 import android.os.SystemClock;
 import android.provider.Settings;
@@ -9,6 +8,7 @@ import android.provider.Settings;
 import org.ini4j.Wini;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import fr.inria.tyrex.senslogs.control.RecorderWriter;
 import fr.inria.tyrex.senslogs.control.ZipCreationTask;
@@ -26,20 +27,16 @@ import fr.inria.tyrex.senslogs.control.ZipCreationTask;
  */
 public class Log implements Serializable {
 
-    public enum Calibration {NO, GYROSCOPE, MAGNETOMETER, ACCELEROMETER}
 
     private String mName;
-    private File mFile;
-    private transient Calibration mCalibration;
+
+    private File mTemporaryFolder;
+    private File mZipFile;
 
     private long mCompressedSize;
     private long mUncompressedSize;
 
     private RecordTimes mRecordTimes;
-
-    private transient Location mGpsLastKnownLocation;
-    private transient Location mNetworkLastKnownLocation;
-    private transient Location mPassiveLastKnownLocation;
 
     private HashSet<Sensor> mSensors;
 
@@ -52,25 +49,27 @@ public class Log implements Serializable {
     private transient List<Listener> mListeners;
 
     public Log() {
-        this(Calibration.NO, new HashSet<Sensor>());
+        this(new HashSet<Sensor>());
     }
 
-    public Log(Calibration calibration, Set<Sensor> sensors) {
+    public Log(Set<Sensor> sensors) {
 
-        mCalibration = calibration;
         mSensors = new HashSet<>(sensors);
 
         mListeners = new ArrayList<>();
         mRecordTimes = new RecordTimes();
     }
 
-    public void init() {
+    public void init(Context context) throws FileNotFoundException {
+
+        // Create new folder for records
+        mTemporaryFolder = new File(context.getFilesDir(), String.valueOf(UUID.randomUUID()));
+        if (!mTemporaryFolder.mkdir()) {
+            throw new FileNotFoundException();
+        }
 
         mRecordTimes.init();
 
-        mGpsLastKnownLocation = null;
-        mNetworkLastKnownLocation = null;
-        mPassiveLastKnownLocation = null;
     }
 
 
@@ -79,20 +78,8 @@ public class Log implements Serializable {
         notifyDatasetChanged();
     }
 
-    public void setGpsLastKnownLocation(Location gpsLastKnownLocation) {
-        this.mGpsLastKnownLocation = gpsLastKnownLocation;
-    }
-
-    public void setNetworkLastKnownLocation(Location networkLastKnownLocation) {
-        this.mNetworkLastKnownLocation = networkLastKnownLocation;
-    }
-
-    public void setPassiveLastKnownLocation(Location passiveLastKnownLocation) {
-        this.mPassiveLastKnownLocation = passiveLastKnownLocation;
-    }
-
-    public void setFile(File file) {
-        mFile = file;
+    public void setZipFile(File zipFile) {
+        mZipFile = zipFile;
     }
 
     public void setUncompressedSize(long uncompressedSize) {
@@ -139,8 +126,12 @@ public class Log implements Serializable {
         return mName;
     }
 
-    public File getFile() {
-        return mFile;
+    public File getTemporaryFolder() {
+        return mTemporaryFolder;
+    }
+
+    public File getZipFile() {
+        return mZipFile;
     }
 
     public long getCompressedSize() {
@@ -189,12 +180,12 @@ public class Log implements Serializable {
 
         Log log = (Log) o;
 
-        return mFile.equals(log.mFile);
+        return mZipFile.equals(log.mZipFile);
     }
 
     @Override
     public int hashCode() {
-        return mFile.hashCode();
+        return mZipFile.hashCode();
     }
 
 
@@ -202,14 +193,10 @@ public class Log implements Serializable {
     public String toString() {
         return "Log{" +
                 "mName='" + mName + '\'' +
-                ", mFile=" + mFile +
-                ", mCalibration=" + mCalibration +
+                ", mZipFile=" + mZipFile +
                 ", mCompressedSize=" + mCompressedSize +
                 ", mUncompressedSize=" + mUncompressedSize +
                 ", mRecordTimes=" + mRecordTimes +
-                ", mGpsLastKnownLocation=" + mGpsLastKnownLocation +
-                ", mNetworkLastKnownLocation=" + mNetworkLastKnownLocation +
-                ", mPassiveLastKnownLocation=" + mPassiveLastKnownLocation +
                 ", mSensors=" + mSensors +
                 ", mUser='" + mUser + '\'' +
                 ", mPositionOrientation='" + mPositionOrientation + '\'' +
@@ -237,7 +224,6 @@ public class Log implements Serializable {
         ini.put("Device", "ID", Settings.Secure.getString(context.getContentResolver(),
                 Settings.Secure.ANDROID_ID));
 
-        ini.put("Settings", "Calibration", mCalibration);
         ini.put("Settings", "User", mUser);
         ini.put("Settings", "PositionOrientation", mPositionOrientation);
         ini.put("Settings", "Comment", mComment);
@@ -249,9 +235,7 @@ public class Log implements Serializable {
 
         String sensorsList = "";
         for (Map.Entry<RecorderWriter.WritableObject, File> fileEntry : files.entrySet()) {
-            if (!(fileEntry.getKey() instanceof Sensor)) {
-                continue;
-            }
+            if (!(fileEntry.getKey() instanceof Sensor))  continue;
             Sensor sensor = (Sensor) fileEntry.getKey();
             sensorsList += sensor.getName() + ", ";
         }
@@ -259,24 +243,21 @@ public class Log implements Serializable {
             ini.put("Sensors", "List", sensorsList.substring(0, sensorsList.length() - 2));
         }
 
-        fillIniWithLocation(ini, "LastKnownGPSLocation", mGpsLastKnownLocation);
-        fillIniWithLocation(ini, "LastKnownNetworkLocation", mNetworkLastKnownLocation);
-        fillIniWithLocation(ini, "LastKnownPassiveLocation", mPassiveLastKnownLocation);
+
+        /*
+         * Extra data
+         */
+        for (RecorderWriter.WritableObject writableObject : files.keySet()) {
+            if (!(writableObject instanceof Sensor))  continue;
+            Sensor sensor = (Sensor) writableObject;
+            for(IniRecord record : sensor.getExtraIniRecords(context)) {
+                ini.put(record.sectionName, record.optionName, record.value);
+            }
+
+        }
 
         return ini;
     }
-
-    private void fillIniWithLocation(Wini ini, String sectionName, Location location) {
-        if (location != null) {
-            ini.put(sectionName, "Latitude", location.getLatitude());
-            ini.put(sectionName, "Longitude", location.getLongitude());
-            ini.put(sectionName, "Altitude", location.getAltitude());
-            ini.put(sectionName, "UnixTime", String.format(Locale.US, "%.3f", location.getTime() / 1e3d));
-            ini.put(sectionName, "Accuracy", location.getAccuracy());
-            ini.put(sectionName, "Bearing", location.getBearing());
-        }
-    }
-
 
     public class RecordTimes implements Serializable {
         public double startTime; // in seconds from unix time
@@ -290,4 +271,17 @@ public class Log implements Serializable {
             bootTime = (System.currentTimeMillis() - SystemClock.elapsedRealtime()) / 1e3d;
         }
     }
+
+    public static class IniRecord {
+        public String sectionName;
+        public String optionName;
+        public Object value;
+
+        public IniRecord(String sectionName, String optionName, Object value) {
+            this.sectionName = sectionName;
+            this.optionName = optionName;
+            this.value = value;
+        }
+    }
+
 }

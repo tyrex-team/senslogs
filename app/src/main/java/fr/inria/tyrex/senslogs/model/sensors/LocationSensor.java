@@ -8,6 +8,9 @@ import android.location.LocationManager;
 import android.os.Bundle;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 import fr.inria.tyrex.senslogs.R;
 import fr.inria.tyrex.senslogs.control.RecorderWriter;
@@ -21,6 +24,13 @@ import fr.inria.tyrex.senslogs.model.Sensor;
  */
 public abstract class LocationSensor extends Sensor
         implements Serializable, RecorderWriter.FieldsWritableObject {
+
+    private final static String INI_OPTION_LATITUDE = "Latitude";
+    private final static String INI_OPTION_LONGITUDE = "Longitude";
+    private final static String INI_OPTION_ALTITUDE = "Altitude";
+    private final static String INI_OPTION_UNIXTIME = "UnixTime";
+    private final static String INI_OPTION_ACCURACY = "Accuracy";
+    private final static String INI_OPTION_BEARING = "Bearing";
 
     transient private double mStartTime;
 
@@ -37,17 +47,11 @@ public abstract class LocationSensor extends Sensor
 
     @Override
     public boolean exists(Context context) {
-
-        LocationManager locationManager = (LocationManager)
-                context.getSystemService(Context.LOCATION_SERVICE);
-
-        return locationManager.getAllProviders().contains(getLocationProvider());
+        return getLocationManager(context).getAllProviders().contains(getLocationProvider());
     }
 
     @Override
     public void start(Context context, Sensor.Settings settings, Log.RecordTimes recordTimes) {
-        LocationManager locationManager = (LocationManager)
-                context.getSystemService(Context.LOCATION_SERVICE);
 
         if (!(settings instanceof Settings)) {
             settings = getDefaultSettings();
@@ -58,22 +62,20 @@ public abstract class LocationSensor extends Sensor
         }
 
         Settings ls = (Settings) settings;
-        locationManager.requestLocationUpdates(getLocationProvider(),
+        getLocationManager(context).requestLocationUpdates(getLocationProvider(),
                 ls.minTime, ls.minDistance, mLocationListener);
-        
+
         mStartTime = recordTimes.startTime;
     }
 
     @Override
     public void stop(Context context) {
-        LocationManager locationManager = (LocationManager)
-                context.getSystemService(Context.LOCATION_SERVICE);
 
         if (!checkPermission(context)) {
             return;
         }
 
-        locationManager.removeUpdates(mLocationListener);
+        getLocationManager(context).removeUpdates(mLocationListener);
     }
 
 
@@ -103,8 +105,8 @@ public abstract class LocationSensor extends Sensor
 
             mListener.onNewValues(systemTimestamp, location.getTime() / 1e3d - mStartTime,
                     new Object[]{location.getLatitude(), location.getLongitude(),
-                    location.getAltitude(), location.getBearing(), location.getAccuracy(),
-                    location.getSpeed()});
+                            location.getAltitude(), location.getBearing(), location.getAccuracy(),
+                            location.getSpeed()});
         }
 
         @Override
@@ -148,5 +150,27 @@ public abstract class LocationSensor extends Sensor
     @Override
     public String[] getFields(Resources resources) {
         return resources.getStringArray(R.array.fields_location);
+    }
+
+
+    protected LocationManager getLocationManager(Context context) {
+        return (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+    }
+
+    public List<Log.IniRecord> getExtraIniRecords(Context context, String sectionName, String provider) {
+
+        if (!checkPermission(context)) return new ArrayList<>();
+
+        Location location = getLocationManager(context).getLastKnownLocation(provider);
+        if (location == null) return new ArrayList<>();
+
+        List<Log.IniRecord> records = new ArrayList<>();
+        records.add(new Log.IniRecord(sectionName, INI_OPTION_LATITUDE, location.getLatitude()));
+        records.add(new Log.IniRecord(sectionName, INI_OPTION_LONGITUDE, location.getLongitude()));
+        records.add(new Log.IniRecord(sectionName, INI_OPTION_ALTITUDE, location.getAltitude()));
+        records.add(new Log.IniRecord(sectionName, INI_OPTION_UNIXTIME, String.format(Locale.US, "%.3f", location.getTime() / 1e3d)));
+        records.add(new Log.IniRecord(sectionName, INI_OPTION_ACCURACY, location.getAccuracy()));
+        records.add(new Log.IniRecord(sectionName, INI_OPTION_BEARING, location.getBearing()));
+        return records;
     }
 }

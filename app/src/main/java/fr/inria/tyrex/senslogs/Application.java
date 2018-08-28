@@ -66,7 +66,7 @@ public class Application extends android.app.Application {
 
         List<File> logFiles = new ArrayList<>();
         for(Log log : mLogsManager.getLogs()) {
-            logFiles.add(log.getFile());
+            logFiles.add(log.getZipFile());
         }
 
         for (File child : getFilesDir().listFiles())

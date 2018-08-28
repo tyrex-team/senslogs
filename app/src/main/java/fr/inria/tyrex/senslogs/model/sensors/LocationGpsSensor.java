@@ -7,15 +7,18 @@ import android.content.res.Resources;
 import android.location.LocationManager;
 import android.os.Build;
 
-import fr.inria.tyrex.senslogs.R;
+import java.util.List;
 
-import static fr.inria.tyrex.senslogs.model.Sensor.TYPE_LOCATION_GPS;
+import fr.inria.tyrex.senslogs.R;
+import fr.inria.tyrex.senslogs.model.Log;
 
 /**
  * GPS Sensor provides a computed value from NMEA data
  * http://developer.android.com/guide/topics/location/strategies.html
  */
 public class LocationGpsSensor extends LocationSensor {
+
+    transient private final static String INI_SECTION_NAME = "LastKnownGPSLocation";
 
     transient private static LocationGpsSensor instance;
     public static LocationGpsSensor getInstance() {
@@ -55,4 +58,8 @@ public class LocationGpsSensor extends LocationSensor {
                 context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED);
     }
 
+    @Override
+    public List<Log.IniRecord> getExtraIniRecords(Context context) {
+            return super.getExtraIniRecords(context, INI_SECTION_NAME, LocationManager.GPS_PROVIDER);
+    }
 }

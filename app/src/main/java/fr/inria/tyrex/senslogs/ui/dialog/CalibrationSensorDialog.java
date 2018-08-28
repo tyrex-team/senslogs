@@ -24,7 +24,7 @@ import fr.inria.tyrex.senslogs.Application;
 import fr.inria.tyrex.senslogs.R;
 import fr.inria.tyrex.senslogs.control.Recorder;
 import fr.inria.tyrex.senslogs.control.SensorsManager;
-import fr.inria.tyrex.senslogs.model.Log;
+import fr.inria.tyrex.senslogs.model.CalibrationLog;
 import fr.inria.tyrex.senslogs.model.Sensor;
 import fr.inria.tyrex.senslogs.model.sensors.AndroidSensor;
 
@@ -198,18 +198,20 @@ public class CalibrationSensorDialog extends DialogFragment {
 
         sensorsToRecord.put(mSensor, new AndroidSensor.Settings(SensorManager.SENSOR_DELAY_FASTEST));
 
-        Log.Calibration calibration = Log.Calibration.NO;
+        CalibrationLog.Type calibration;
 
         if(mSensor.getType() == android.hardware.Sensor.TYPE_ACCELEROMETER) {
             Sensor mGyroSensor = mSensorsManager.getSensorByType(android.hardware.Sensor.TYPE_GYROSCOPE);
             sensorsToRecord.put(mGyroSensor, new AndroidSensor.Settings(SensorManager.SENSOR_DELAY_FASTEST));
-            calibration = Log.Calibration.ACCELEROMETER;
+            calibration = CalibrationLog.Type.ACCELEROMETER;
         }
         else if(mSensor.getType() == android.hardware.Sensor.TYPE_GYROSCOPE_UNCALIBRATED) {
-            calibration = Log.Calibration.GYROSCOPE;
+            calibration = CalibrationLog.Type.GYROSCOPE;
         }
         else if(mSensor.getType() == android.hardware.Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED) {
-            calibration = Log.Calibration.MAGNETOMETER;
+            calibration = CalibrationLog.Type.MAGNETOMETER;
+        } else {
+            throw new RuntimeException("Should never be called");
         }
 
         try {
