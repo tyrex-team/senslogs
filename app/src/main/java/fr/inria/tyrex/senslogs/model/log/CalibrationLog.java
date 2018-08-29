@@ -1,4 +1,4 @@
-package fr.inria.tyrex.senslogs.model;
+package fr.inria.tyrex.senslogs.model.log;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -6,10 +6,10 @@ import android.support.annotation.NonNull;
 import org.ini4j.Wini;
 
 import java.io.File;
-import java.util.Map;
 import java.util.Set;
 
-import fr.inria.tyrex.senslogs.control.RecorderWriter;
+import fr.inria.tyrex.senslogs.model.WritableObject;
+import fr.inria.tyrex.senslogs.model.sensors.Sensor;
 
 public class CalibrationLog extends Log {
 
@@ -31,8 +31,8 @@ public class CalibrationLog extends Log {
 
     @Override
     public Wini generateIniFile(Context context, File file,
-                                Map<RecorderWriter.WritableObject, File> files) {
-        Wini wini = super.generateIniFile(context, file, files);
+                                Set<WritableObject> writableObjects) {
+        Wini wini = super.generateIniFile(context, file, writableObjects);
         wini.put("Settings", "Calibration", mCalibrationType);
         return wini;
     }

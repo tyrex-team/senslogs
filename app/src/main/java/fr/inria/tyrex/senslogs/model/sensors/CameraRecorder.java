@@ -20,11 +20,12 @@ import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import fr.inria.tyrex.senslogs.R;
-import fr.inria.tyrex.senslogs.model.Log;
-import fr.inria.tyrex.senslogs.model.Sensor;
+import fr.inria.tyrex.senslogs.model.log.Log;
 
 import static android.media.CamcorderProfile.QUALITY_1080P;
 import static android.media.CamcorderProfile.QUALITY_480P;
@@ -66,6 +67,8 @@ public class CameraRecorder extends Sensor {
      */
     transient private Settings mSettings;
     transient private String mVideoPath;
+    transient private double mTimestampStart;
+    transient private Log.RecordTimes mRecordTimes;
 
 
     transient private static CameraRecorder instance;
@@ -125,6 +128,7 @@ public class CameraRecorder extends Sensor {
     public void start(Context context, Sensor.Settings settings, Log.RecordTimes recordTimes) {
 
         mCameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
+        mRecordTimes = recordTimes;
 
         if (!(settings instanceof Settings)) {
             settings = getDefaultSettings();
@@ -262,6 +266,7 @@ public class CameraRecorder extends Sensor {
                 builder.addTarget(mMediaRecorder.getSurface());
                 builder.set(CaptureRequest.CONTROL_AF_MODE, mSettings.autoFocus.param);
                 session.setRepeatingRequest(builder.build(), null, mBackgroundHandler);
+                mTimestampStart = System.currentTimeMillis() / 1e3;
                 mMediaRecorder.start();
             } catch (CameraAccessException e) {
                 e.printStackTrace();
@@ -283,6 +288,13 @@ public class CameraRecorder extends Sensor {
     @Override
     public boolean mustRunOnUiThread() {
         return false;
+    }
+
+    @Override
+    public List<Log.IniRecord> getExtraIniRecords(Context context) {
+        ArrayList<Log.IniRecord> iniRecords = new ArrayList<>();
+        iniRecords.add(new Log.IniRecord("Camera", "VideoOffset", mTimestampStart - mRecordTimes.startTime));
+        return iniRecords;
     }
 
     public enum OutputQuality {

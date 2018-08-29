@@ -7,16 +7,15 @@ import android.content.res.Resources;
 import android.os.Build;
 
 import fr.inria.tyrex.senslogs.R;
-import fr.inria.tyrex.senslogs.control.RecorderWriter;
-import fr.inria.tyrex.senslogs.model.Log;
-import fr.inria.tyrex.senslogs.model.Sensor;
+import fr.inria.tyrex.senslogs.model.FieldsWritableObject;
+import fr.inria.tyrex.senslogs.model.log.Log;
 
 /**
  * Nfc Sensor records nfc messages
  * // TODO Not working, should be implemented
  * http://developer.android.com/guide/topics/connectivity/nfc/index.html
  */
-public class NfcSensor extends Sensor implements RecorderWriter.FieldsWritableObject {
+public class NfcSensor extends Sensor implements FieldsWritableObject {
 
     transient private static NfcSensor instance;
 

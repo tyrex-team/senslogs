@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 
 import fr.inria.tyrex.senslogs.R;
+import fr.inria.tyrex.senslogs.model.FieldsWritableObject;
 
 
 /**
@@ -11,8 +12,8 @@ import fr.inria.tyrex.senslogs.R;
  */
 public class PositionsReferenceManager {
 
-    private static RecorderWriter.FieldsWritableObject mWritableObject =
-            new RecorderWriter.FieldsWritableObject() {
+    private static FieldsWritableObject mWritableObject =
+            new FieldsWritableObject() {
                 @Override
                 public String getStorageFileName(Context context) {
                     return context.getString(R.string.file_name_reference_timestamps);
@@ -42,7 +43,7 @@ public class PositionsReferenceManager {
     /**
      * Get a WritableObject for RecorderWriter
      */
-    public static RecorderWriter.FieldsWritableObject getFieldsWritableObject() {
+    public static FieldsWritableObject getFieldsWritableObject() {
         return mWritableObject;
     }
 }

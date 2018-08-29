@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Set;
 
 import fr.inria.tyrex.senslogs.control.SensorsManager;
-import fr.inria.tyrex.senslogs.model.Log;
-import fr.inria.tyrex.senslogs.model.Sensor;
+import fr.inria.tyrex.senslogs.model.log.Log;
+import fr.inria.tyrex.senslogs.model.sensors.Sensor;
 
 /**
  * Interface to store data logs into a database (only the properties)

@@ -1,4 +1,4 @@
-package fr.inria.tyrex.senslogs.model;
+package fr.inria.tyrex.senslogs.model.sensors;
 
 import android.content.Context;
 
@@ -16,14 +16,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.inria.tyrex.senslogs.R;
-import fr.inria.tyrex.senslogs.control.RecorderWriter;
+import fr.inria.tyrex.senslogs.model.log.Log;
+import fr.inria.tyrex.senslogs.model.WritableObject;
 
 /**
  * This class is a factorization of all sensors of an Android system.
  * A sensor is described by its name and a category.
  * It can be started and stopped.
  */
-public abstract class Sensor implements Serializable, RecorderWriter.WritableObject {
+public abstract class Sensor implements Serializable, WritableObject {
 
     public final static int TYPE_LOCATION_GPS = 0x300;
     public final static int TYPE_LOCATION_CELL_WIFI = 0x301;
@@ -149,6 +150,7 @@ public abstract class Sensor implements Serializable, RecorderWriter.WritableObj
         mListener = listener;
     }
 
+    // TODO move it to a field sensor
     public interface Listener {
         /**
          * Called for each new value from a sensor

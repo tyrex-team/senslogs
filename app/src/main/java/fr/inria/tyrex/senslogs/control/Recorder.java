@@ -22,10 +22,12 @@ import java.util.Map;
 import java.util.Set;
 
 import fr.inria.tyrex.senslogs.R;
-import fr.inria.tyrex.senslogs.model.CalibrationLog;
-import fr.inria.tyrex.senslogs.model.Log;
+import fr.inria.tyrex.senslogs.model.FieldsWritableObject;
 import fr.inria.tyrex.senslogs.model.PositionReference;
-import fr.inria.tyrex.senslogs.model.Sensor;
+import fr.inria.tyrex.senslogs.model.WritableObject;
+import fr.inria.tyrex.senslogs.model.log.CalibrationLog;
+import fr.inria.tyrex.senslogs.model.log.Log;
+import fr.inria.tyrex.senslogs.model.sensors.Sensor;
 import fr.inria.tyrex.senslogs.ui.RecordActivity;
 import fr.inria.tyrex.senslogs.ui.utils.KillNotificationsService;
 
@@ -48,7 +50,7 @@ public class Recorder {
 
 
     private boolean isRecording = false;
-    private boolean isInitialized = true;
+    private boolean isInitialized = false;
 
     public Recorder(Context context, LogsManager logsManager,
                     PreferencesManager preferencesManager) {
@@ -79,7 +81,7 @@ public class Recorder {
         mReferences.clear();
 
         // Retrieve and init writer with sensors
-        Set<RecorderWriter.WritableObject> writableObjects = new HashSet<>();
+        Set<WritableObject> writableObjects = new HashSet<>();
         writableObjects.addAll(mSensorsAndSettings.keySet());
 
         // We need to create a new instance because writer is used during zip creation task
@@ -90,11 +92,7 @@ public class Recorder {
 
 
     public void play() throws FileNotFoundException {
-        play(mPreferencesManager.getSelectedSensors());
-    }
-
-    public void play(Map<Sensor, Sensor.Settings> sensorsAndSettings) throws FileNotFoundException {
-        play(sensorsAndSettings, null);
+        play(mPreferencesManager.getSelectedSensors(), null);
     }
 
     public void play(Map<Sensor, Sensor.Settings> sensorsAndSettings, CalibrationLog.Type calibration)
@@ -104,9 +102,9 @@ public class Recorder {
 
 
         // Need to init some properties for the first play
-        if (isInitialized) {
+        if (!isInitialized) {
             initialize(sensorsAndSettings, calibration);
-            isInitialized = false;
+            isInitialized = true;
         } else {
             mRecorderWriter.updateVideoPath();
         }
@@ -118,7 +116,7 @@ public class Recorder {
             final Sensor sensor = sensorAndSetting.getKey();
             final Sensor.Settings settings = sensorAndSetting.getValue();
 
-            if (sensor instanceof RecorderWriter.FieldsWritableObject) {
+            if (sensor instanceof FieldsWritableObject) {
                 sensor.setListener(new Sensor.Listener() {
                     @Override
                     public void onNewValues(double diffTimeSystem, double diffTimeSensor, Object[] objects) {
@@ -148,9 +146,7 @@ public class Recorder {
 
     public void pause() {
 
-        if (!isRecording) {
-            return;
-        }
+        if (!isRecording) return;
 
         stopTimer();
         removeNotification();
@@ -184,7 +180,7 @@ public class Recorder {
         resetTimer();
         mRecorderWriter.finish();
         mRecorderWriter.removeFiles();
-        isInitialized = true;
+        isInitialized = false;
         isRecording = false;
     }
 
@@ -198,7 +194,7 @@ public class Recorder {
         if (mReferences.size() > 0) {
 
             // Write reference positions
-            RecorderWriter.FieldsWritableObject prWritableObject = PositionsReferenceManager.getFieldsWritableObject();
+            FieldsWritableObject prWritableObject = PositionsReferenceManager.getFieldsWritableObject();
             mRecorderWriter.createFile(prWritableObject);
             for (PositionReference reference : mReferences) {
                 mRecorderWriter.write(prWritableObject, reference.elapsedTime, null, reference.toObject());
@@ -247,7 +243,7 @@ public class Recorder {
 
         mLogsManager.addLog(mLog);
 
-        isInitialized = true;
+        isInitialized = false;
 
         return mLog;
     }

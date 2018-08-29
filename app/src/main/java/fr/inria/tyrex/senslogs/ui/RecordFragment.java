@@ -27,7 +27,7 @@ import fr.inria.tyrex.senslogs.Application;
 import fr.inria.tyrex.senslogs.R;
 import fr.inria.tyrex.senslogs.control.LogsManager;
 import fr.inria.tyrex.senslogs.control.Recorder;
-import fr.inria.tyrex.senslogs.model.Log;
+import fr.inria.tyrex.senslogs.model.log.Log;
 import fr.inria.tyrex.senslogs.ui.dialog.FinishRecordDialog;
 import fr.inria.tyrex.senslogs.ui.utils.StringsFormat;
 import fr.inria.tyrex.senslogs.ui.utils.transitions.EnterSharedElementTextSizeHandler;

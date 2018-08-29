@@ -23,8 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import fr.inria.tyrex.senslogs.control.SensorsManager;
-import fr.inria.tyrex.senslogs.model.Preference;
-import fr.inria.tyrex.senslogs.model.Sensor;
+import fr.inria.tyrex.senslogs.model.sensors.Sensor;
 import fr.inria.tyrex.senslogs.model.sensors.AndroidSensor;
 import fr.inria.tyrex.senslogs.model.sensors.CameraRecorder;
 import fr.inria.tyrex.senslogs.model.sensors.LocationSensor;

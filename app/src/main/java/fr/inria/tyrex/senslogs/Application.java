@@ -8,7 +8,7 @@ import fr.inria.tyrex.senslogs.control.LogsManager;
 import fr.inria.tyrex.senslogs.control.PreferencesManager;
 import fr.inria.tyrex.senslogs.control.Recorder;
 import fr.inria.tyrex.senslogs.control.SensorsManager;
-import fr.inria.tyrex.senslogs.model.Log;
+import fr.inria.tyrex.senslogs.model.log.Log;
 
 /**
  * Application class accessible from all activities

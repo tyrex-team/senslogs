@@ -14,15 +14,14 @@ import android.os.Handler;
 import android.os.Looper;
 
 import fr.inria.tyrex.senslogs.R;
-import fr.inria.tyrex.senslogs.control.RecorderWriter;
-import fr.inria.tyrex.senslogs.model.Log;
-import fr.inria.tyrex.senslogs.model.Sensor;
+import fr.inria.tyrex.senslogs.model.FieldsWritableObject;
+import fr.inria.tyrex.senslogs.model.log.Log;
 
 /**
  * Wifi Sensor provides wifi signals strength, ssid, bssid... on each channels
  * http://developer.android.com/reference/android/net/wifi/WifiManager.html
  */
-public class WifiSensor extends Sensor implements RecorderWriter.FieldsWritableObject {
+public class WifiSensor extends Sensor implements FieldsWritableObject {
 
     transient private WifiScanReceiver mWifiScanReceiver = null;
 

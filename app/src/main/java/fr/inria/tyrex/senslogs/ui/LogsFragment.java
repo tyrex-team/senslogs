@@ -44,7 +44,7 @@ import fr.inria.tyrex.senslogs.control.CopyTask;
 import fr.inria.tyrex.senslogs.control.LogsManager;
 import fr.inria.tyrex.senslogs.control.ZipCreationTask;
 import fr.inria.tyrex.senslogs.databinding.FragmentLogsBinding;
-import fr.inria.tyrex.senslogs.model.Log;
+import fr.inria.tyrex.senslogs.model.log.Log;
 import fr.inria.tyrex.senslogs.ui.dialog.LogDialog;
 import fr.inria.tyrex.senslogs.ui.utils.DividerItemDecoration;
 import fr.inria.tyrex.senslogs.ui.utils.StringsFormat;

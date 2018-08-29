@@ -23,7 +23,9 @@ import java.util.concurrent.Executors;
 
 import fr.inria.tyrex.senslogs.Application;
 import fr.inria.tyrex.senslogs.R;
-import fr.inria.tyrex.senslogs.model.Log;
+import fr.inria.tyrex.senslogs.model.FieldsWritableObject;
+import fr.inria.tyrex.senslogs.model.log.Log;
+import fr.inria.tyrex.senslogs.model.WritableObject;
 import fr.inria.tyrex.senslogs.model.sensors.CameraRecorder;
 
 /**
@@ -31,27 +33,6 @@ import fr.inria.tyrex.senslogs.model.sensors.CameraRecorder;
  */
 public class RecorderWriter {
 
-
-    /**
-     * Object writable by {@link RecorderWriter}
-     */
-    public interface WritableObject {
-        String getStorageFileName(Context context);
-
-        String getWebPage(Resources resources);
-
-        String getFileExtension();
-    }
-
-    /**
-     * Object writable by {@link RecorderWriter}
-     */
-    public interface FieldsWritableObject extends WritableObject {
-
-        String getFieldsDescription(Resources resources);
-
-        String[] getFields(Resources resources);
-    }
 
     private ExecutorService executor;
     private Context mContext;
@@ -103,6 +84,7 @@ public class RecorderWriter {
                 "." + cameraRecorder.getFileExtension();
         File file = new File(mOutputDirectory, fileName);
         cameraRecorder.setVideoPath(file.getAbsolutePath());
+        mSensorsFiles.put(cameraRecorder, file);
     }
 
     public void createFile(FieldsWritableObject fwo) throws FileNotFoundException {
@@ -206,7 +188,7 @@ public class RecorderWriter {
 
         File file = new File(mOutputDirectory, mContext.getString(R.string.file_record_properties));
 
-        Wini iniFile = log.generateIniFile(mContext, file, mSensorsFiles);
+        Wini iniFile = log.generateIniFile(mContext, file, mSensorsFiles.keySet());
         if (iniFile == null) return file;
         iniFile.store();
         return file;

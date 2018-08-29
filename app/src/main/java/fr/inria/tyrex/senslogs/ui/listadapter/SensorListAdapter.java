@@ -16,7 +16,7 @@ import java.util.List;
 import fr.inria.tyrex.senslogs.R;
 import fr.inria.tyrex.senslogs.control.PreferencesManager;
 import fr.inria.tyrex.senslogs.control.SensorsManager;
-import fr.inria.tyrex.senslogs.model.Sensor;
+import fr.inria.tyrex.senslogs.model.sensors.Sensor;
 
 /**
  * Adapter for Sensor List using categories

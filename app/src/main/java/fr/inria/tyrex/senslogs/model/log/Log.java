@@ -1,4 +1,4 @@
-package fr.inria.tyrex.senslogs.model;
+package fr.inria.tyrex.senslogs.model.log;
 
 import android.content.Context;
 import android.os.Build;
@@ -15,12 +15,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import fr.inria.tyrex.senslogs.control.RecorderWriter;
 import fr.inria.tyrex.senslogs.control.ZipCreationTask;
+import fr.inria.tyrex.senslogs.model.WritableObject;
+import fr.inria.tyrex.senslogs.model.sensors.Sensor;
 
 /**
  * Log of a record made by {@link fr.inria.tyrex.senslogs.control.Recorder}
@@ -206,7 +206,7 @@ public class Log implements Serializable {
                 '}';
     }
 
-    public Wini generateIniFile(Context context, File file, Map<RecorderWriter.WritableObject, File> files) {
+    public Wini generateIniFile(Context context, File file, Set<WritableObject> writableObjects) {
 
         Wini ini;
         try {
@@ -234,12 +234,12 @@ public class Log implements Serializable {
         ini.put("Time", "MonotonicAtStart", String.format(Locale.US, "%.3f", mRecordTimes.monotonicAtStart));
 
         String sensorsList = "";
-        for (Map.Entry<RecorderWriter.WritableObject, File> fileEntry : files.entrySet()) {
-            if (!(fileEntry.getKey() instanceof Sensor))  continue;
-            Sensor sensor = (Sensor) fileEntry.getKey();
+        for (WritableObject writableObject : writableObjects) {
+            if (!(writableObject instanceof Sensor)) continue;
+            Sensor sensor = (Sensor) writableObject;
             sensorsList += sensor.getName() + ", ";
         }
-        if(sensorsList.length() > 2) {
+        if (sensorsList.length() > 2) {
             ini.put("Sensors", "List", sensorsList.substring(0, sensorsList.length() - 2));
         }
 
@@ -247,13 +247,12 @@ public class Log implements Serializable {
         /*
          * Extra data
          */
-        for (RecorderWriter.WritableObject writableObject : files.keySet()) {
-            if (!(writableObject instanceof Sensor))  continue;
+        for (WritableObject writableObject : writableObjects) {
+            if (!(writableObject instanceof Sensor)) continue;
             Sensor sensor = (Sensor) writableObject;
-            for(IniRecord record : sensor.getExtraIniRecords(context)) {
+            for (IniRecord record : sensor.getExtraIniRecords(context)) {
                 ini.put(record.sectionName, record.optionName, record.value);
             }
-
         }
 
         return ini;

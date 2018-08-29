@@ -10,7 +10,7 @@ import android.os.Build;
 import java.util.List;
 
 import fr.inria.tyrex.senslogs.R;
-import fr.inria.tyrex.senslogs.model.Log;
+import fr.inria.tyrex.senslogs.model.log.Log;
 
 /**
  * GPS Sensor provides a computed value from NMEA data

@@ -9,7 +9,7 @@ import java.util.List;
 
 import fr.inria.tyrex.senslogs.Application;
 import fr.inria.tyrex.senslogs.R;
-import fr.inria.tyrex.senslogs.model.Log;
+import fr.inria.tyrex.senslogs.model.log.Log;
 import fr.inria.tyrex.senslogs.model.preferences.LogsDataSource;
 
 /**

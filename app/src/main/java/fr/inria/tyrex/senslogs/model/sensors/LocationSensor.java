@@ -13,9 +13,8 @@ import java.util.List;
 import java.util.Locale;
 
 import fr.inria.tyrex.senslogs.R;
-import fr.inria.tyrex.senslogs.control.RecorderWriter;
-import fr.inria.tyrex.senslogs.model.Log;
-import fr.inria.tyrex.senslogs.model.Sensor;
+import fr.inria.tyrex.senslogs.model.FieldsWritableObject;
+import fr.inria.tyrex.senslogs.model.log.Log;
 
 
 /**
@@ -23,7 +22,7 @@ import fr.inria.tyrex.senslogs.model.Sensor;
  * A special location provider for receiving locations without actually initiating a location fix.
  */
 public abstract class LocationSensor extends Sensor
-        implements Serializable, RecorderWriter.FieldsWritableObject {
+        implements Serializable, FieldsWritableObject {
 
     private final static String INI_OPTION_LATITUDE = "Latitude";
     private final static String INI_OPTION_LONGITUDE = "Longitude";

@@ -6,7 +6,7 @@ import android.hardware.SensorManager;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.inria.tyrex.senslogs.model.Sensor;
+import fr.inria.tyrex.senslogs.model.sensors.Sensor;
 import fr.inria.tyrex.senslogs.model.sensors.AndroidSensor;
 import fr.inria.tyrex.senslogs.model.sensors.BluetoothSensor;
 import fr.inria.tyrex.senslogs.model.sensors.CameraRecorder;
