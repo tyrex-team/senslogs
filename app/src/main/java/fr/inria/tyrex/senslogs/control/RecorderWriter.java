@@ -14,19 +14,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import fr.inria.tyrex.senslogs.Application;
 import fr.inria.tyrex.senslogs.R;
 import fr.inria.tyrex.senslogs.model.FieldsWritableObject;
+import fr.inria.tyrex.senslogs.model.PositionReference;
 import fr.inria.tyrex.senslogs.model.WritableObject;
 import fr.inria.tyrex.senslogs.model.log.Log;
 import fr.inria.tyrex.senslogs.model.sensors.CameraRecorder;
+import fr.inria.tyrex.senslogs.model.sensors.Sensor;
 
 /**
  * Creation of log files asynchronously in a folder
@@ -53,7 +55,7 @@ public class RecorderWriter {
         mSensorsFiles = new HashMap<>();
     }
 
-    public void init(Log log) {
+    public void init(Log log) throws FileNotFoundException {
 
         executor = Executors.newSingleThreadExecutor();
         mSensorsFos.clear();
@@ -65,14 +67,11 @@ public class RecorderWriter {
 
         mFileNames = new ArrayList<>();
 
-    }
-
-    public void createFiles(Set<WritableObject> writableObjects) throws FileNotFoundException {
-        for (WritableObject writableObject : writableObjects) {
-            if (writableObject instanceof CameraRecorder) updateVideoPath();
-            if (!(writableObject instanceof FieldsWritableObject)) continue;
-            createFile((FieldsWritableObject) writableObject);
+        for (Sensor sensor : log.getSensors()) {
+            if (!(sensor instanceof FieldsWritableObject)) continue;
+            createFile((FieldsWritableObject) sensor);
         }
+
     }
 
     public void updateVideoPath() {
@@ -85,7 +84,7 @@ public class RecorderWriter {
         mSensorsFiles.put(cameraRecorder, file);
     }
 
-    public void createFile(FieldsWritableObject fwo) throws FileNotFoundException {
+    private void createFile(FieldsWritableObject fwo) throws FileNotFoundException {
 
         Resources resources = mContext.getResources();
 
@@ -264,4 +263,14 @@ public class RecorderWriter {
     }
 
 
+    public void writeReferences(LinkedList<PositionReference> references) throws FileNotFoundException {
+        if (references.isEmpty()) return;
+
+        FieldsWritableObject prWritableObject = PositionsReferenceManager.getFieldsWritableObject();
+        createFile(prWritableObject);
+        for (PositionReference reference : references) {
+            write(prWritableObject, reference.elapsedTime, null, reference.toObject());
+        }
+
+    }
 }
