@@ -127,7 +127,7 @@ public class RecordFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        if(mRecorder.isRecording()) {
+        if (mRecorder.isRecording()) {
             mDataSizeHandler.post(mDataSizeRunnable);
             mTimerHandler.post(mTimerRunnable);
         }
@@ -182,6 +182,7 @@ public class RecordFragment extends Fragment {
 
     private Runnable mDataSizeRunnable = new Runnable() {
         private final DecimalFormat decimalFormat = new DecimalFormat("#0");
+
         @Override
         public void run() {
             mDataSizeTextView.setText(StringsFormat.getSize(getResources(),

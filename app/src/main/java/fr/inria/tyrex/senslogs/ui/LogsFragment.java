@@ -126,13 +126,19 @@ public class LogsFragment extends Fragment {
         View v = mBinding.getRoot();
 
         mLogs = mLogsManager.getLogs();
+
+        Log selectedLog = null;
+        Intent intent = getActivity().getIntent();
+        if (intent != null && intent.hasExtra(INPUT_LOG)) {
+            selectedLog = mLogsManager.getLogs().get(intent.getIntExtra(INPUT_LOG, -1));
+        }
+
         Collections.sort(mLogs, new Comparator<Log>() {
             @Override
             public int compare(Log lhs, Log rhs) {
-                return Double.compare(lhs.getRecordTimes().startTime, rhs.getRecordTimes().startTime);
+                return -Double.compare(lhs.getRecordTimes().startTime, rhs.getRecordTimes().startTime);
             }
         });
-        Collections.reverse(mLogs);
 
         LogsAdapter adapter = new LogsAdapter();
 
@@ -144,11 +150,7 @@ public class LogsFragment extends Fragment {
 
         mBinding.setAdapter(adapter);
 
-        Intent intent = getActivity().getIntent();
-        if (intent != null && intent.hasExtra(INPUT_LOG)) {
-            Log log = mLogsManager.getLogs().get(intent.getIntExtra(INPUT_LOG, -1));
-            selectLog(log);
-        }
+        if (selectedLog != null) selectLog(selectedLog);
 
         return v;
     }
