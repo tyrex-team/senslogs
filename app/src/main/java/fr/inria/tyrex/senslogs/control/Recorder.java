@@ -216,7 +216,7 @@ public class Recorder {
         mLog.setUser(user);
         mLog.setComment(comment);
         mLog.setPositionOrientation(positionOrientation);
-        mLog.setUncompressedSize(mRecorderWriter.getFilesSize());
+        mLog.setUncompressedSize(mRecorderWriter.getDataSize());
 
 
         // Create Zip File

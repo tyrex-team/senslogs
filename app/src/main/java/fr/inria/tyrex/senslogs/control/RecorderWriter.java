@@ -44,7 +44,6 @@ public class RecorderWriter {
 
     private Map<WritableObject, FileOutputStream> mSensorsFos;
     private Map<WritableObject, File> mSensorsFiles;
-    private long mFilesSize;
 
     private File mOutputDirectory;
 
@@ -61,7 +60,6 @@ public class RecorderWriter {
         mSensorsFiles.clear();
         buffer1.setLength(0);
         buffer2.setLength(0);
-        mFilesSize = 0;
 
         mOutputDirectory = log.getTemporaryFolder();
 
@@ -97,8 +95,6 @@ public class RecorderWriter {
         File file = new File(mOutputDirectory, fileName);
 
         mSensorsFiles.put(fwo, file);
-        mFilesSize = 0;
-
 
         FileOutputStream fos = new FileOutputStream(file);
         mSensorsFos.put(fwo, fos);
@@ -126,7 +122,6 @@ public class RecorderWriter {
         }
         buffer2.append('\n');
         byte[] bytes = buffer2.toString().getBytes();
-        mFilesSize += bytes.length;
 
 
         try {
@@ -163,7 +158,6 @@ public class RecorderWriter {
             buffer1.append('\n');
 
             byte[] bytes = buffer1.toString().getBytes();
-            mFilesSize += bytes.length;
 
             fos.write(bytes);
             buffer1.setLength(0);
@@ -191,11 +185,6 @@ public class RecorderWriter {
         if (iniFile == null) return file;
         iniFile.store();
         return file;
-    }
-
-
-    public long getFilesSize() {
-        return mFilesSize;
     }
 
 
