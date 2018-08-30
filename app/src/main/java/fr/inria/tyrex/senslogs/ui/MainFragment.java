@@ -148,7 +148,7 @@ public class MainFragment extends Fragment {
 
         final SensorListAdapter listAdapter = new SensorListAdapter(getActivity(), mGroupList,
                 mPreferencesManager, mSensorsManager);
-        final ExpandableListView listViewSensors = (ExpandableListView) mRootView.findViewById(R.id.sensors_list);
+        final ExpandableListView listViewSensors = mRootView.findViewById(R.id.sensors_list);
         listViewSensors.setAdapter(listAdapter);
 
         listViewSensors.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {

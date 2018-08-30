@@ -102,11 +102,11 @@ public class SensorListAdapter extends BaseExpandableListAdapter {
         Group group = (Group) getGroup(groupPosition);
         final Sensor sensor = group.sensors.get(childPosition);
 
-        final CheckBox checkBoxItem = (CheckBox) convertView.findViewById(R.id.checkbox_item);
-        TextView sensorNameTextView = (TextView) convertView.findViewById(R.id.sensor_name);
-        TextView sensorTypeTextView = (TextView) convertView.findViewById(R.id.sensor_type);
-        ImageButton settingsImageView = (ImageButton) convertView.findViewById(R.id.settings);
-        ImageButton calibrationImageView = (ImageButton) convertView.findViewById(R.id.calibration);
+        final CheckBox checkBoxItem = convertView.findViewById(R.id.checkbox_item);
+        TextView sensorNameTextView = convertView.findViewById(R.id.sensor_name);
+        TextView sensorTypeTextView = convertView.findViewById(R.id.sensor_type);
+        ImageButton settingsImageView = convertView.findViewById(R.id.settings);
+        ImageButton calibrationImageView = convertView.findViewById(R.id.calibration);
 
         sensorNameTextView.setText(sensor.getName());
         sensorTypeTextView.setText(sensor.getStringType());

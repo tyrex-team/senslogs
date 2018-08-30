@@ -62,7 +62,7 @@ public class CalibrationSensorDialog extends DialogFragment {
 
         View rootView = View.inflate(getActivity(), R.layout.dialog_sensor_calibration, null);
 
-        TextView helpMessage = (TextView) rootView.findViewById(R.id.calibration_help_message);
+        TextView helpMessage = rootView.findViewById(R.id.calibration_help_message);
         switch (mSensor.getType()) {
             case android.hardware.Sensor.TYPE_ACCELEROMETER:
                 helpMessage.setText(R.string.calibration_accelerometer_help);

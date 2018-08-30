@@ -137,7 +137,7 @@ public class LogsFragment extends Fragment {
 
         LogsAdapter adapter = new LogsAdapter();
 
-        mRecyclerView = (RecyclerView) v.findViewById(R.id.logs_recycler_view);
+        mRecyclerView = v.findViewById(R.id.logs_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity()));
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -390,11 +390,11 @@ public class LogsFragment extends Fragment {
         public LogHolder(View v) {
             super(v, mMultiSelector);
 
-            mName = (TextView) v.findViewById(R.id.log_name);
-            mCompressedSize = (TextView) v.findViewById(R.id.log_compressed_size);
-            mDateTime = (TextView) v.findViewById(R.id.log_date_time);
-            mShare = (ImageButton) v.findViewById(R.id.logs_share_button);
-            mProgressBar = (ProgressBar) v.findViewById(R.id.logs_progress_bar);
+            mName = v.findViewById(R.id.log_name);
+            mCompressedSize = v.findViewById(R.id.log_compressed_size);
+            mDateTime = v.findViewById(R.id.log_date_time);
+            mShare = v.findViewById(R.id.logs_share_button);
+            mProgressBar = v.findViewById(R.id.logs_progress_bar);
             mDataContainer = v.findViewById(R.id.log_data_container);
             mProgressBar.setMax(100);
             v.setOnClickListener(this);

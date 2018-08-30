@@ -7,6 +7,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
@@ -139,23 +140,23 @@ public class SettingsSensorDialog extends DialogFragment {
 
                     if (sensor instanceof AndroidSensor) {
 
-                        Spinner spinner = (Spinner) v.findViewById(R.id.settings_sensor_delay);
+                        Spinner spinner = v.findViewById(R.id.settings_sensor_delay);
                         String result = spinner.getSelectedItem().toString();
                         int delay = AndroidSensor.Settings.getDelayIntegerFromString(result);
                         settings1 = new AndroidSensor.Settings(delay);
 
                     } else if (sensor instanceof LocationSensor) {
 
-                        String minTimeString = ((TextView) v.findViewById(R.id.settings_sensor_min_time)).
+                        String minTimeString = ((EditText) v.findViewById(R.id.settings_sensor_min_time)).
                                 getText().toString();
-                        String minDistanceString = ((TextView) v.findViewById(R.id.settings_sensor_min_distance)).
+                        String minDistanceString = ((EditText) v.findViewById(R.id.settings_sensor_min_distance)).
                                 getText().toString();
 
                         settings1 = new LocationSensor.Settings(Long.valueOf(minTimeString),
                                 Float.valueOf(minDistanceString));
                     } else {
-                        Spinner spinnerQuality = (Spinner) v.findViewById(R.id.settings_sensor_camera_quality);
-                        Spinner spinnerAF = (Spinner) v.findViewById(R.id.settings_sensor_camera_af);
+                        Spinner spinnerQuality = v.findViewById(R.id.settings_sensor_camera_quality);
+                        Spinner spinnerAF = v.findViewById(R.id.settings_sensor_camera_af);
 
                         settings1 = new CameraRecorder.Settings(
                                 (CameraRecorder.OutputQuality) spinnerQuality.getSelectedItem(),
