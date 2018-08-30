@@ -24,8 +24,8 @@ import java.util.concurrent.Executors;
 import fr.inria.tyrex.senslogs.Application;
 import fr.inria.tyrex.senslogs.R;
 import fr.inria.tyrex.senslogs.model.FieldsWritableObject;
-import fr.inria.tyrex.senslogs.model.log.Log;
 import fr.inria.tyrex.senslogs.model.WritableObject;
+import fr.inria.tyrex.senslogs.model.log.Log;
 import fr.inria.tyrex.senslogs.model.sensors.CameraRecorder;
 
 /**
@@ -71,10 +71,10 @@ public class RecorderWriter {
 
     public void createFiles(Set<WritableObject> writableObjects) throws FileNotFoundException {
         for (WritableObject writableObject : writableObjects) {
+            if (writableObject instanceof CameraRecorder) updateVideoPath();
             if (!(writableObject instanceof FieldsWritableObject)) continue;
             createFile((FieldsWritableObject) writableObject);
         }
-        updateVideoPath();
     }
 
     public void updateVideoPath() {
@@ -184,7 +184,6 @@ public class RecorderWriter {
     }
 
     private File writeDescriptionFile(Log log) throws IOException {
-
 
         File file = new File(mOutputDirectory, mContext.getString(R.string.file_record_properties));
 
