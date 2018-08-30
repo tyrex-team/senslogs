@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.SharedElementCallback;
 import android.content.res.Resources;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v4.util.Pair;
 import android.transition.Transition;
 import android.transition.TransitionSet;
@@ -21,6 +22,7 @@ import java.util.Map;
  * Handle enter shared transitions for text size
  * http://stackoverflow.com/questions/26599824/how-can-i-scale-textviews-using-shared-element-transitions/33914006#33914006
  */
+@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class EnterSharedElementTextSizeHandler extends SharedElementCallback {
 
     private final TransitionSet mTransitionSet;

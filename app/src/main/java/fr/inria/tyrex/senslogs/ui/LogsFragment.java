@@ -35,7 +35,6 @@ import java.io.File;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import fr.inria.tyrex.senslogs.Application;
@@ -133,12 +132,8 @@ public class LogsFragment extends Fragment {
             selectedLog = mLogsManager.getLogs().get(intent.getIntExtra(INPUT_LOG, -1));
         }
 
-        Collections.sort(mLogs, new Comparator<Log>() {
-            @Override
-            public int compare(Log lhs, Log rhs) {
-                return -Double.compare(lhs.getRecordTimes().startTime, rhs.getRecordTimes().startTime);
-            }
-        });
+        Collections.sort(mLogs, (lhs, rhs) ->
+                -Double.compare(lhs.getRecordTimes().startTime, rhs.getRecordTimes().startTime));
 
         LogsAdapter adapter = new LogsAdapter();
 
@@ -414,12 +409,7 @@ public class LogsFragment extends Fragment {
             mName.setText(log.getName());
             mDateTime.setText(DateFormat.getDateTimeInstance().format(log.getRecordTimes().startTime * 1000));
             mCompressedSize.setText(StringsFormat.getSize(getResources(), log.getCompressedSize()));
-            mShare.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    share(mLog);
-                }
-            });
+            mShare.setOnClickListener(v -> share(mLog));
 
             if (mLog.getCreationTask() != null) {
                 mProgressBar.setVisibility(View.VISIBLE);

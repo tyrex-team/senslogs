@@ -124,12 +124,7 @@ public class Recorder {
             if (sensor.mustRunOnUiThread()) {
                 sensor.start(mContext, settings, mLog.getRecordTimes());
             } else {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        sensor.start(mContext, settings, mLog.getRecordTimes());
-                    }
-                }).start();
+                new Thread(() -> sensor.start(mContext, settings, mLog.getRecordTimes())).start();
             }
         }
 
@@ -153,12 +148,7 @@ public class Recorder {
             if (sensor.mustRunOnUiThread()) {
                 sensor.stop(mContext);
             } else {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        sensor.stop(mContext);
-                    }
-                }).start();
+                new Thread(() -> sensor.stop(mContext)).start();
             }
         }
 

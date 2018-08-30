@@ -1,7 +1,6 @@
 package fr.inria.tyrex.senslogs.ui.dialog;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -15,10 +14,10 @@ import android.widget.TextView;
 import fr.inria.tyrex.senslogs.Application;
 import fr.inria.tyrex.senslogs.R;
 import fr.inria.tyrex.senslogs.control.PreferencesManager;
-import fr.inria.tyrex.senslogs.model.sensors.Sensor;
 import fr.inria.tyrex.senslogs.model.sensors.AndroidSensor;
 import fr.inria.tyrex.senslogs.model.sensors.CameraRecorder;
 import fr.inria.tyrex.senslogs.model.sensors.LocationSensor;
+import fr.inria.tyrex.senslogs.model.sensors.Sensor;
 
 /**
  * This dialog is called when user set settings of a sensor
@@ -134,51 +133,40 @@ public class SettingsSensorDialog extends DialogFragment {
 
         builder.setTitle(R.string.settings_sensor_delay_title);
         builder.setView(v);
-        builder.setPositiveButton(R.string.settings_ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+        builder.setPositiveButton(R.string.settings_ok, (dialog, which) -> {
 
-                        Sensor.Settings settings;
+                    Sensor.Settings settings1;
 
-                        if (sensor instanceof AndroidSensor) {
+                    if (sensor instanceof AndroidSensor) {
 
-                            Spinner spinner = (Spinner) v.findViewById(R.id.settings_sensor_delay);
-                            String result = spinner.getSelectedItem().toString();
-                            int delay = AndroidSensor.Settings.getDelayIntegerFromString(result);
-                            settings = new AndroidSensor.Settings(delay);
+                        Spinner spinner = (Spinner) v.findViewById(R.id.settings_sensor_delay);
+                        String result = spinner.getSelectedItem().toString();
+                        int delay = AndroidSensor.Settings.getDelayIntegerFromString(result);
+                        settings1 = new AndroidSensor.Settings(delay);
 
-                        } else if (sensor instanceof LocationSensor) {
+                    } else if (sensor instanceof LocationSensor) {
 
-                            String minTimeString = ((TextView) v.findViewById(R.id.settings_sensor_min_time)).
-                                    getText().toString();
-                            String minDistanceString = ((TextView) v.findViewById(R.id.settings_sensor_min_distance)).
-                                    getText().toString();
+                        String minTimeString = ((TextView) v.findViewById(R.id.settings_sensor_min_time)).
+                                getText().toString();
+                        String minDistanceString = ((TextView) v.findViewById(R.id.settings_sensor_min_distance)).
+                                getText().toString();
 
-                            settings = new LocationSensor.Settings(Long.valueOf(minTimeString),
-                                    Float.valueOf(minDistanceString));
-                        } else {
-                            Spinner spinnerQuality = (Spinner) v.findViewById(R.id.settings_sensor_camera_quality);
-                            Spinner spinnerAF = (Spinner) v.findViewById(R.id.settings_sensor_camera_af);
+                        settings1 = new LocationSensor.Settings(Long.valueOf(minTimeString),
+                                Float.valueOf(minDistanceString));
+                    } else {
+                        Spinner spinnerQuality = (Spinner) v.findViewById(R.id.settings_sensor_camera_quality);
+                        Spinner spinnerAF = (Spinner) v.findViewById(R.id.settings_sensor_camera_af);
 
-                            settings = new CameraRecorder.Settings(
-                                    (CameraRecorder.OutputQuality) spinnerQuality.getSelectedItem(),
-                                    (CameraRecorder.AutoFocus) spinnerAF.getSelectedItem());
-                        }
-                        preferencesManager.setSettings(sensor, settings);
+                        settings1 = new CameraRecorder.Settings(
+                                (CameraRecorder.OutputQuality) spinnerQuality.getSelectedItem(),
+                                (CameraRecorder.AutoFocus) spinnerAF.getSelectedItem());
                     }
+                    preferencesManager.setSettings(sensor, settings1);
                 }
 
         );
-        builder.setNegativeButton(R.string.settings_cancel, new DialogInterface.OnClickListener()
-
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                }
-
-        );
+        builder.setNegativeButton(R.string.settings_cancel, (dialog, which) -> {
+        });
         return builder.create();
     }
 }

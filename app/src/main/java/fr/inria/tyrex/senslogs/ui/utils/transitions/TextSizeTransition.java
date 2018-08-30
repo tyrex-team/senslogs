@@ -2,6 +2,8 @@ package fr.inria.tyrex.senslogs.ui.utils.transitions;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.transition.Transition;
 import android.transition.TransitionValues;
 import android.util.Property;
@@ -14,6 +16,7 @@ import android.widget.TextView;
  * Custom Text Size transition
  * https://github.com/alexjlockwood/custom-lollipop-transitions/blob/master/app/src/main/java/com/alexjlockwood/transitions/custom/TextSizeTransition.java
  */
+@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class TextSizeTransition extends Transition {
     private static final String PROPNAME_TEXT_SIZE = "alexjlockwood:transition:textsize";
     private static final String[] TRANSITION_PROPERTIES = { PROPNAME_TEXT_SIZE };

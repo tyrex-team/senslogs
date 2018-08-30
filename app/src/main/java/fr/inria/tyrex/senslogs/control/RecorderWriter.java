@@ -133,12 +133,7 @@ public class RecorderWriter {
 
     public void asycWrite(final WritableObject writableObject, final double elapsedTimeSystem,
                           final Double elapsedTimeSensor, final Object[] values) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                write(writableObject, elapsedTimeSystem, elapsedTimeSensor, values);
-            }
-        });
+        executor.execute(() -> write(writableObject, elapsedTimeSystem, elapsedTimeSensor, values));
     }
 
     public void write(final WritableObject writableObject, final double elapsedTimeSystem,

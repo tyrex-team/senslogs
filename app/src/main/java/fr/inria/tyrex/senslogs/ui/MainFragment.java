@@ -29,7 +29,6 @@ import android.widget.ExpandableListView;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -40,8 +39,8 @@ import fr.inria.tyrex.senslogs.control.PreferencesManager;
 import fr.inria.tyrex.senslogs.control.Recorder;
 import fr.inria.tyrex.senslogs.control.SensorsManager;
 import fr.inria.tyrex.senslogs.model.log.Log;
-import fr.inria.tyrex.senslogs.model.sensors.Sensor;
 import fr.inria.tyrex.senslogs.model.sensors.AndroidSensor;
+import fr.inria.tyrex.senslogs.model.sensors.Sensor;
 import fr.inria.tyrex.senslogs.ui.dialog.CalibrationSensorDialog;
 import fr.inria.tyrex.senslogs.ui.dialog.InformationSensorDialog;
 import fr.inria.tyrex.senslogs.ui.dialog.SettingsSensorDialog;
@@ -90,12 +89,7 @@ public class MainFragment extends Fragment {
 
         fillList();
 
-        mRootView.findViewById(R.id.start_pause).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onPlayClick();
-            }
-        });
+        mRootView.findViewById(R.id.start_pause).setOnClickListener(v -> onPlayClick());
 
         return mRootView;
     }
@@ -107,12 +101,8 @@ public class MainFragment extends Fragment {
 
         mActionLogMenuItem = menu.findItem(R.id.action_logs);
 
-        mActionLogMenuItem.getActionView().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                menu.performIdentifierAction(mActionLogMenuItem.getItemId(), 0);
-            }
-        });
+        mActionLogMenuItem.getActionView().setOnClickListener(v ->
+                menu.performIdentifierAction(mActionLogMenuItem.getItemId(), 0));
 
         mActionLogMenuItem.setVisible(mLogManager.getLogs().size() != 0);
     }
@@ -134,17 +124,14 @@ public class MainFragment extends Fragment {
 
         List<Sensor> availableSensors = mSensorsManager.getAvailableSensors();
 
-        Collections.sort(availableSensors, new Comparator<Sensor>() {
-            @Override
-            public int compare(Sensor sensor1, Sensor sensor2) {
-                int compareCategoryResult = Sensor.Category.compareTo(
-                        sensor1.getCategory(), sensor2.getCategory());
-                if (compareCategoryResult != 0) {
-                    return compareCategoryResult;
-                }
-                return sensor1.getName().
-                        compareTo(sensor2.getName());
+        Collections.sort(availableSensors, (sensor1, sensor2) -> {
+            int compareCategoryResult = Sensor.Category.compareTo(
+                    sensor1.getCategory(), sensor2.getCategory());
+            if (compareCategoryResult != 0) {
+                return compareCategoryResult;
             }
+            return sensor1.getName().
+                    compareTo(sensor2.getName());
         });
 
 
@@ -164,34 +151,16 @@ public class MainFragment extends Fragment {
         final ExpandableListView listViewSensors = (ExpandableListView) mRootView.findViewById(R.id.sensors_list);
         listViewSensors.setAdapter(listAdapter);
 
-        listViewSensors.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-            @Override
-            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                onAndroidSensorClick((Sensor) listAdapter.getChild(groupPosition, childPosition));
-                return true;
-            }
+        listViewSensors.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
+            onAndroidSensorClick((Sensor) listAdapter.getChild(groupPosition, childPosition));
+            return true;
         });
 
-        listAdapter.setOnSettingsClickListener(new SensorListAdapter.SettingsClickListener() {
-            @Override
-            public void onSettingsClick(Sensor sensor) {
-                MainFragment.this.onSettingsClick(sensor);
-            }
-        });
+        listAdapter.setOnSettingsClickListener(MainFragment.this::onSettingsClick);
 
-        listAdapter.setOnCalibrationClickListener(new SensorListAdapter.CalibrationClickListener() {
-            @Override
-            public void onCalibrationClick(Sensor sensor) {
-                MainFragment.this.onCalibrationClick(sensor);
-            }
-        });
+        listAdapter.setOnCalibrationClickListener(MainFragment.this::onCalibrationClick);
 
-        listAdapter.setOnCheckboxClickListener(new SensorListAdapter.CheckboxClickListener() {
-            @Override
-            public void onCheckboxClick(Sensor sensor, boolean isChecked, CompoundButton view) {
-                MainFragment.this.onCheckboxClick(sensor, isChecked, view);
-            }
-        });
+        listAdapter.setOnCheckboxClickListener(MainFragment.this::onCheckboxClick);
     }
 
     private void onAndroidSensorClick(Sensor sensor) {
@@ -345,12 +314,7 @@ public class MainFragment extends Fragment {
                         .make(mRootView, Html.fromHtml(String.format(
                                 getString(R.string.record_data_saved), log.getName())),
                                 Snackbar.LENGTH_LONG)
-                        .setAction(R.string.record_data_saved_see, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                startLogsActivity(log);
-                            }
-                        });
+                        .setAction(R.string.record_data_saved_see, view -> startLogsActivity(log));
                 snackbar.show();
             }
         }

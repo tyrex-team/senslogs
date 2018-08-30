@@ -123,32 +123,23 @@ public class SensorListAdapter extends BaseExpandableListAdapter {
             sensorTypeTextView.setVisibility(View.VISIBLE);
         }
 
-        settingsImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mSettingsClickListener != null) {
-                    mSettingsClickListener.onSettingsClick(sensor);
-                }
+        settingsImageView.setOnClickListener(v -> {
+            if (mSettingsClickListener != null) {
+                mSettingsClickListener.onSettingsClick(sensor);
             }
         });
 
-        calibrationImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mCalibrationClickListener != null) {
-                    mCalibrationClickListener.onCalibrationClick(sensor);
-                }
+        calibrationImageView.setOnClickListener(v -> {
+            if (mCalibrationClickListener != null) {
+                mCalibrationClickListener.onCalibrationClick(sensor);
             }
         });
 
         // Not use setOnCheckedChangeListener() because it's called too often
-        checkBoxItem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mCheckboxListener != null) {
-                    mCheckboxListener.onCheckboxClick(sensor, checkBoxItem.isChecked(),
-                            (CompoundButton) v);
-                }
+        checkBoxItem.setOnClickListener(v -> {
+            if (mCheckboxListener != null) {
+                mCheckboxListener.onCheckboxClick(sensor, checkBoxItem.isChecked(),
+                        (CompoundButton) v);
             }
         });
 

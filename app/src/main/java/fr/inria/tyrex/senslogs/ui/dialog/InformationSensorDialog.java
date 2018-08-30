@@ -1,7 +1,6 @@
 package fr.inria.tyrex.senslogs.ui.dialog;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.hardware.Sensor;
 import android.os.Build;
 import android.os.Bundle;
@@ -81,12 +80,7 @@ public class InformationSensorDialog extends DialogFragment {
         }
 
         builder.setView(v);
-        builder.setPositiveButton(R.string.information_ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
+        builder.setPositiveButton(R.string.information_ok, (dialog, which) -> dialog.cancel());
         return builder.create();
     }
 }

@@ -1,7 +1,6 @@
 package fr.inria.tyrex.senslogs.ui.dialog;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -37,23 +36,13 @@ public class FinishRecordDialog extends DialogFragment {
 
         builder.setTitle(R.string.record_finished_dialog_title);
 
-        builder.setPositiveButton(R.string.record_finished_dialog_ok,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (mListener != null) {
-                            mListener.onPositiveResult(editText.getText().toString().trim());
-                        }
-                    }
-                });
+        builder.setPositiveButton(R.string.record_finished_dialog_ok, (dialog, which) -> {
+            if (mListener != null) {
+                mListener.onPositiveResult(editText.getText().toString().trim());
+            }
+        });
 
-        builder.setNegativeButton(R.string.record_finished_dialog_cancel,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
+        builder.setNegativeButton(R.string.record_finished_dialog_cancel, (dialog, which) -> dialog.cancel());
 
         final AlertDialog dialog = builder.create();
 

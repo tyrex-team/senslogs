@@ -72,32 +72,23 @@ public class LogDialog extends DialogFragment {
                 String.format(Locale.US, "%d/%d", usedSensors, totalSensors));
 
 
-        v.findViewById(R.id.log_share).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-                if (mListener != null) {
-                    mListener.onShareResult(mLog);
-                }
+        v.findViewById(R.id.log_share).setOnClickListener(v11 -> {
+            dismiss();
+            if (mListener != null) {
+                mListener.onShareResult(mLog);
             }
         });
 
-        v.findViewById(R.id.log_delete).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-                if (mListener != null) {
-                    mListener.onDeleteResult(mLog);
-                }
+        v.findViewById(R.id.log_delete).setOnClickListener(v12 -> {
+            dismiss();
+            if (mListener != null) {
+                mListener.onDeleteResult(mLog);
             }
         });
-        v.findViewById(R.id.log_copy_to_sd_card).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-                if (mListener != null) {
-                    mListener.onCopyToSdCardResult(mLog);
-                }
+        v.findViewById(R.id.log_copy_to_sd_card).setOnClickListener(v13 -> {
+            dismiss();
+            if (mListener != null) {
+                mListener.onCopyToSdCardResult(mLog);
             }
         });
 

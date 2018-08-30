@@ -1,7 +1,6 @@
 package fr.inria.tyrex.senslogs.ui;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -84,40 +83,22 @@ public class RecordFragment extends Fragment {
             handler.addTextViewSizeResource(mTimerTextView, R.dimen.timer_small_text_size, R.dimen.timer_large_text_size);
         }
 
-        mStartPauseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mRecorder.isRecording()) {
-                    onPauseClick();
-                } else {
-                    onPlayClick();
-                }
+        mStartPauseButton.setOnClickListener(v -> {
+            if (mRecorder.isRecording()) {
+                onPauseClick();
+            } else {
+                onPlayClick();
             }
         });
 
-        mRecordCancelTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cancelAction();
-            }
-        });
-        mRecordFinishTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finishAction();
-            }
-        });
+        mRecordCancelTextView.setOnClickListener(v -> cancelAction());
+        mRecordFinishTextView.setOnClickListener(v -> finishAction());
 
         mRecordFinishTextView.setEnabled(false);
         mRecordCancelTextView.setEnabled(false);
 
 
-        mRecordTimestampButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mRecorder.addReference(0, 0, null);
-            }
-        });
+        mRecordTimestampButton.setOnClickListener(v -> mRecorder.addReference(0, 0, null));
 
         return rootView;
     }
@@ -205,18 +186,8 @@ public class RecordFragment extends Fragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         builder.setMessage(R.string.record_cancelled_dialog_message)
-                .setPositiveButton(R.string.record_cancelled_dialog_yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        cancelRecorderConfirmed();
-                    }
-                })
-                .setNegativeButton(R.string.record_cancelled_dialog_no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                })
+                .setPositiveButton(R.string.record_cancelled_dialog_yes, (dialog, id) -> cancelRecorderConfirmed())
+                .setNegativeButton(R.string.record_cancelled_dialog_no, (dialog, id) -> dialog.cancel())
                 .show();
 
     }
@@ -241,23 +212,20 @@ public class RecordFragment extends Fragment {
         FinishRecordDialog newFragment = new FinishRecordDialog();
         newFragment.show(fm, "fragment_record_finish");
 
-        newFragment.setListener(new FinishRecordDialog.OnDialogResultListener() {
-            @Override
-            public void onPositiveResult(String value) {
-                try {
-                    Log log = mRecorder.save(value);
+        newFragment.setListener(value -> {
+            try {
+                Log log = mRecorder.save(value);
 
-                    Intent resultIntent = new Intent();
-                    resultIntent.putExtra(RESULT_LOG, mLogManager.getLogs().indexOf(log));
-                    getActivity().setResult(Activity.RESULT_OK, resultIntent);
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra(RESULT_LOG, mLogManager.getLogs().indexOf(log));
+                getActivity().setResult(Activity.RESULT_OK, resultIntent);
 
-                } catch (IOException e) {
-                    android.util.Log.e(Application.LOG_TAG, "Something bad happened with file creation");
-                    e.printStackTrace();
-                }
-
-                getActivity().supportFinishAfterTransition();
+            } catch (IOException e) {
+                android.util.Log.e(Application.LOG_TAG, "Something bad happened with file creation");
+                e.printStackTrace();
             }
+
+            getActivity().supportFinishAfterTransition();
         });
     }
 

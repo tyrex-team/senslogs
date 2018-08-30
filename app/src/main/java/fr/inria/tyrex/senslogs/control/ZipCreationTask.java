@@ -98,12 +98,8 @@ public class ZipCreationTask extends AsyncTask<ZipCreationTask.Params,
         }
 
         for (final Map.Entry<ZipCreationListener, Handler> listener : mListeners.entrySet()) {
-            listener.getValue().post(new Runnable() {
-                @Override
-                public void run() {
-                    listener.getKey().onProgress(values[0].currentFile, values[0].totalProgress);
-                }
-            });
+            listener.getValue().post(() ->
+                    listener.getKey().onProgress(values[0].currentFile, values[0].totalProgress));
         }
     }
 
@@ -112,12 +108,7 @@ public class ZipCreationTask extends AsyncTask<ZipCreationTask.Params,
         super.onPostExecute(file);
 
         for (final Map.Entry<ZipCreationListener, Handler> listener : mListeners.entrySet()) {
-            listener.getValue().post(new Runnable() {
-                @Override
-                public void run() {
-                    listener.getKey().onTaskFinished(file, file.length());
-                }
-            });
+            listener.getValue().post(() -> listener.getKey().onTaskFinished(file, file.length()));
         }
     }
 

@@ -78,27 +78,21 @@ public class CalibrationSensorDialog extends DialogFragment {
         mStartCalibration = rootView.findViewById(R.id.calibration_start);
         mPauseCalibration = rootView.findViewById(R.id.calibration_pause);
 
-        mStartCalibration.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mStartCalibration.setVisibility(View.GONE);
-                mPauseCalibration.setVisibility(View.VISIBLE);
+        mStartCalibration.setOnClickListener(v -> {
+            mStartCalibration.setVisibility(View.GONE);
+            mPauseCalibration.setVisibility(View.VISIBLE);
 
-                startCalibration();
-            }
+            startCalibration();
         });
 
-        mPauseCalibration.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog dialog = (AlertDialog) getDialog();
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
-                dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setEnabled(true);
+        mPauseCalibration.setOnClickListener(v -> {
+            AlertDialog dialog = (AlertDialog) getDialog();
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setEnabled(true);
 
-                mPauseCalibration.setVisibility(View.GONE);
+            mPauseCalibration.setVisibility(View.GONE);
 
-                pauseCalibration();
-            }
+            pauseCalibration();
         });
 
 
@@ -146,24 +140,18 @@ public class CalibrationSensorDialog extends DialogFragment {
         saveButton.setEnabled(false);
         restartButton.setEnabled(false);
 
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveCalibration();
-                dismiss();
-            }
+        saveButton.setOnClickListener(v -> {
+            saveCalibration();
+            dismiss();
         });
-        restartButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mStartCalibration.setVisibility(View.VISIBLE);
-                mPauseCalibration.setVisibility(View.GONE);
+        restartButton.setOnClickListener(v -> {
+            mStartCalibration.setVisibility(View.VISIBLE);
+            mPauseCalibration.setVisibility(View.GONE);
 
-                saveButton.setEnabled(false);
-                restartButton.setEnabled(false);
+            saveButton.setEnabled(false);
+            restartButton.setEnabled(false);
 
-                restartCalibration();
-            }
+            restartCalibration();
         });
     }
 
