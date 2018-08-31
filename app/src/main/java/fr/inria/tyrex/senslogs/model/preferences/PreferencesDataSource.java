@@ -23,10 +23,10 @@ import java.util.Map;
 import java.util.Set;
 
 import fr.inria.tyrex.senslogs.control.SensorsManager;
-import fr.inria.tyrex.senslogs.model.sensors.Sensor;
 import fr.inria.tyrex.senslogs.model.sensors.AndroidSensor;
 import fr.inria.tyrex.senslogs.model.sensors.CameraRecorder;
 import fr.inria.tyrex.senslogs.model.sensors.LocationSensor;
+import fr.inria.tyrex.senslogs.model.sensors.Sensor;
 
 /**
  * Interface to store sensors preferences into a database
@@ -58,10 +58,11 @@ public class PreferencesDataSource {
         List<Preference> preferences = new ArrayList<>();
 
         Set<String> preferencesStrings = new HashSet<>(
-                mPreferences.getStringSet(KEY_PREF_LIST, new HashSet<String>()));
+                mPreferences.getStringSet(KEY_PREF_LIST, new HashSet<>()));
 
         for (String preferenceString : preferencesStrings) {
-            preferences.add(mGson.fromJson(preferenceString, Preference.class));
+            Preference res = mGson.fromJson(preferenceString, Preference.class);
+            if(res != null) preferences.add(res);
         }
 
         for (Sensor sensor : mSensorsManager.getAvailableSensors()) {
@@ -87,8 +88,8 @@ public class PreferencesDataSource {
 
     public void updateSelection(Sensor sensor, boolean selected) {
         List<Preference> preferences = getPreferences();
-        for(Preference pref : preferences) {
-            if(pref.sensor.equals(sensor)) {
+        for (Preference pref : preferences) {
+            if (pref.sensor.equals(sensor)) {
                 pref.selected = selected;
                 savePreferences(preferences);
                 return;
@@ -99,8 +100,8 @@ public class PreferencesDataSource {
 
     public void updateSettings(Sensor sensor, Sensor.Settings settings) {
         List<Preference> preferences = getPreferences();
-        for(Preference pref : preferences) {
-            if(pref.sensor.equals(sensor)) {
+        for (Preference pref : preferences) {
+            if (pref.sensor.equals(sensor)) {
                 pref.settings = settings;
                 savePreferences(preferences);
                 return;
@@ -111,12 +112,11 @@ public class PreferencesDataSource {
 
     private void savePreferences(List<Preference> preferences) {
         Set<String> input = new HashSet<>();
-        for(Preference pref : preferences) {
+        for (Preference pref : preferences) {
             input.add(mGson.toJson(pref));
         }
         mPreferences.edit().putStringSet(KEY_PREF_LIST, input).apply();
     }
-
 
 
     public void setCategoryExpanded(Sensor.Category category, Boolean expanded) {
@@ -130,7 +130,7 @@ public class PreferencesDataSource {
         Map<Sensor.Category, Boolean> output = new HashMap<>();
         Sensor.Category[] categories = Sensor.Category.values();
 
-        for(Sensor.Category category : categories) {
+        for (Sensor.Category category : categories) {
             output.put(category, true);
         }
 
@@ -149,7 +149,7 @@ public class PreferencesDataSource {
     public void saveCategories(Map<Sensor.Category, Boolean> categories) {
 
         Set<String> input = new HashSet<>();
-        for(Map.Entry<Sensor.Category, Boolean> kv : categories.entrySet()) {
+        for (Map.Entry<Sensor.Category, Boolean> kv : categories.entrySet()) {
             input.add(mGson.toJson(new CategoryExpanded(kv.getKey(), kv.getValue())));
         }
         mPreferences.edit().putStringSet(KEY_CATEGORY_LIST, input).apply();
@@ -181,6 +181,8 @@ public class PreferencesDataSource {
                     = gson.getDelegateAdapter(this, TypeToken.get(AndroidSensor.Settings.class));
             final TypeAdapter<CameraRecorder.Settings> settingsCameraAdapter
                     = gson.getDelegateAdapter(this, TypeToken.get(CameraRecorder.Settings.class));
+            final TypeAdapter<Sensor.Settings> settingsAdapter
+                    = gson.getDelegateAdapter(this, TypeToken.get(Sensor.Settings.class));
 
 
             TypeAdapter<Preference> result = new TypeAdapter<Preference>() {
@@ -206,8 +208,10 @@ public class PreferencesDataSource {
                             settings = settingsLocationAdapter.fromJsonTree(settingsObject);
                         } else if (settingsClass.equals(AndroidSensor.Settings.class.getName())) {
                             settings = settingsAndroidAdapter.fromJsonTree(settingsObject);
-                        } else if(settingsClass.equals(CameraRecorder.Settings.class.getName())) {
+                        } else if (settingsClass.equals(CameraRecorder.Settings.class.getName())) {
                             settings = settingsCameraAdapter.fromJsonTree(settingsObject);
+                        } else if (settingsClass.equals(Sensor.Settings.class.getName())) {
+                            settings = settingsAdapter.fromJsonTree(settingsObject);
                         }
                     }
 
