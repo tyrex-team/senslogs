@@ -2,6 +2,8 @@ package fr.inria.tyrex.senslogs.ui;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.nfc.NfcAdapter;
+import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,6 +29,7 @@ import fr.inria.tyrex.senslogs.R;
 import fr.inria.tyrex.senslogs.control.LogsManager;
 import fr.inria.tyrex.senslogs.control.Recorder;
 import fr.inria.tyrex.senslogs.model.log.Log;
+import fr.inria.tyrex.senslogs.model.sensors.NfcSensor;
 import fr.inria.tyrex.senslogs.ui.dialog.FinishRecordDialog;
 import fr.inria.tyrex.senslogs.ui.utils.StringsFormat;
 import fr.inria.tyrex.senslogs.ui.utils.transitions.EnterSharedElementTextSizeHandler;
@@ -111,6 +114,9 @@ public class RecordFragment extends Fragment {
         if (mRecorder.isRecording()) {
             mDataSizeHandler.post(mDataSizeRunnable);
             mTimerHandler.post(mTimerRunnable);
+            if (mRecorder.isRecording(NfcSensor.getInstance()) && getActivity() != null) {
+                NfcSensor.setupForegroundDispatch(getActivity());
+            }
         }
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
@@ -125,6 +131,9 @@ public class RecordFragment extends Fragment {
         super.onPause();
         mDataSizeHandler.removeCallbacks(mDataSizeRunnable);
         mTimerHandler.removeCallbacks(mTimerRunnable);
+        if (mRecorder.isRecording(NfcSensor.getInstance()) && getActivity() != null) {
+            NfcSensor.stopForegroundDispatch(getActivity());
+        }
     }
 
 
@@ -141,6 +150,9 @@ public class RecordFragment extends Fragment {
             mRecorder.play();
             mDataSizeHandler.post(mDataSizeRunnable);
             mTimerHandler.post(mTimerRunnable);
+            if (mRecorder.isRecording(NfcSensor.getInstance()) && getActivity() != null) {
+                NfcSensor.setupForegroundDispatch(getActivity());
+            }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -240,4 +252,12 @@ public class RecordFragment extends Fragment {
         return true;
     }
 
+    public void onNewIntent(Intent intent) {
+        // Handle NFC intents
+        if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction())
+                && mRecorder.isRecording()) {
+            Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            NfcSensor.getInstance().handleTag(tag);
+        }
+    }
 }

@@ -157,7 +157,7 @@ public abstract class Sensor implements Serializable, WritableObject {
          *
          * @param diffTimeSystem difference time between beginning of capture and event received
          *                       by system from sensor
-         * @param diffTimeSensor difference time between begining of capture and sensor event. This
+         * @param diffTimeSensor difference time between beginning of capture and sensor event. This
          *                       value is equal to diffTimeSystem if there is no specific timestamp
          *                       from sensor
          * @param objects        data
