@@ -63,6 +63,9 @@ public class Recorder {
         return isRecording;
     }
 
+    public boolean isRecording(Sensor sensor) {
+        return mSensorsAndSettings.containsKey(sensor);
+    }
 
     private void init(@NonNull Map<Sensor, Sensor.Settings> sensorsAndSettings,
                       @Nullable CalibrationLog.Type calibration)

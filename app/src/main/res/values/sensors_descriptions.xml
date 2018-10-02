@@ -298,6 +298,7 @@
 		<item>data</item>
 	</string-array>
 	<string name="description_nfc">
+		Ndef records with a TNF Well Known
 	</string>
 
 	<string name="description_camera">

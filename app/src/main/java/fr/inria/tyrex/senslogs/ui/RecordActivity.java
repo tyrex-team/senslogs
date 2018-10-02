@@ -1,5 +1,6 @@
 package fr.inria.tyrex.senslogs.ui;
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 
 import fr.inria.tyrex.senslogs.ui.utils.SingleFragmentActivity;
@@ -21,4 +22,10 @@ public class RecordActivity extends SingleFragmentActivity {
     public void onBackPressed() {
         fragment.cancelAction();
     }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        fragment.onNewIntent(intent);
+    }
+
 }
