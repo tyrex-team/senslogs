@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
@@ -274,9 +275,15 @@ public class LogsFragment extends Fragment {
         task.execute(new CopyTask.Input(log.getZipFile(), mSharedTmpFile));
 
 
+        if(getContext() == null) return;
+
+        Uri zipUri = FileProvider.getUriForFile(getContext(),
+                getContext().getPackageName() + ".provider",
+                mSharedTmpFile);
+
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
-        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(mSharedTmpFile));
+        shareIntent.putExtra(Intent.EXTRA_STREAM, zipUri);
         shareIntent.setType("application/zip");
         startActivityForResult(Intent.createChooser(shareIntent,
                 getText(R.string.send_to)), REQUEST_CODE_SHARE);
