@@ -1,15 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '28.0.2'
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
 
     defaultConfig {
         applicationId "fr.inria.tyrex.senslogs"
         minSdkVersion 14
-        targetSdkVersion 27
-        versionCode 2
-        versionName "2.0"
+        targetSdkVersion 28
+        versionCode 3
+        versionName "2.1"
     }
 
     dataBinding {
@@ -28,10 +28,10 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.android.support:design:27.1.1'
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support:recyclerview-v7:27.1.1'
+    implementation 'com.android.support:design:28.0.0'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:recyclerview-v7:28.0.0'
     implementation 'com.bignerdranch.android:recyclerview-multiselect:0.2'
-    implementation 'com.google.code.gson:gson:2.8.2'
+    implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'org.ini4j:ini4j:0.5.1'
 }
