@@ -15,14 +15,28 @@
 		key management, and encryption schemes supported by the access point.
 	</string>
 
-    <string-array name="fields_accelerometer">
-        <item>elapsed-time-system</item>
-        <item>elapsed-time-sensor</item>
-        <item>x</item>
-        <item>y</item>
-        <item>z</item>
-    </string-array>
+	<string-array name="fields_accelerometer">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+		<item>x</item>
+		<item>y</item>
+		<item>z</item>
+	</string-array>
 	<string name="description_accelerometer">
+		All values are in SI units (m/s^2).
+	</string>
+
+	<string-array name="fields_accelerometer_uncalibrated">
+		<item>elapsed-time-system</item>
+		<item>elapsed-time-sensor</item>
+		<item>x</item>
+		<item>y</item>
+		<item>z</item>
+		<item>estimated-bias-x</item>
+		<item>estimated-bias-y</item>
+		<item>estimated-bias-z</item>
+	</string-array>
+	<string name="description_accelerometer_uncalibrated">
 		All values are in SI units (m/s^2).
 	</string>
 

@@ -2,7 +2,8 @@
 <resources>
 
 	<string name="file_name_wifi">wifi</string>
-	<string name="file_name_accelerometer">accelerometer</string>
+	<string name="file_name_accelerometer_uncalibrated">accelerometer</string>
+	<string name="file_name_accelerometer">accelerometer-calibrated</string>
 	<string name="file_name_gyroscope_uncalibrated">gyroscope</string>
 	<string name="file_name_magnetometer_uncalibrated">magnetometer</string>
 	<string name="file_name_gyroscope">gyroscope-calibrated</string>

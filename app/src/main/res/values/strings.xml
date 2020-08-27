@@ -32,6 +32,7 @@
 	<string name="sensor_accelerometer">Accelerometer</string>
 	<string name="sensor_gyroscope">Gyroscope</string>
 	<string name="sensor_magnetic_field">Magnetic Field</string>
+	<string name="sensor_accelerometer_calibrated">Accelerometer Calibrated</string>
 	<string name="sensor_gyroscope_calibrated">Gyroscope Calibrated</string>
 	<string name="sensor_magnetic_field_calibrated">Magnetic Field Calibrated</string>
 	<string name="sensor_game_rotation_vector">Game Rotation Vector</string>

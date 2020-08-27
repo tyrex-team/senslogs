@@ -39,8 +39,10 @@ public class AndroidSensor extends Sensor implements FieldsWritableObject {
     public String getStringType() {
 
         switch (mSensor.getType()) {
-            case android.hardware.Sensor.TYPE_ACCELEROMETER:
+            case android.hardware.Sensor.TYPE_ACCELEROMETER_UNCALIBRATED:
                 return "Accelerometer";
+            case android.hardware.Sensor.TYPE_ACCELEROMETER:
+                return "Accelerometer Calibrated";
             case android.hardware.Sensor.TYPE_GYROSCOPE_UNCALIBRATED:
                 return "Gyroscope";
             case android.hardware.Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED:
@@ -312,11 +314,12 @@ public class AndroidSensor extends Sensor implements FieldsWritableObject {
         switch (sensor.getType()) {
             case android.hardware.Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED:
             case android.hardware.Sensor.TYPE_GYROSCOPE_UNCALIBRATED:
-            case android.hardware.Sensor.TYPE_ACCELEROMETER:
+            case android.hardware.Sensor.TYPE_ACCELEROMETER_UNCALIBRATED:
                 return Category.IMU;
 
             case android.hardware.Sensor.TYPE_MAGNETIC_FIELD:
             case android.hardware.Sensor.TYPE_GYROSCOPE:
+            case android.hardware.Sensor.TYPE_ACCELEROMETER:
                 return Category.IMU_CALIBRATED;
 
             case android.hardware.Sensor.TYPE_GAME_ROTATION_VECTOR:
@@ -347,6 +350,8 @@ public class AndroidSensor extends Sensor implements FieldsWritableObject {
     private int getStorageFileNameResourceId() {
 
         switch (mSensor.getType()) {
+            case android.hardware.Sensor.TYPE_ACCELEROMETER_UNCALIBRATED:
+                return R.string.file_name_accelerometer_uncalibrated;
             case android.hardware.Sensor.TYPE_ACCELEROMETER:
                 return R.string.file_name_accelerometer;
             case android.hardware.Sensor.TYPE_GYROSCOPE_UNCALIBRATED:
@@ -393,6 +398,8 @@ public class AndroidSensor extends Sensor implements FieldsWritableObject {
     private int getFieldsDescriptionResourceId() {
 
         switch (mSensor.getType()) {
+            case android.hardware.Sensor.TYPE_ACCELEROMETER_UNCALIBRATED:
+                return R.string.description_accelerometer_uncalibrated;
             case android.hardware.Sensor.TYPE_ACCELEROMETER:
                 return R.string.description_accelerometer;
             case android.hardware.Sensor.TYPE_GYROSCOPE_UNCALIBRATED:
@@ -440,6 +447,8 @@ public class AndroidSensor extends Sensor implements FieldsWritableObject {
     private int getFieldsResourceId() {
 
         switch (mSensor.getType()) {
+            case android.hardware.Sensor.TYPE_ACCELEROMETER_UNCALIBRATED:
+                return R.array.fields_accelerometer_uncalibrated;
             case android.hardware.Sensor.TYPE_ACCELEROMETER:
                 return R.array.fields_accelerometer;
             case android.hardware.Sensor.TYPE_GYROSCOPE_UNCALIBRATED:
@@ -487,6 +496,7 @@ public class AndroidSensor extends Sensor implements FieldsWritableObject {
 
         switch (mType) {
             case android.hardware.Sensor.TYPE_ACCELEROMETER:
+            case android.hardware.Sensor.TYPE_ACCELEROMETER_UNCALIBRATED:
             case android.hardware.Sensor.TYPE_LINEAR_ACCELERATION:
                 return res.getString(R.string.unit_acceleration);
 

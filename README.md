@@ -8,6 +8,7 @@ This Android application records values from several smartphone sensors:
   - Magnetic Field
   <br />
 - **IMU Calibrated**
+  - Accelerometer Calibrated
   - Gyroscope Calibrated
   - Magnetic Field Calibrated
   <br />

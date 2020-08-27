@@ -64,7 +64,7 @@ public class CalibrationSensorDialog extends DialogFragment {
 
         TextView helpMessage = rootView.findViewById(R.id.calibration_help_message);
         switch (mSensor.getType()) {
-            case android.hardware.Sensor.TYPE_ACCELEROMETER:
+            case android.hardware.Sensor.TYPE_ACCELEROMETER_UNCALIBRATED:
                 helpMessage.setText(R.string.calibration_accelerometer_help);
                 break;
             case android.hardware.Sensor.TYPE_GYROSCOPE_UNCALIBRATED:
@@ -188,7 +188,7 @@ public class CalibrationSensorDialog extends DialogFragment {
 
         CalibrationLog.Type calibration;
 
-        if(mSensor.getType() == android.hardware.Sensor.TYPE_ACCELEROMETER) {
+        if(mSensor.getType() == android.hardware.Sensor.TYPE_ACCELEROMETER_UNCALIBRATED) {
             Sensor mGyroSensor = mSensorsManager.getSensorByType(android.hardware.Sensor.TYPE_GYROSCOPE);
             sensorsToRecord.put(mGyroSensor, new AndroidSensor.Settings(SensorManager.SENSOR_DELAY_FASTEST));
             calibration = CalibrationLog.Type.ACCELEROMETER;
@@ -227,7 +227,7 @@ public class CalibrationSensorDialog extends DialogFragment {
                 Locale.US).format(new Date());
         int folderId;
         switch (mSensor.getType()) {
-            case android.hardware.Sensor.TYPE_ACCELEROMETER:
+            case android.hardware.Sensor.TYPE_ACCELEROMETER_UNCALIBRATED:
                 folderId = R.string.folder_calibration_accelerometer;
                 break;
             case android.hardware.Sensor.TYPE_GYROSCOPE_UNCALIBRATED:

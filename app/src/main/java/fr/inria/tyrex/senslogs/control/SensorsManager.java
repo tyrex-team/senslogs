@@ -47,7 +47,7 @@ public class SensorsManager {
             AndroidSensor as = new AndroidSensor(sensor);
             mAvailableSensorsList.add(as);
             switch(sensor.getType()) {
-                case android.hardware.Sensor.TYPE_ACCELEROMETER:
+                case android.hardware.Sensor.TYPE_ACCELEROMETER_UNCALIBRATED:
                 case android.hardware.Sensor.TYPE_GYROSCOPE_UNCALIBRATED:
                 case android.hardware.Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED:
                     mSensorsToCalibrate.add(as);
