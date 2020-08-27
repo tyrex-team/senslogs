@@ -1,7 +1,7 @@
 package fr.inria.tyrex.senslogs.ui;
 
 import android.content.Intent;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 
 import fr.inria.tyrex.senslogs.ui.utils.SingleFragmentActivity;
 
@@ -25,6 +25,7 @@ public class RecordActivity extends SingleFragmentActivity {
 
     @Override
     protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
         fragment.onNewIntent(intent);
     }
 

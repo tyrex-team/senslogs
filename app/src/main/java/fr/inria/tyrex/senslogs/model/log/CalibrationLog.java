@@ -1,7 +1,7 @@
 package fr.inria.tyrex.senslogs.model.log;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.ini4j.Wini;
 

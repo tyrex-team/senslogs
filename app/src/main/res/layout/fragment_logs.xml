@@ -4,23 +4,26 @@
 	<data>
 
 		<import type="android.view.View"/>
+		<import type="java.util.List"/>
+		<import type="fr.inria.tyrex.senslogs.model.log.Log"/>
 
 		<variable
-			name="adapter"
-			type="fr.inria.tyrex.senslogs.ui.LogsFragment.LogsAdapter"/>
+			name="logs"
+			type="List&lt;Log>"/>
 	</data>
 
 	<FrameLayout
+        android:id="@+id/root"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
-		<android.support.v7.widget.RecyclerView
+		<androidx.recyclerview.widget.RecyclerView
 			android:id="@+id/logs_recycler_view"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:background="#fff"
 			android:scrollbars="vertical"
-			android:visibility="@{adapter.getItemCount() > 0 ? View.VISIBLE : View.GONE}"/>
+			android:visibility="@{logs.size() > 0 ? View.VISIBLE : View.GONE}"/>
 
 		<TextView
 			android:layout_width="match_parent"
@@ -28,7 +31,7 @@
 			android:gravity="center"
 			style="@style/Base.TextAppearance.AppCompat.Medium"
 			android:text="@string/logs_empty_list"
-			android:visibility="@{adapter.getItemCount() > 0 ? View.GONE : View.VISIBLE}"
+			android:visibility="@{logs.size() > 0 ? View.GONE : View.VISIBLE}"
 			/>
 	</FrameLayout>
 </layout>

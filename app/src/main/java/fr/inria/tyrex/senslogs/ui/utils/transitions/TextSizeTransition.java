@@ -3,7 +3,7 @@ package fr.inria.tyrex.senslogs.ui.utils.transitions;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.RequiresApi;
 import android.transition.Transition;
 import android.transition.TransitionValues;
 import android.util.Property;

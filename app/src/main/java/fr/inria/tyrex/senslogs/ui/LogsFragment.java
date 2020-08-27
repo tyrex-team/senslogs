@@ -5,18 +5,8 @@ import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.ActionMode;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -28,9 +18,19 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ActionMode;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
 import com.bignerdranch.android.multiselector.SwappingHolder;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
 import java.text.DateFormat;
@@ -121,11 +121,12 @@ public class LogsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
 
-        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_logs, parent, false);
+        mBinding = FragmentLogsBinding.inflate(getLayoutInflater());
 
-        View v = mBinding.getRoot();
+        View v = mBinding.root;
 
         mLogs = mLogsManager.getLogs();
+        mBinding.setLogs(mLogs);
 
         Log selectedLog = null;
         Intent intent = getActivity().getIntent();
@@ -144,7 +145,6 @@ public class LogsFragment extends Fragment {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecyclerView.setAdapter(adapter);
 
-        mBinding.setAdapter(adapter);
 
         if (selectedLog != null) selectLog(selectedLog);
 
@@ -209,9 +209,7 @@ public class LogsFragment extends Fragment {
         tmpList.add(log);
         delete(tmpList);
 
-        if (mLogsManager.getLogs().size() == 0) {
-            mBinding.invalidateAll();
-        }
+        mBinding.setLogs(mLogsManager.getLogs());
     }
 
     private void delete(List<Log> logs) {
@@ -232,9 +230,7 @@ public class LogsFragment extends Fragment {
 
         Snackbar.make(mRecyclerView, Html.fromHtml(snackBarMessage), Snackbar.LENGTH_LONG).show();
 
-        if (mLogsManager.getLogs().size() == 0) {
-            mBinding.invalidateAll();
-        }
+        mBinding.setLogs(mLogsManager.getLogs());
     }
 
 
