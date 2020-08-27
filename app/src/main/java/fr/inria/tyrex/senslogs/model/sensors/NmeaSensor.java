@@ -3,13 +3,14 @@ package fr.inria.tyrex.senslogs.model.sensors;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.wifi.WifiManager;
+import android.location.OnNmeaMessageListener;
 import android.os.Build;
 import android.os.Bundle;
+
+import androidx.annotation.RequiresApi;
 
 import fr.inria.tyrex.senslogs.R;
 import fr.inria.tyrex.senslogs.model.FieldsWritableObject;
@@ -68,8 +69,7 @@ public class NmeaSensor extends Sensor implements FieldsWritableObject {
     @Override
     public boolean exists(Context context) {
 
-        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        return wifiManager != null && wifiManager.isWifiEnabled();
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
 
     }
 
@@ -80,6 +80,7 @@ public class NmeaSensor extends Sensor implements FieldsWritableObject {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void start(Context context, Settings settings, Log.RecordTimes recordTimes) {
         LocationManager locationManager = (LocationManager)
@@ -95,6 +96,7 @@ public class NmeaSensor extends Sensor implements FieldsWritableObject {
         mStartTime = recordTimes.startTime;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void stop(Context context) {
         LocationManager locationManager = (LocationManager)
@@ -131,9 +133,10 @@ public class NmeaSensor extends Sensor implements FieldsWritableObject {
         }
     };
 
-    transient private GpsStatus.NmeaListener mNmeaListener = new GpsStatus.NmeaListener() {
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    transient private OnNmeaMessageListener mNmeaListener = new OnNmeaMessageListener() {
         @Override
-        public void onNmeaReceived(final long timestamp, final String nmea) {
+        public void onNmeaMessage(String nmea, long timestamp) {
             double systemTimestamp = System.currentTimeMillis() / 1e3d - mStartTime;
             if (mListener == null) {
                 return;
