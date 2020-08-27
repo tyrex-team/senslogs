@@ -78,7 +78,7 @@ public class PreferencesDataSource {
 
     private boolean isPreferencesListContainsSensor(List<Preference> preferences, Sensor sensor) {
         for (Preference preference : preferences) {
-            if (preference.sensor.equals(sensor)) {
+            if (preference.sensor != null && preference.sensor.equals(sensor)) {
                 return true;
             }
         }
@@ -89,7 +89,7 @@ public class PreferencesDataSource {
     public void updateSelection(Sensor sensor, boolean selected) {
         List<Preference> preferences = getPreferences();
         for (Preference pref : preferences) {
-            if (pref.sensor.equals(sensor)) {
+            if (pref.sensor != null && pref.sensor.equals(sensor)) {
                 pref.selected = selected;
                 savePreferences(preferences);
                 return;
