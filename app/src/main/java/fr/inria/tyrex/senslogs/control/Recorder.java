@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.IBinder;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -110,7 +111,7 @@ public class Recorder {
             final Sensor sensor = sensorAndSetting.getKey();
             final Sensor.Settings settings = sensorAndSetting.getValue();
 
-            if (sensor instanceof CameraRecorder) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && sensor instanceof CameraRecorder) {
                 mRecorderWriter.updateVideoPath();
             }
 

@@ -2,6 +2,7 @@ package fr.inria.tyrex.senslogs.control;
 
 import android.content.Context;
 import android.hardware.SensorManager;
+import android.os.Build;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +76,7 @@ public class SensorsManager {
         if (NmeaSensor.getInstance().exists(context)) {
             mAvailableSensorsList.add(NmeaSensor.getInstance());
         }
-        if (CameraRecorder.getInstance().exists(context)) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && CameraRecorder.getInstance().exists(context)) {
             mAvailableSensorsList.add(CameraRecorder.getInstance());
         }
     }

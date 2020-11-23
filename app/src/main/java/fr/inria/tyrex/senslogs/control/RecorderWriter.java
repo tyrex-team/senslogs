@@ -2,7 +2,10 @@ package fr.inria.tyrex.senslogs.control;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.os.Build;
 import android.util.Pair;
+
+import androidx.annotation.RequiresApi;
 
 import org.ini4j.Wini;
 
@@ -74,6 +77,7 @@ public class RecorderWriter {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void updateVideoPath() {
         CameraRecorder cameraRecorder = CameraRecorder.getInstance();
         String fileName = avoidDuplicateFiles(mFileNames,

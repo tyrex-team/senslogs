@@ -38,7 +38,7 @@ import static android.media.CamcorderProfile.QUALITY_CIF;
  * @author Mark - Initial class here: https://stackoverflow.com/questions/37767511/camera2-video-recording-without-preview-on-android-mp4-output-file-not-fully-pl
  * @author Thibaud - Keep the same process but fit for customization
  */
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
+@androidx.annotation.RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class CameraRecorder extends Sensor {
 
     transient private final static int CAMERA_LENS = CameraMetadata.LENS_FACING_FRONT;
