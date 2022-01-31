@@ -17,6 +17,7 @@ import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+
 import androidx.annotation.NonNull;
 
 import java.io.IOException;
@@ -40,8 +41,6 @@ import static android.media.CamcorderProfile.QUALITY_CIF;
  */
 @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class CameraRecorder extends Sensor {
-
-    transient private final static int CAMERA_LENS = CameraMetadata.LENS_FACING_FRONT;
 
     transient private final static String CAMERA_THREAD = "camera";
 
@@ -164,7 +163,7 @@ public class CameraRecorder extends Sensor {
 
         try {
             CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(
-                    String.valueOf(CAMERA_LENS));
+                    String.valueOf(mSettings.cameraLens.lens));
             Integer sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
 
             mMediaRecorder = new MediaRecorder();
@@ -173,10 +172,10 @@ public class CameraRecorder extends Sensor {
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
             mMediaRecorder.setOutputFile(videoPath);
             mMediaRecorder.setOrientationHint(sensorOrientation == null ? 0 : sensorOrientation);
-            mMediaRecorder.setProfile(CamcorderProfile.get(CAMERA_LENS, mSettings.outputQuality.profile));
+            mMediaRecorder.setProfile(CamcorderProfile.get(mSettings.cameraLens.lens, mSettings.outputQuality.profile));
             mMediaRecorder.prepare();
 
-            mCameraManager.openCamera(String.valueOf(CAMERA_LENS),
+            mCameraManager.openCamera(String.valueOf(mSettings.cameraLens.lens),
                     cameraDeviceStateCallback, mBackgroundHandler);
 
         } catch (IOException | CameraAccessException | SecurityException e) {
@@ -297,6 +296,25 @@ public class CameraRecorder extends Sensor {
         return iniRecords;
     }
 
+    public enum CameraLens {
+        L_FACING_FRONT(CameraMetadata.LENS_FACING_FRONT, "FACING_FRONT"),
+        L_FACING_BACK(CameraMetadata.LENS_FACING_BACK, "FACING_BACK"),
+        L_FACING_EXTERNAL(CameraMetadata.LENS_FACING_EXTERNAL, "FACING_EXTERNAL");
+
+        private int lens;
+        private String name;
+
+        CameraLens(int lens, String name) {
+            this.lens = lens;
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
     public enum OutputQuality {
         Q_CIF(QUALITY_CIF, "CIF"),
         Q_480P(QUALITY_480P, "480P"),
@@ -338,12 +356,15 @@ public class CameraRecorder extends Sensor {
 
     public static class Settings extends Sensor.Settings {
 
+        public CameraLens cameraLens;
         public OutputQuality outputQuality;
         public AutoFocus autoFocus;
 
-        public static Settings DEFAULT = new Settings(OutputQuality.Q_480P, AutoFocus.AF_CONTINUOUS);
+        public static Settings DEFAULT = new Settings(CameraLens.L_FACING_FRONT,
+                OutputQuality.Q_480P, AutoFocus.AF_CONTINUOUS);
 
-        public Settings(OutputQuality outputQuality, AutoFocus autoFocus) {
+        public Settings(CameraLens cameraLens, OutputQuality outputQuality, AutoFocus autoFocus) {
+            this.cameraLens = cameraLens;
             this.outputQuality = outputQuality;
             this.autoFocus = autoFocus;
         }
@@ -351,7 +372,8 @@ public class CameraRecorder extends Sensor {
         @Override
         public String toString() {
             return "Settings{" +
-                    "outputQuality=" + outputQuality +
+                    "cameraLens=" + cameraLens +
+                    ", outputQuality=" + outputQuality +
                     ", autoFocus=" + autoFocus +
                     '}';
         }
