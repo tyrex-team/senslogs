@@ -17,6 +17,7 @@ import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+
 import androidx.annotation.NonNull;
 
 import java.io.IOException;
@@ -40,8 +41,6 @@ import static android.media.CamcorderProfile.QUALITY_CIF;
  */
 @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class CameraRecorder extends Sensor {
-
-    transient private final static int CAMERA_LENS = CameraMetadata.LENS_FACING_FRONT;
 
     transient private final static String CAMERA_THREAD = "camera";
 
@@ -120,8 +119,17 @@ public class CameraRecorder extends Sensor {
     @Override
     public boolean checkPermission(Context context) {
         return !(Build.VERSION.SDK_INT >= 23 &&
-                context.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED &&
-                context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED);
+                context.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED);
+    }
+
+    public boolean checkPermission(Context context, Settings settings) {
+        if (Build.VERSION.SDK_INT < 23) {
+            return true;
+        }
+        if (settings.useAudio && context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            return false;
+        }
+        return context.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
     }
 
     @Override
@@ -134,7 +142,7 @@ public class CameraRecorder extends Sensor {
             settings = getDefaultSettings();
         }
 
-        if (!checkPermission(context)) {
+        if (!checkPermission(context, (Settings) settings)) {
             return;
         }
 
@@ -164,19 +172,43 @@ public class CameraRecorder extends Sensor {
 
         try {
             CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(
-                    String.valueOf(CAMERA_LENS));
+                    String.valueOf(mSettings.cameraLens.lens));
             Integer sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
 
             mMediaRecorder = new MediaRecorder();
-            mMediaRecorder.setAudioSource(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ?
-                    MediaRecorder.AudioSource.UNPROCESSED : MediaRecorder.AudioSource.CAMCORDER);
+
+            // https://stackoverflow.com/a/17815035/2239938
+            CamcorderProfile profile =
+                    CamcorderProfile.get(mSettings.cameraLens.lens, mSettings.outputQuality.profile);
+
+            // Media source(s)
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
+            if (mSettings.useAudio) {
+                mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+            }
+
+            // Output format
+            mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
             mMediaRecorder.setOutputFile(videoPath);
+
+            // Video Settings
+            mMediaRecorder.setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);
+            mMediaRecorder.setVideoFrameRate(profile.videoFrameRate);
+            mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
+            mMediaRecorder.setVideoEncodingBitRate(profile.videoBitRate);
             mMediaRecorder.setOrientationHint(sensorOrientation == null ? 0 : sensorOrientation);
-            mMediaRecorder.setProfile(CamcorderProfile.get(CAMERA_LENS, mSettings.outputQuality.profile));
+
+            if (mSettings.useAudio) {
+                // Audio settings
+                mMediaRecorder.setAudioChannels(profile.audioChannels);
+                mMediaRecorder.setAudioSamplingRate(profile.audioSampleRate);
+                mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+                mMediaRecorder.setAudioEncodingBitRate(profile.audioBitRate);
+            }
+
             mMediaRecorder.prepare();
 
-            mCameraManager.openCamera(String.valueOf(CAMERA_LENS),
+            mCameraManager.openCamera(String.valueOf(mSettings.cameraLens.lens),
                     cameraDeviceStateCallback, mBackgroundHandler);
 
         } catch (IOException | CameraAccessException | SecurityException e) {
@@ -297,6 +329,25 @@ public class CameraRecorder extends Sensor {
         return iniRecords;
     }
 
+    public enum CameraLens {
+        L_FACING_FRONT(CameraMetadata.LENS_FACING_FRONT, "FACING_FRONT"),
+        L_FACING_BACK(CameraMetadata.LENS_FACING_BACK, "FACING_BACK"),
+        L_FACING_EXTERNAL(CameraMetadata.LENS_FACING_EXTERNAL, "FACING_EXTERNAL");
+
+        private int lens;
+        private String name;
+
+        CameraLens(int lens, String name) {
+            this.lens = lens;
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
     public enum OutputQuality {
         Q_CIF(QUALITY_CIF, "CIF"),
         Q_480P(QUALITY_480P, "480P"),
@@ -338,21 +389,29 @@ public class CameraRecorder extends Sensor {
 
     public static class Settings extends Sensor.Settings {
 
+        public CameraLens cameraLens;
         public OutputQuality outputQuality;
         public AutoFocus autoFocus;
+        public boolean useAudio;
 
-        public static Settings DEFAULT = new Settings(OutputQuality.Q_480P, AutoFocus.AF_CONTINUOUS);
+        public static Settings DEFAULT = new Settings(CameraLens.L_FACING_FRONT,
+                OutputQuality.Q_480P, AutoFocus.AF_CONTINUOUS, false);
 
-        public Settings(OutputQuality outputQuality, AutoFocus autoFocus) {
+        public Settings(CameraLens cameraLens, OutputQuality outputQuality, AutoFocus autoFocus,
+                        boolean useAudio) {
+            this.cameraLens = cameraLens;
             this.outputQuality = outputQuality;
             this.autoFocus = autoFocus;
+            this.useAudio = useAudio;
         }
 
         @Override
         public String toString() {
             return "Settings{" +
-                    "outputQuality=" + outputQuality +
+                    "cameraLens=" + cameraLens +
+                    ", outputQuality=" + outputQuality +
                     ", autoFocus=" + autoFocus +
+                    ", useAudio=" + useAudio +
                     '}';
         }
     }

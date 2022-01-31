@@ -23,7 +23,7 @@ import fr.inria.tyrex.senslogs.model.log.Log;
 
 /**
  * Nfc Sensor records nfc messages
- *
+ * <p>
  * With the help of: https://code.tutsplus.com/tutorials/reading-nfc-tags-with-android--mobile-17278
  * http://developer.android.com/guide/topics/connectivity/nfc/index.html
  */
@@ -105,8 +105,12 @@ public class NfcSensor extends Sensor implements FieldsWritableObject {
         final Intent intent = new Intent(activity.getApplicationContext(), activity.getClass());
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
+        int pendingIntentFlags = 0;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            pendingIntentFlags |= PendingIntent.FLAG_IMMUTABLE;
+        }
         final PendingIntent pendingIntent = PendingIntent.getActivity(
-                activity.getApplicationContext(), 0, intent, 0);
+                activity.getApplicationContext(), 0, intent, pendingIntentFlags);
 
         IntentFilter[] filters = new IntentFilter[1];
         String[][] techList = new String[][]{};

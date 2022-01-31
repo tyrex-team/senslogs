@@ -1,12 +1,23 @@
 package fr.inria.tyrex.senslogs.ui.dialog;
 
+import android.Manifest;
 import android.app.Dialog;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.appcompat.app.AlertDialog;
+
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
@@ -26,8 +37,11 @@ import fr.inria.tyrex.senslogs.model.sensors.Sensor;
 public class SettingsSensorDialog extends DialogFragment {
 
     private final static String BUNDLE_SENSOR = "sensor";
+    private final static int REQUEST_CODE_AUDIO_PERMISSION = 1;
 
     private View v;
+    private CheckBox mAudioRecordCheckbox;
+    private ActivityResultLauncher<String> mAudioPermissionRequester;
 
     public static SettingsSensorDialog newInstance(Sensor sensor) {
         SettingsSensorDialog f = new SettingsSensorDialog();
@@ -39,6 +53,18 @@ public class SettingsSensorDialog extends DialogFragment {
         return f;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mAudioPermissionRequester = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                accepted -> {
+                    if (!accepted) {
+                        mAudioRecordCheckbox.setChecked(false);
+                    }
+                }
+        );
+    }
 
     @NonNull
     @Override
@@ -94,7 +120,22 @@ public class SettingsSensorDialog extends DialogFragment {
 
             if (cameraSettings != null) {
 
-                Spinner spinnerQuality = (Spinner) v.findViewById(R.id.settings_sensor_camera_quality);
+                Spinner spinnerLens = v.findViewById(R.id.settings_sensor_camera_lens);
+                CameraRecorder.CameraLens[] lens = CameraRecorder.CameraLens.values();
+                ArrayAdapter<CameraRecorder.CameraLens> dataAdapterLens =
+                        new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, lens);
+                dataAdapterLens.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinnerLens.setAdapter(dataAdapterLens);
+
+                int numberOfItemsLens = spinnerLens.getCount();
+                for (int i = 0; i < numberOfItemsLens; i++) {
+                    if (cameraSettings.cameraLens.equals(spinnerLens.getItemAtPosition(i))) {
+                        spinnerLens.setSelection(i);
+                        break;
+                    }
+                }
+
+                Spinner spinnerQuality = v.findViewById(R.id.settings_sensor_camera_quality);
                 CameraRecorder.OutputQuality[] qualities = CameraRecorder.OutputQuality.values();
                 ArrayAdapter<CameraRecorder.OutputQuality> dataAdapterQuality =
                         new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, qualities);
@@ -110,7 +151,7 @@ public class SettingsSensorDialog extends DialogFragment {
                 }
 
 
-                Spinner spinnerAF = (Spinner) v.findViewById(R.id.settings_sensor_camera_af);
+                Spinner spinnerAF = v.findViewById(R.id.settings_sensor_camera_af);
                 CameraRecorder.AutoFocus[] afs = CameraRecorder.AutoFocus.values();
                 ArrayAdapter<CameraRecorder.AutoFocus> dataAdapterAutoFocus =
                         new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, afs);
@@ -126,6 +167,15 @@ public class SettingsSensorDialog extends DialogFragment {
                 }
             }
 
+            CheckBox checkboxAudio = v.findViewById(R.id.settings_sensor_camera_audio);
+            mAudioRecordCheckbox = checkboxAudio;
+            checkboxAudio.setChecked(cameraSettings.useAudio);
+            checkboxAudio.setOnCheckedChangeListener((checkbox, useAudio) -> {
+                if (useAudio && Build.VERSION.SDK_INT >= 23 &&
+                        getContext().checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                    mAudioPermissionRequester.launch(Manifest.permission.RECORD_AUDIO);
+                }
+            });
 
         } else {
             return builder.create();
@@ -155,12 +205,16 @@ public class SettingsSensorDialog extends DialogFragment {
                         settings1 = new LocationSensor.Settings(Long.valueOf(minTimeString),
                                 Float.valueOf(minDistanceString));
                     } else {
+                        Spinner spinnerLens = v.findViewById(R.id.settings_sensor_camera_lens);
                         Spinner spinnerQuality = v.findViewById(R.id.settings_sensor_camera_quality);
                         Spinner spinnerAF = v.findViewById(R.id.settings_sensor_camera_af);
+                        CheckBox checkboxAudio = v.findViewById(R.id.settings_sensor_camera_audio);
 
                         settings1 = new CameraRecorder.Settings(
+                                (CameraRecorder.CameraLens) spinnerLens.getSelectedItem(),
                                 (CameraRecorder.OutputQuality) spinnerQuality.getSelectedItem(),
-                                (CameraRecorder.AutoFocus) spinnerAF.getSelectedItem());
+                                (CameraRecorder.AutoFocus) spinnerAF.getSelectedItem(),
+                                checkboxAudio.isChecked());
                     }
                     preferencesManager.setSettings(sensor, settings1);
                 }
@@ -170,4 +224,5 @@ public class SettingsSensorDialog extends DialogFragment {
         });
         return builder.create();
     }
+
 }

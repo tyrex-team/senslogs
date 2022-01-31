@@ -21,6 +21,7 @@ public class LocationGpsSensor extends LocationSensor {
     transient private final static String INI_SECTION_NAME = "LastKnownGPSLocation";
 
     transient private static LocationGpsSensor instance;
+
     public static LocationGpsSensor getInstance() {
         if (instance == null) {
             instance = new LocationGpsSensor();
@@ -60,6 +61,6 @@ public class LocationGpsSensor extends LocationSensor {
 
     @Override
     public List<Log.IniRecord> getExtraIniRecords(Context context) {
-            return super.getExtraIniRecords(context, INI_SECTION_NAME, LocationManager.GPS_PROVIDER);
+        return super.getExtraIniRecords(context, INI_SECTION_NAME, LocationManager.GPS_PROVIDER);
     }
 }

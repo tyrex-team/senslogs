@@ -6,14 +6,18 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
+
 import com.google.android.material.snackbar.Snackbar;
+
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Pair;
+
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -262,11 +266,8 @@ public class MainFragment extends Fragment {
                 break;
             case Sensor.TYPE_CAMERA:
                 if (ContextCompat.checkSelfPermission(getContext(),
-                        Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
-                        ContextCompat.checkSelfPermission(getContext(),
-                                Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                    permissions = new String[]{Manifest.permission.CAMERA,
-                            Manifest.permission.RECORD_AUDIO};
+                        Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    permissions = new String[]{Manifest.permission.CAMERA};
                 }
                 break;
         }
