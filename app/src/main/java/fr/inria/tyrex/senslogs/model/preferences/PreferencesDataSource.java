@@ -62,7 +62,7 @@ public class PreferencesDataSource {
 
         for (String preferenceString : preferencesStrings) {
             Preference res = mGson.fromJson(preferenceString, Preference.class);
-            if(res != null) preferences.add(res);
+            if (res != null) preferences.add(res);
         }
 
         for (Sensor sensor : mSensorsManager.getAvailableSensors()) {

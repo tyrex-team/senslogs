@@ -22,8 +22,9 @@ public class LocationPassiveSensor extends LocationSensor {
     transient private final static String INI_SECTION_NAME = "LastKnownPassiveLocation";
 
     transient private static LocationPassiveSensor instance;
+
     public static LocationPassiveSensor getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new LocationPassiveSensor();
         }
         return instance;

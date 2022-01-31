@@ -2,9 +2,11 @@ package fr.inria.tyrex.senslogs.ui.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.appcompat.app.AlertDialog;
+
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -94,7 +96,22 @@ public class SettingsSensorDialog extends DialogFragment {
 
             if (cameraSettings != null) {
 
-                Spinner spinnerQuality = (Spinner) v.findViewById(R.id.settings_sensor_camera_quality);
+                Spinner spinnerLens = v.findViewById(R.id.settings_sensor_camera_lens);
+                CameraRecorder.CameraLens[] lens = CameraRecorder.CameraLens.values();
+                ArrayAdapter<CameraRecorder.CameraLens> dataAdapterLens =
+                        new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, lens);
+                dataAdapterLens.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinnerLens.setAdapter(dataAdapterLens);
+
+                int numberOfItemsLens = spinnerLens.getCount();
+                for (int i = 0; i < numberOfItemsLens; i++) {
+                    if (cameraSettings.cameraLens.equals(spinnerLens.getItemAtPosition(i))) {
+                        spinnerLens.setSelection(i);
+                        break;
+                    }
+                }
+
+                Spinner spinnerQuality = v.findViewById(R.id.settings_sensor_camera_quality);
                 CameraRecorder.OutputQuality[] qualities = CameraRecorder.OutputQuality.values();
                 ArrayAdapter<CameraRecorder.OutputQuality> dataAdapterQuality =
                         new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, qualities);
@@ -110,7 +127,7 @@ public class SettingsSensorDialog extends DialogFragment {
                 }
 
 
-                Spinner spinnerAF = (Spinner) v.findViewById(R.id.settings_sensor_camera_af);
+                Spinner spinnerAF = v.findViewById(R.id.settings_sensor_camera_af);
                 CameraRecorder.AutoFocus[] afs = CameraRecorder.AutoFocus.values();
                 ArrayAdapter<CameraRecorder.AutoFocus> dataAdapterAutoFocus =
                         new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, afs);
@@ -155,10 +172,12 @@ public class SettingsSensorDialog extends DialogFragment {
                         settings1 = new LocationSensor.Settings(Long.valueOf(minTimeString),
                                 Float.valueOf(minDistanceString));
                     } else {
+                        Spinner spinnerLens = v.findViewById(R.id.settings_sensor_camera_lens);
                         Spinner spinnerQuality = v.findViewById(R.id.settings_sensor_camera_quality);
                         Spinner spinnerAF = v.findViewById(R.id.settings_sensor_camera_af);
 
                         settings1 = new CameraRecorder.Settings(
+                                (CameraRecorder.CameraLens) spinnerLens.getSelectedItem(),
                                 (CameraRecorder.OutputQuality) spinnerQuality.getSelectedItem(),
                                 (CameraRecorder.AutoFocus) spinnerAF.getSelectedItem());
                     }

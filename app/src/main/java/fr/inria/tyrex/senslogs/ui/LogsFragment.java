@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Html;
@@ -59,7 +60,6 @@ public class LogsFragment extends Fragment {
     private static final String BUNDLE_TAG = "logsFragment";
 
     private static final int REQUEST_CODE_SHARE = 1;
-    private static final int MY_PERMISSIONS_REQUEST = 2;
 
     private RecyclerView mRecyclerView;
 
@@ -68,10 +68,6 @@ public class LogsFragment extends Fragment {
 
     private MultiSelector mMultiSelector = new MultiSelector();
     private FragmentLogsBinding mBinding;
-
-    private boolean mAskCopy = false;
-    private boolean mAskShare = false;
-    private Log mTmpLog = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -236,20 +232,8 @@ public class LogsFragment extends Fragment {
 
     private void share(final Log log) {
 
-        if (!mAskShare && ContextCompat.checkSelfPermission(getContext(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    MY_PERMISSIONS_REQUEST);
-            mAskShare = true;
-            mTmpLog = log;
-            return;
-        }
-
-        mAskShare = false;
-        mTmpLog = null;
-
-        mSharedTmpFile = new File(getActivity().getExternalCacheDir(), log.getZipFile().getName());
+        mSharedTmpFile = new File(getContext().getExternalCacheDir(),
+                log.getZipFile().getName());
 
         final ProgressDialog alertDialog = new ProgressDialog(getActivity());
         alertDialog.setCancelable(false);
@@ -271,7 +255,7 @@ public class LogsFragment extends Fragment {
         task.execute(new CopyTask.Input(log.getZipFile(), mSharedTmpFile));
 
 
-        if(getContext() == null) return;
+        if (getContext() == null) return;
 
         Uri zipUri = FileProvider.getUriForFile(getContext(),
                 getContext().getPackageName() + ".provider",
@@ -281,8 +265,18 @@ public class LogsFragment extends Fragment {
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.putExtra(Intent.EXTRA_STREAM, zipUri);
         shareIntent.setType("application/zip");
-        startActivityForResult(Intent.createChooser(shareIntent,
-                getText(R.string.send_to)), REQUEST_CODE_SHARE);
+        Intent chooser = Intent.createChooser(shareIntent, getText(R.string.send_to));
+
+        // https://stackoverflow.com/a/59439316/2239938
+        List<ResolveInfo> resInfoList = getContext().getPackageManager()
+                .queryIntentActivities(chooser, PackageManager.MATCH_DEFAULT_ONLY);
+        for (ResolveInfo resolveInfo : resInfoList) {
+            String packageName = resolveInfo.activityInfo.packageName;
+            getContext().grantUriPermission(packageName, zipUri,
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        }
+
+        startActivityForResult(chooser, REQUEST_CODE_SHARE);
     }
 
 
@@ -302,19 +296,6 @@ public class LogsFragment extends Fragment {
 
     private void copy(final Log log) {
 
-        if (!mAskCopy && ContextCompat.checkSelfPermission(getContext(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    MY_PERMISSIONS_REQUEST);
-            mAskCopy = true;
-            mTmpLog = log;
-            return;
-        }
-
-        mAskCopy = false;
-        mTmpLog = null;
-
         final ProgressDialog alertDialog = new ProgressDialog(getActivity());
         alertDialog.setCancelable(false);
         alertDialog.setMax((int) log.getZipFile().length());
@@ -324,8 +305,7 @@ public class LogsFragment extends Fragment {
         CopyTask.Listener listener = new CopyTask.Listener() {
             @Override
             public void onCopyFinished(File outputFile) {
-                String outputPath = outputFile.getParentFile().getName() + File.separator +
-                        outputFile.getName();
+                String outputPath = outputFile.getAbsolutePath();
                 Snackbar snackbar = Snackbar.make(mRecyclerView,
                         Html.fromHtml(String.format(getString(R.string.log_copy_to_sd_card_snackbar),
                                 log.getName(), outputPath)), Snackbar.LENGTH_LONG);
@@ -480,21 +460,6 @@ public class LogsFragment extends Fragment {
         @Override
         public int getItemCount() {
             return mLogs.size();
-        }
-    }
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST: {
-                if (mAskCopy) {
-                    copy(mTmpLog);
-                } else if (mAskShare) {
-                    share(mTmpLog);
-                }
-            }
         }
     }
 

@@ -7,11 +7,13 @@ import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;

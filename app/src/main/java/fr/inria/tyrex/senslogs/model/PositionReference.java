@@ -33,8 +33,8 @@ public class PositionReference implements Serializable {
     }
 
     public Object[] toObject() {
-        if(level == null)
-            return new Object[] {latitude, longitude};
-        return new Object[] {latitude, longitude, level};
+        if (level == null)
+            return new Object[]{latitude, longitude};
+        return new Object[]{latitude, longitude, level};
     }
 }

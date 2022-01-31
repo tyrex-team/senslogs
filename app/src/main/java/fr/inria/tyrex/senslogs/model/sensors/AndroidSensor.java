@@ -279,7 +279,7 @@ public class AndroidSensor extends Sensor implements FieldsWritableObject {
                 firstTimestampReached = true;
             }
 
-            if(timestampFormat == null) {
+            if (timestampFormat == null) {
                 return;
             }
 

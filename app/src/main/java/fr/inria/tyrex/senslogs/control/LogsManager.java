@@ -39,7 +39,7 @@ public class LogsManager {
 
 
     public void deleteLog(Log log) {
-        if(!log.getZipFile().delete()) {
+        if (!log.getZipFile().delete()) {
             android.util.Log.e(Application.LOG_TAG, "Cannot delete log file");
         }
         mLogs.remove(log);
@@ -48,16 +48,9 @@ public class LogsManager {
     }
 
 
-
     public File copyLogToSdCard(Context context, Log log, CopyTask.Listener listener) {
 
-        File outputDir = new File(Environment.getExternalStorageDirectory(),
-                context.getString(R.string.folder_logs_sd_card));
-
-        if(!outputDir.exists() && !outputDir.mkdir()) {
-            return null;
-        }
-
+        File outputDir = context.getExternalFilesDir(null);
         File outputFile = new File(outputDir, log.getZipFile().getName());
 
         CopyTask task = new CopyTask();
@@ -83,7 +76,7 @@ public class LogsManager {
     private void loadLogs() {
 
         mLogs = mDataSource.getLogs();
-        for(Log log : mLogs) {
+        for (Log log : mLogs) {
             log.addListener(mDatasetChangedListener);
         }
 
@@ -91,10 +84,10 @@ public class LogsManager {
 
     public void clearAll() {
         Iterator<Log> iterator = mLogs.iterator();
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             Log log = iterator.next();
             log.removeListener(mDatasetChangedListener);
-            if(!log.getZipFile().delete()) {
+            if (!log.getZipFile().delete()) {
                 android.util.Log.e(Application.LOG_TAG, "Cannot delete log file");
             }
             iterator.remove();

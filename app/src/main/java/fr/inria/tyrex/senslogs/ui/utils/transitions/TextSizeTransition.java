@@ -3,7 +3,9 @@ package fr.inria.tyrex.senslogs.ui.utils.transitions;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.os.Build;
+
 import androidx.annotation.RequiresApi;
+
 import android.transition.Transition;
 import android.transition.TransitionValues;
 import android.util.Property;
@@ -19,7 +21,7 @@ import android.widget.TextView;
 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class TextSizeTransition extends Transition {
     private static final String PROPNAME_TEXT_SIZE = "alexjlockwood:transition:textsize";
-    private static final String[] TRANSITION_PROPERTIES = { PROPNAME_TEXT_SIZE };
+    private static final String[] TRANSITION_PROPERTIES = {PROPNAME_TEXT_SIZE};
 
     private static final Property<TextView, Float> TEXT_SIZE_PROPERTY =
             new Property<TextView, Float>(Float.class, "textSize") {
@@ -33,7 +35,7 @@ public class TextSizeTransition extends Transition {
                     textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizePixels);
                 }
             };
-    
+
 
     @Override
     public String[] getTransitionProperties() {

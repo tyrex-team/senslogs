@@ -22,8 +22,9 @@ public class LocationWifiAndCellsSensor extends LocationSensor {
     transient private final static String INI_SECTION_NAME = "LastKnownNetworkLocation";
 
     transient private static LocationWifiAndCellsSensor instance;
+
     public static LocationWifiAndCellsSensor getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new LocationWifiAndCellsSensor();
         }
         return instance;

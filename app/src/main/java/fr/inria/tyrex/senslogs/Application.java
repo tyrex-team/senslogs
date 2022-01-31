@@ -23,7 +23,6 @@ public class Application extends android.app.Application {
     private LogsManager mLogsManager;
 
 
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -60,12 +59,12 @@ public class Application extends android.app.Application {
 
         deleteRecursive(getCacheDir());
 
-        if(mLogsManager == null) {
+        if (mLogsManager == null) {
             return;
         }
 
         List<File> logFiles = new ArrayList<>();
-        for(Log log : mLogsManager.getLogs()) {
+        for (Log log : mLogsManager.getLogs()) {
             logFiles.add(log.getZipFile());
         }
 
@@ -85,7 +84,7 @@ public class Application extends android.app.Application {
             for (File child : fileOrDirectory.listFiles())
                 deleteRecursive(child);
 
-        if(!fileOrDirectory.delete()) {
+        if (!fileOrDirectory.delete()) {
             android.util.Log.e(Application.LOG_TAG, "Cannot delete log file");
         }
     }

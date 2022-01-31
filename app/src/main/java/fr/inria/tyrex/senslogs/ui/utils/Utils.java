@@ -3,6 +3,7 @@ package fr.inria.tyrex.senslogs.ui.utils;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
