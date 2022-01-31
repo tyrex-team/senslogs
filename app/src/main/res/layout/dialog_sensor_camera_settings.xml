@@ -49,6 +49,26 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/settings_sensor_camera_af_title" />
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_below="@id/settings_sensor_camera_af">
+
+        <TextView
+            android:id="@+id/settings_sensor_camera_audio_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_sensor_camera_audio_title"
+            android:textAppearance="?android:textAppearanceSmall" />
+
+        <CheckBox
+            android:id="@+id/settings_sensor_camera_audio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+
 
 </RelativeLayout>
 

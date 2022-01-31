@@ -1,14 +1,23 @@
 package fr.inria.tyrex.senslogs.ui.dialog;
 
+import android.Manifest;
 import android.app.Dialog;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.appcompat.app.AlertDialog;
 
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
@@ -28,8 +37,11 @@ import fr.inria.tyrex.senslogs.model.sensors.Sensor;
 public class SettingsSensorDialog extends DialogFragment {
 
     private final static String BUNDLE_SENSOR = "sensor";
+    private final static int REQUEST_CODE_AUDIO_PERMISSION = 1;
 
     private View v;
+    private CheckBox mAudioRecordCheckbox;
+    private ActivityResultLauncher<String> mAudioPermissionRequester;
 
     public static SettingsSensorDialog newInstance(Sensor sensor) {
         SettingsSensorDialog f = new SettingsSensorDialog();
@@ -41,6 +53,18 @@ public class SettingsSensorDialog extends DialogFragment {
         return f;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mAudioPermissionRequester = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                accepted -> {
+                    if (!accepted) {
+                        mAudioRecordCheckbox.setChecked(false);
+                    }
+                }
+        );
+    }
 
     @NonNull
     @Override
@@ -143,6 +167,15 @@ public class SettingsSensorDialog extends DialogFragment {
                 }
             }
 
+            CheckBox checkboxAudio = v.findViewById(R.id.settings_sensor_camera_audio);
+            mAudioRecordCheckbox = checkboxAudio;
+            checkboxAudio.setChecked(cameraSettings.useAudio);
+            checkboxAudio.setOnCheckedChangeListener((checkbox, useAudio) -> {
+                if (useAudio && Build.VERSION.SDK_INT >= 23 &&
+                        getContext().checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                    mAudioPermissionRequester.launch(Manifest.permission.RECORD_AUDIO);
+                }
+            });
 
         } else {
             return builder.create();
@@ -175,11 +208,13 @@ public class SettingsSensorDialog extends DialogFragment {
                         Spinner spinnerLens = v.findViewById(R.id.settings_sensor_camera_lens);
                         Spinner spinnerQuality = v.findViewById(R.id.settings_sensor_camera_quality);
                         Spinner spinnerAF = v.findViewById(R.id.settings_sensor_camera_af);
+                        CheckBox checkboxAudio = v.findViewById(R.id.settings_sensor_camera_audio);
 
                         settings1 = new CameraRecorder.Settings(
                                 (CameraRecorder.CameraLens) spinnerLens.getSelectedItem(),
                                 (CameraRecorder.OutputQuality) spinnerQuality.getSelectedItem(),
-                                (CameraRecorder.AutoFocus) spinnerAF.getSelectedItem());
+                                (CameraRecorder.AutoFocus) spinnerAF.getSelectedItem(),
+                                checkboxAudio.isChecked());
                     }
                     preferencesManager.setSettings(sensor, settings1);
                 }
@@ -189,4 +224,5 @@ public class SettingsSensorDialog extends DialogFragment {
         });
         return builder.create();
     }
+
 }

@@ -119,8 +119,17 @@ public class CameraRecorder extends Sensor {
     @Override
     public boolean checkPermission(Context context) {
         return !(Build.VERSION.SDK_INT >= 23 &&
-                context.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED &&
-                context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED);
+                context.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED);
+    }
+
+    public boolean checkPermission(Context context, Settings settings) {
+        if (Build.VERSION.SDK_INT < 23) {
+            return true;
+        }
+        if (settings.useAudio && context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            return false;
+        }
+        return context.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
     }
 
     @Override
@@ -133,7 +142,7 @@ public class CameraRecorder extends Sensor {
             settings = getDefaultSettings();
         }
 
-        if (!checkPermission(context)) {
+        if (!checkPermission(context, (Settings) settings)) {
             return;
         }
 
@@ -167,12 +176,36 @@ public class CameraRecorder extends Sensor {
             Integer sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
 
             mMediaRecorder = new MediaRecorder();
-            mMediaRecorder.setAudioSource(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ?
-                    MediaRecorder.AudioSource.UNPROCESSED : MediaRecorder.AudioSource.CAMCORDER);
+
+            // https://stackoverflow.com/a/17815035/2239938
+            CamcorderProfile profile =
+                    CamcorderProfile.get(mSettings.cameraLens.lens, mSettings.outputQuality.profile);
+
+            // Media source(s)
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
+            if (mSettings.useAudio) {
+                mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+            }
+
+            // Output format
+            mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
             mMediaRecorder.setOutputFile(videoPath);
+
+            // Video Settings
+            mMediaRecorder.setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);
+            mMediaRecorder.setVideoFrameRate(profile.videoFrameRate);
+            mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
+            mMediaRecorder.setVideoEncodingBitRate(profile.videoBitRate);
             mMediaRecorder.setOrientationHint(sensorOrientation == null ? 0 : sensorOrientation);
-            mMediaRecorder.setProfile(CamcorderProfile.get(mSettings.cameraLens.lens, mSettings.outputQuality.profile));
+
+            if (mSettings.useAudio) {
+                // Audio settings
+                mMediaRecorder.setAudioChannels(profile.audioChannels);
+                mMediaRecorder.setAudioSamplingRate(profile.audioSampleRate);
+                mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+                mMediaRecorder.setAudioEncodingBitRate(profile.audioBitRate);
+            }
+
             mMediaRecorder.prepare();
 
             mCameraManager.openCamera(String.valueOf(mSettings.cameraLens.lens),
@@ -359,14 +392,17 @@ public class CameraRecorder extends Sensor {
         public CameraLens cameraLens;
         public OutputQuality outputQuality;
         public AutoFocus autoFocus;
+        public boolean useAudio;
 
         public static Settings DEFAULT = new Settings(CameraLens.L_FACING_FRONT,
-                OutputQuality.Q_480P, AutoFocus.AF_CONTINUOUS);
+                OutputQuality.Q_480P, AutoFocus.AF_CONTINUOUS, false);
 
-        public Settings(CameraLens cameraLens, OutputQuality outputQuality, AutoFocus autoFocus) {
+        public Settings(CameraLens cameraLens, OutputQuality outputQuality, AutoFocus autoFocus,
+                        boolean useAudio) {
             this.cameraLens = cameraLens;
             this.outputQuality = outputQuality;
             this.autoFocus = autoFocus;
+            this.useAudio = useAudio;
         }
 
         @Override
@@ -375,6 +411,7 @@ public class CameraRecorder extends Sensor {
                     "cameraLens=" + cameraLens +
                     ", outputQuality=" + outputQuality +
                     ", autoFocus=" + autoFocus +
+                    ", useAudio=" + useAudio +
                     '}';
         }
     }

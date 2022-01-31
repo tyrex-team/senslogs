@@ -266,11 +266,8 @@ public class MainFragment extends Fragment {
                 break;
             case Sensor.TYPE_CAMERA:
                 if (ContextCompat.checkSelfPermission(getContext(),
-                        Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
-                        ContextCompat.checkSelfPermission(getContext(),
-                                Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                    permissions = new String[]{Manifest.permission.CAMERA,
-                            Manifest.permission.RECORD_AUDIO};
+                        Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    permissions = new String[]{Manifest.permission.CAMERA};
                 }
                 break;
         }
