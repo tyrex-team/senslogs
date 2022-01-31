@@ -21,12 +21,12 @@ public class StringsFormat {
     public static String getSize(Resources res, double size, DecimalFormat format) {
         int resourceId;
         double value;
-        if(size > 1048576) {
+        if (size > 1048576) {
             resourceId = R.string.mb_size;
-            value = size/(1048576.);
-        } else if(size > 1024) {
+            value = size / (1048576.);
+        } else if (size > 1024) {
             resourceId = R.string.kb_size;
-            value = size/1024.;
+            value = size / 1024.;
         } else {
             resourceId = R.string.byte_size;
             value = size;
@@ -46,14 +46,14 @@ public class StringsFormat {
 
     public static String getDurationMs(long durationMs /* ms */) {
 
-        if(durationMs < 3600000) {
-            long duration = durationMs/1000;
+        if (durationMs < 3600000) {
+            long duration = durationMs / 1000;
             return String.format("%02d:%02d:%03d", (duration % 3600) / 60,
                     (duration % 60),
                     durationMs % 1000);
         }
 
-        return getDuration(durationMs/1000) + String.format(":%03d", durationMs % 1000);
+        return getDuration(durationMs / 1000) + String.format(":%03d", durationMs % 1000);
 
     }
 

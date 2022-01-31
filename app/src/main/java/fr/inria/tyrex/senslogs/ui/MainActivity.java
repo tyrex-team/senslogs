@@ -1,6 +1,7 @@
 package fr.inria.tyrex.senslogs.ui;
 
 import android.os.Bundle;
+
 import androidx.fragment.app.Fragment;
 
 import fr.inria.tyrex.senslogs.R;

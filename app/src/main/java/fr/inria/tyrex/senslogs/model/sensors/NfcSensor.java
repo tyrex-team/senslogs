@@ -23,7 +23,7 @@ import fr.inria.tyrex.senslogs.model.log.Log;
 
 /**
  * Nfc Sensor records nfc messages
- *
+ * <p>
  * With the help of: https://code.tutsplus.com/tutorials/reading-nfc-tags-with-android--mobile-17278
  * http://developer.android.com/guide/topics/connectivity/nfc/index.html
  */

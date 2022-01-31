@@ -58,7 +58,7 @@ public class CopyTask extends AsyncTask<CopyTask.Input, Long, File> {
     @Override
     protected void onProgressUpdate(Long... values) {
         super.onProgressUpdate(values);
-        if(mListener != null && values.length == 1) {
+        if (mListener != null && values.length == 1) {
             mListener.onProgress(values[0]);
         }
     }
@@ -73,11 +73,14 @@ public class CopyTask extends AsyncTask<CopyTask.Input, Long, File> {
 
 
     private Listener mListener;
+
     public void setListener(Listener listener) {
         mListener = listener;
     }
+
     public interface Listener {
         void onCopyFinished(File outputFile);
+
         void onProgress(Long currentSize);
     }
 }

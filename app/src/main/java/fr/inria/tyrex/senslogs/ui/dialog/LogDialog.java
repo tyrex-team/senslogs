@@ -2,9 +2,11 @@ package fr.inria.tyrex.senslogs.ui.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.appcompat.app.AlertDialog;
+
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
