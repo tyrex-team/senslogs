@@ -48,16 +48,9 @@ public class LogsManager {
     }
 
 
-
     public File copyLogToSdCard(Context context, Log log, CopyTask.Listener listener) {
 
-        File outputDir = new File(Environment.getExternalStorageDirectory(),
-                context.getString(R.string.folder_logs_sd_card));
-
-        if(!outputDir.exists() && !outputDir.mkdir()) {
-            return null;
-        }
-
+        File outputDir = context.getExternalFilesDir(null);
         File outputFile = new File(outputDir, log.getZipFile().getName());
 
         CopyTask task = new CopyTask();
