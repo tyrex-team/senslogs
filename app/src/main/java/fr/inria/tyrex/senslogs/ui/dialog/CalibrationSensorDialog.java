@@ -4,10 +4,12 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.appcompat.app.AlertDialog;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -127,7 +129,7 @@ public class CalibrationSensorDialog extends DialogFragment {
 
         AlertDialog dialog = (AlertDialog) getDialog();
 
-        if(dialog == null) {
+        if (dialog == null) {
             return;
         }
 
@@ -159,7 +161,7 @@ public class CalibrationSensorDialog extends DialogFragment {
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
 
-        if(isSaving || !mRecorder.isRecording()) {
+        if (isSaving || !mRecorder.isRecording()) {
             return;
         }
 
@@ -177,10 +179,6 @@ public class CalibrationSensorDialog extends DialogFragment {
     }
 
 
-
-
-
-
     private void startCalibration() {
         Map<Sensor, Sensor.Settings> sensorsToRecord = new HashMap<>();
 
@@ -188,15 +186,13 @@ public class CalibrationSensorDialog extends DialogFragment {
 
         CalibrationLog.Type calibration;
 
-        if(mSensor.getType() == android.hardware.Sensor.TYPE_ACCELEROMETER_UNCALIBRATED) {
+        if (mSensor.getType() == android.hardware.Sensor.TYPE_ACCELEROMETER_UNCALIBRATED) {
             Sensor mGyroSensor = mSensorsManager.getSensorByType(android.hardware.Sensor.TYPE_GYROSCOPE);
             sensorsToRecord.put(mGyroSensor, new AndroidSensor.Settings(SensorManager.SENSOR_DELAY_FASTEST));
             calibration = CalibrationLog.Type.ACCELEROMETER;
-        }
-        else if(mSensor.getType() == android.hardware.Sensor.TYPE_GYROSCOPE_UNCALIBRATED) {
+        } else if (mSensor.getType() == android.hardware.Sensor.TYPE_GYROSCOPE_UNCALIBRATED) {
             calibration = CalibrationLog.Type.GYROSCOPE;
-        }
-        else if(mSensor.getType() == android.hardware.Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED) {
+        } else if (mSensor.getType() == android.hardware.Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED) {
             calibration = CalibrationLog.Type.MAGNETOMETER;
         } else {
             throw new RuntimeException("Should never be called");

@@ -4,9 +4,11 @@ import android.app.Dialog;
 import android.hardware.Sensor;
 import android.os.Build;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.appcompat.app.AlertDialog;
+
 import android.text.Html;
 import android.view.View;
 import android.widget.TextView;

@@ -255,7 +255,7 @@ public class LogsFragment extends Fragment {
         task.execute(new CopyTask.Input(log.getZipFile(), mSharedTmpFile));
 
 
-        if(getContext() == null) return;
+        if (getContext() == null) return;
 
         Uri zipUri = FileProvider.getUriForFile(getContext(),
                 getContext().getPackageName() + ".provider",

@@ -28,10 +28,12 @@ public class KillNotificationsService extends Service {
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         return Service.START_STICKY;
     }
+
     @Override
     public void onCreate() {
         NotificationManager mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);

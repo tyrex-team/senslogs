@@ -39,7 +39,7 @@ public class LogsManager {
 
 
     public void deleteLog(Log log) {
-        if(!log.getZipFile().delete()) {
+        if (!log.getZipFile().delete()) {
             android.util.Log.e(Application.LOG_TAG, "Cannot delete log file");
         }
         mLogs.remove(log);
@@ -76,7 +76,7 @@ public class LogsManager {
     private void loadLogs() {
 
         mLogs = mDataSource.getLogs();
-        for(Log log : mLogs) {
+        for (Log log : mLogs) {
             log.addListener(mDatasetChangedListener);
         }
 
@@ -84,10 +84,10 @@ public class LogsManager {
 
     public void clearAll() {
         Iterator<Log> iterator = mLogs.iterator();
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             Log log = iterator.next();
             log.removeListener(mDatasetChangedListener);
-            if(!log.getZipFile().delete()) {
+            if (!log.getZipFile().delete()) {
                 android.util.Log.e(Application.LOG_TAG, "Cannot delete log file");
             }
             iterator.remove();
